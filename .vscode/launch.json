@@ -25,5 +25,12 @@
             "program": "${workspaceFolder}/test_custom_policy.py",
             "console": "integratedTerminal"
         },
+        {
+            "name": "Test Custom Environment",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_custom_env.py",
+            "console": "integratedTerminal"
+        },
     ]
 }

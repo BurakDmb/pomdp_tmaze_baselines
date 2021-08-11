@@ -12,9 +12,12 @@ class CustomNetwork(nn.Module):
     Custom network for policy and value function.
     It receives as input the features extracted by the feature extractor.
 
-    :param feature_dim: dimension of the features extracted with the features_extractor (e.g. features from a CNN)
-    :param last_layer_dim_pi: (int) number of units for the last layer of the policy network
-    :param last_layer_dim_vf: (int) number of units for the last layer of the value network
+    :param feature_dim: dimension of the features extracted with the
+        features_extractor (e.g. features from a CNN)
+    :param last_layer_dim_pi: (int) number of units for the last layer of the
+        policy network
+    :param last_layer_dim_vf: (int) number of units for the last layer of the
+        value network
     """
 
     def __init__(
@@ -59,7 +62,8 @@ class CustomNetwork(nn.Module):
 
     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
         """
-        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
+        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the
+            specified network.
             If all layers are shared, then ``latent_policy == latent_value``
         """
         shared = self.shared_net(features)
