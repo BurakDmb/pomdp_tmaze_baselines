@@ -39,6 +39,8 @@ class TMazeEnv(gym.Env):
 
         self._initialize_observation_space()
 
+        self.episode_reward = 0
+
     # @staticmethod
     def _is_state_available(self, state):
         x, y, _ = state
@@ -89,13 +91,15 @@ class TMazeEnv(gym.Env):
     def step(self, action):
         new_state, reward, done, success = self._one_agent_step(
             self.current_state, action)
-        self.current_state = new_state
 
+        self.current_state = new_state
+        self.episode_reward += reward
         return self._get_observation(), reward, done, {}
 
     def reset(self):
         self.current_state = random.choice(
                 self.li_initial_states)
+        self.episode_reward = 0
         return self._get_observation()
 
     def _initialize_observation_space(self):
