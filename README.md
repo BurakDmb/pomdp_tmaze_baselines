@@ -19,4 +19,6 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
 ## Running the code
 
-python3 start_main.py
+    python3 start_main.py
+
+
