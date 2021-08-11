@@ -15,7 +15,7 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
 ### Installing the Additional dependencies needed for running the framework
 
-    pip3 install gym sklearn profilehooks networkx progressbar matplotlib stable-baselines3 tensorboard
+    pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard
 
 ## Running the code
 
