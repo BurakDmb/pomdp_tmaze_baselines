@@ -1,6 +1,6 @@
 import gym
 from stable_baselines3 import PPO
-from PolicyClass import MultiLayerActorCriticPolicy
+from ClassPolicies import MultiLayerActorCriticPolicy
 import torch.multiprocessing as mp
 
 

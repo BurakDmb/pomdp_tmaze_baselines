@@ -1,7 +1,7 @@
 from stable_baselines3 import PPO
-from PolicyClass import MultiLayerActorCriticPolicy
-from t_maze_env import TMazeEnv, TMazeEnvV1, TMazeEnvV2, TMazeEnvV3
-from t_maze_env import TMazeEnvV4, TMazeEnvV5, TMazeEnvV6
+from ClassPolicies import MultiLayerActorCriticPolicy
+from EnvTMaze import TMazeEnv, TMazeEnvV1, TMazeEnvV2, TMazeEnvV3
+from EnvTMaze import TMazeEnvV4, TMazeEnvV5, TMazeEnvV6
 
 
 env = TMazeEnv(maze_length=6)

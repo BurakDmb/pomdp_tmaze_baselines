@@ -1,5 +1,5 @@
-from QAgentClass import QAgent
-from t_maze_env import TMazeEnv
+from ClassQAgent import QAgent
+from EnvTMaze import TMazeEnv
 
 
 learning_setting = {}
