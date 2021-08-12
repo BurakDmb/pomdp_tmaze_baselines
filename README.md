@@ -1,5 +1,5 @@
 
-# Stable baselines Algorithms For Partially Observable T Maze Environments
+# Algorithms For Partially Observable T Maze Environments (With Stable Baselines 3)
 
 ## Installation
 
