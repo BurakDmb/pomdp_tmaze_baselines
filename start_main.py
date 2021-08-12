@@ -7,11 +7,14 @@ from t_maze_env import TMazeEnv
 # import numpy as np
 
 
-def train():
+def train(nn_layer_size):
     env = TMazeEnv(maze_length=6)
+    policy_kwargs = dict(net_arch=[dict(pi=[nn_layer_size, nn_layer_size],
+                         vf=[nn_layer_size, nn_layer_size])])
     model = PPO(MultiLayerActorCriticPolicy, env, verbose=0,
-                tensorboard_log="./logs/t_maze_tensorboard/", seed=0,)
-    model.learn(total_timesteps=50000, tb_log_name="T-Maze-v0",
+                tensorboard_log="./logs/t_maze_tensorboard/", seed=0,
+                policy_kwargs=policy_kwargs)
+    model.learn(total_timesteps=500000, tb_log_name="T-Maze-v0",
                 callback=TensorboardCallback())
 
 
@@ -62,7 +65,7 @@ if __name__ == '__main__':
     number_of_parallel_experiments = 1
     processes = []
     for rank in range(number_of_parallel_experiments):
-        p = mp.Process(target=train)
+        p = mp.Process(target=train, args=(8,))
         p.start()
         processes.append(p)
     for p in processes:

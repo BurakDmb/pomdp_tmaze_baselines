@@ -42,7 +42,7 @@ class QAgent:
                 obs = next_obs
                 self.time_step += 1
                 self.episode_step += 1
-                if self.time_step > total_timesteps:
+                if self.time_step > self.total_timestep:
                     self.timeStepLimit = True
                     break
                 if done:
