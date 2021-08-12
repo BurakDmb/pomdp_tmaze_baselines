@@ -1,7 +1,7 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
-from MultiLayerPolicyClass import MultiLayerActorCriticPolicy
+from PolicyClass import MultiLayerActorCriticPolicy
 import torch.multiprocessing as mp
 from t_maze_env import TMazeEnv
 # import numpy as np

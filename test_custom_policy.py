@@ -1,13 +1,13 @@
 import gym
 from stable_baselines3 import PPO
-from custom_policy import CustomActorCriticPolicy
+from PolicyClass import MultiLayerActorCriticPolicy
 import torch.multiprocessing as mp
 
 
 def train1():
 
     env1 = gym.make('CartPole-v1')
-    model1 = PPO(CustomActorCriticPolicy, env1, verbose=0,
+    model1 = PPO(MultiLayerActorCriticPolicy, env1, verbose=0,
                  tensorboard_log="./logs/cartpole_tensorboard/", seed=0)
     model1.learn(total_timesteps=10000, tb_log_name="first_run")
 
