@@ -34,12 +34,14 @@ class QAgent:
             obs = self.env.reset()
             done = False
             self.episode_reward = 0
+            self.episode_step = 0
             while not done:
                 action = self.pre_action(obs)
                 next_obs, reward, done, _ = self.env.step(action)
                 self.post_action(obs, action, reward, next_obs, done)
                 obs = next_obs
                 self.time_step += 1
+                self.episode_step += 1
                 if self.time_step > total_timesteps:
                     self.timeStepLimit = True
                     break
@@ -90,5 +92,7 @@ class QAgent:
         self.epsilon = self.epsilon_start - \
                         (self.epsilon_start - self.epsilon_end) * \
                         self.time_step / self.total_timestep
-        self.writer.add_scalar("Reward per episode", self.episode_reward,
-                               self.episode)
+        self.writer.add_scalar("_tmaze/Reward per episode",
+                               self.episode_reward, self.episode)
+        self.writer.add_scalar("_tmaze/Episode length per episode",
+                               self.episode_step, self.episode)

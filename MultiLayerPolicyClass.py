@@ -70,7 +70,7 @@ class CustomNetwork(nn.Module):
         return self.policy_net(shared), self.value_net(shared)
 
 
-class CustomActorCriticPolicy(ActorCriticPolicy):
+class MultiLayerActorCriticPolicy(ActorCriticPolicy):
     def __init__(
         self,
         observation_space: gym.spaces.Space,
@@ -82,7 +82,7 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
         **kwargs,
     ):
 
-        super(CustomActorCriticPolicy, self).__init__(
+        super(MultiLayerActorCriticPolicy, self).__init__(
             observation_space,
             action_space,
             lr_schedule,
