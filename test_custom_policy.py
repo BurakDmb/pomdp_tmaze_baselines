@@ -1,6 +1,6 @@
 import gym
 from stable_baselines3 import PPO
-from ClassPolicies import MultiLayerActorCriticPolicy
+from UtilPolicies import MultiLayerActorCriticPolicy
 import torch.multiprocessing as mp
 
 
@@ -8,7 +8,7 @@ def train1():
 
     env1 = gym.make('CartPole-v1')
     model1 = PPO(MultiLayerActorCriticPolicy, env1, verbose=0,
-                 tensorboard_log="./logs/cartpole_tensorboard/", seed=0)
+                 tensorboard_log="./logs/t_maze_tensorboard/", seed=0)
     model1.learn(total_timesteps=10000, tb_log_name="first_run")
 
 
@@ -16,7 +16,7 @@ def train2():
 
     env2 = gym.make('CartPole-v1')
     model2 = PPO('MlpPolicy', env2, verbose=0,
-                 tensorboard_log="./logs/cartpole_tensorboard/", seed=0)
+                 tensorboard_log="./logs/t_maze_tensorboard/", seed=0)
     model2.learn(total_timesteps=10000, tb_log_name="second_run")
 
 

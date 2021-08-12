@@ -1,5 +1,5 @@
 from stable_baselines3 import PPO
-from ClassPolicies import MultiLayerActorCriticPolicy
+from UtilPolicies import MultiLayerActorCriticPolicy
 from EnvTMaze import TMazeEnv, TMazeEnvV1, TMazeEnvV2, TMazeEnvV3
 from EnvTMaze import TMazeEnvV4, TMazeEnvV5, TMazeEnvV6
 

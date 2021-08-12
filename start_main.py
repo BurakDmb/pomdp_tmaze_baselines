@@ -1,62 +1,16 @@
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import BaseCallback
-from stable_baselines3.common.logger import TensorBoardOutputFormat
-from ClassPolicies import MultiLayerActorCriticPolicy
 import torch.multiprocessing as mp
 from EnvTMaze import TMazeEnv
+from UtilStableAgents import train_ppo_agent, train_q_agent, train_dqn_agent
 # import numpy as np
 
 
 def train(nn_layer_size):
-    env = TMazeEnv(maze_length=6)
-    policy_kwargs = dict(net_arch=[dict(pi=[nn_layer_size, nn_layer_size],
-                         vf=[nn_layer_size, nn_layer_size])])
-    model = PPO(MultiLayerActorCriticPolicy, env, verbose=0,
-                tensorboard_log="./logs/t_maze_tensorboard/", seed=0,
-                policy_kwargs=policy_kwargs)
-    model.learn(total_timesteps=500000, tb_log_name="T-Maze-v0",
-                callback=TensorboardCallback())
-
-
-class TensorboardCallback(BaseCallback):
-    """
-    Custom callback for plotting additional values in tensorboard.
-    """
-
-    def __init__(self, verbose=0):
-        super(TensorboardCallback, self).__init__(verbose)
-
-    def _on_training_start(self):
-        output_formats = self.logger.output_formats
-        # Save reference to tensorboard formatter object
-        # note: the failure case (not formatter found) is
-        # not handled here, should be done with try/except.
-        self.tb_formatter = next(formatter for formatter in output_formats
-                                 if isinstance(formatter,
-                                               TensorBoardOutputFormat))
-
-    # def _on_step(self):
-    #     return True
-
-    def _on_step(self) -> bool:
-        # Log scalar value (here a random variable)
-        # TODO: Check the right done flag for getting the episode reward.
-        if(self.locals['dones'][-1]):
-            epi_reward = self.model.env.unwrapped.envs[0].episode_returns[-1]
-            epi_number = len(self.locals['self'].env.unwrapped.envs[0].
-                             episode_lengths)
-            self.tb_formatter.writer.add_scalar("_tmaze/Reward per episode",
-                                                epi_reward, epi_number)
-            self.tb_formatter.writer.flush()
-            self.tb_formatter.writer.\
-                add_scalar("_tmaze/Episode length per episode",
-                           self.locals['self'].env.
-                           unwrapped.envs[0].
-                           episode_lengths[-1],
-                           epi_number)
-            self.tb_formatter.writer.flush()
-
-        return True
+    # train_q_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
+    #               maze_length=6, tb_log_name="q-tmazev0-")
+    train_dqn_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
+                    maze_length=6, tb_log_name="dqn-tmazev0")
+    # train_ppo_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
+    #                 maze_length=6, tb_log_name="ppo-tmazev0")
 
 
 if __name__ == '__main__':

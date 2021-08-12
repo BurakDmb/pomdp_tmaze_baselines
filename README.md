@@ -13,7 +13,7 @@
 
 Note: If you are planning to use Cuda 11, then please follow the instructions on the link below.
 
-### Installing the Additional dependencies needed for running the framework
+### Installing the additional dependencies
 
     pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard
 

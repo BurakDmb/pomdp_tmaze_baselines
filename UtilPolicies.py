@@ -7,7 +7,7 @@ from torch import nn
 from stable_baselines3.common.policies import ActorCriticPolicy
 
 
-class CustomNetwork(nn.Module):
+class CustomACNetwork(nn.Module):
     """
     Custom network for policy and value function.
     It receives as input the features extracted by the feature extractor.
@@ -25,7 +25,7 @@ class CustomNetwork(nn.Module):
         feature_dim: int,
         net_arch: List[Union[int, Dict[str, List[int]]]],
     ):
-        super(CustomNetwork, self).__init__()
+        super(CustomACNetwork, self).__init__()
 
         # IMPORTANT:
         # Save output dimensions, used to create the distributions
@@ -96,4 +96,4 @@ class MultiLayerActorCriticPolicy(ActorCriticPolicy):
         self.ortho_init = False
 
     def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomNetwork(self.features_dim, self.net_arch)
+        self.mlp_extractor = CustomACNetwork(self.features_dim, self.net_arch)
