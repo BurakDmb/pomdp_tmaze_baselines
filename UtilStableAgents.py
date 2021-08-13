@@ -3,22 +3,43 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
 from UtilPolicies import MultiLayerActorCriticPolicy
 from ClassQAgent import QAgent
+from ClassSarsaLambdaAgent import SarsaLambdaAgent
 
 
-def train_q_agent(envClass, nn_layer_size=8, total_timesteps=500000,
+def train_q_agent(envClass, total_timesteps=500000,
                   maze_length=6, tb_log_name="q_agent-",
                   tb_log_dir="./logs/t_maze_tensorboard/", seed=None):
 
     env = envClass(maze_length=maze_length)
 
     learning_setting = {}
-    learning_setting['learning_rate'] = 0.001
+    learning_setting['learning_rate'] = 0.1
     learning_setting['discount_rate'] = 0.99
     learning_setting['epsilon_start'] = 1.0
     learning_setting['epsilon_end'] = 0.1
 
     model = QAgent(env, tensorboard_log=tb_log_dir,
                    learning_setting=learning_setting)
+    model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
+
+
+def train_sarsa_lambda_agent(envClass,
+                             total_timesteps=500000,
+                             maze_length=6, tb_log_name="sarsalambda_agent-",
+                             tb_log_dir="./logs/t_maze_tensorboard/",
+                             seed=None):
+
+    env = envClass(maze_length=maze_length)
+
+    learning_setting = {}
+    learning_setting['learning_rate'] = 0.1
+    learning_setting['lambda_value'] = 0.9
+    learning_setting['discount_rate'] = 0.99
+    learning_setting['epsilon_start'] = 1.0
+    learning_setting['epsilon_end'] = 0.1
+
+    model = SarsaLambdaAgent(env, tensorboard_log=tb_log_dir,
+                             learning_setting=learning_setting)
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
 
 

@@ -1,16 +1,7 @@
 import torch.multiprocessing as mp
 from EnvTMaze import TMazeEnv
-from UtilStableAgents import train_ppo_agent, train_q_agent, train_dqn_agent
-# import numpy as np
-
-
-def train(nn_layer_size):
-    # train_q_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
-    #               maze_length=6, tb_log_name="q-tmazev0-")
-    train_dqn_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
-                    maze_length=6, tb_log_name="dqn-tmazev0")
-    # train_ppo_agent(TMazeEnv, nn_layer_size=8, total_timesteps=500000,
-    #                 maze_length=6, tb_log_name="ppo-tmazev0")
+from UtilStableAgents import train_ppo_agent, train_q_agent
+from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
 
 
 if __name__ == '__main__':
@@ -19,8 +10,29 @@ if __name__ == '__main__':
     number_of_parallel_experiments = 1
     processes = []
     for rank in range(number_of_parallel_experiments):
-        p = mp.Process(target=train, args=(8,))
-        p.start()
-        processes.append(p)
+        p1 = mp.Process(target=train_q_agent,
+                        kwargs={'envClass': TMazeEnv,
+                                'total_timesteps': 500000, 'maze_length': 6,
+                                'tb_log_name': "q-tmazev0"})
+        p2 = mp.Process(target=train_sarsa_lambda_agent,
+                        kwargs={'envClass': TMazeEnv,
+                                'total_timesteps': 500000, 'maze_length': 6,
+                                'tb_log_name': "sarsalambda-tmazev0"})
+        p3 = mp.Process(target=train_dqn_agent,
+                        kwargs={'envClass': TMazeEnv, 'nn_layer_size': 8,
+                                'total_timesteps': 500000, 'maze_length': 6,
+                                'tb_log_name': "dqn-tmazev0"})
+        p4 = mp.Process(target=train_ppo_agent,
+                        kwargs={'envClass': TMazeEnv, 'nn_layer_size': 8,
+                                'total_timesteps': 500000, 'maze_length': 6,
+                                'tb_log_name': "ppo-tmazev0"})
+        p1.start()
+        p2.start()
+        p3.start()
+        p4.start()
+        processes.append(p1)
+        processes.append(p2)
+        processes.append(p3)
+        processes.append(p4)
     for p in processes:
         p.join()
