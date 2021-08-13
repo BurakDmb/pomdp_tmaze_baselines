@@ -24,6 +24,7 @@ class QAgent:
 
     def learn(self, total_timesteps, tb_log_name):
         self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name
+                                    + "-"
                                     + str(datetime.datetime.now()))
         self.time_step = 0
         self.episode = 0

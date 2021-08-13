@@ -4,6 +4,7 @@ from stable_baselines3.common.logger import TensorBoardOutputFormat
 from UtilPolicies import MultiLayerActorCriticPolicy
 from ClassQAgent import QAgent
 from ClassSarsaLambdaAgent import SarsaLambdaAgent
+import datetime
 
 
 def train_q_agent(envClass, total_timesteps=500000,
@@ -53,9 +54,11 @@ def train_dqn_agent(envClass, nn_layer_size=8, total_timesteps=500000,
 
     model = DQN("MlpPolicy", env, verbose=0,
                 tensorboard_log=tb_log_dir, seed=seed,
-                policy_kwargs=policy_kwargs)
+                policy_kwargs=policy_kwargs, learning_rate=1e-3,
+                target_update_interval=100)
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name,
                 callback=TensorboardCallback())
+    model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
 
 
 def train_ppo_agent(envClass, nn_layer_size=8, total_timesteps=500000,
@@ -69,9 +72,10 @@ def train_ppo_agent(envClass, nn_layer_size=8, total_timesteps=500000,
 
     model = PPO(MultiLayerActorCriticPolicy, env, verbose=0,
                 tensorboard_log=tb_log_dir, seed=seed,
-                policy_kwargs=policy_kwargs)
+                policy_kwargs=policy_kwargs, learning_rate=1e-3)
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name,
                 callback=TensorboardCallback())
+    model.save("saves/ppo_agent_" + str(datetime.datetime.now()))
 
 
 class TensorboardCallback(BaseCallback):
