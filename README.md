@@ -83,3 +83,7 @@ In this file, custom policies could be defined for stable baselines agents.
 - `test_all.py`
 
 In this file, some unit test functions are defined to check the integrity of the code while implementing new features.
+
+## License
+
+Please see <https://github.com/BurakDmb/pomdp_tmaze_baselines/blob/main/LICENSE>.
