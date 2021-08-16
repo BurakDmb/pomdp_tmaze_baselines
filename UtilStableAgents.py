@@ -7,24 +7,19 @@ from ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
 
 
-def train_q_agent(envClass, total_timesteps=500000,
+def train_q_agent(envClass, learning_setting, total_timesteps=500000,
                   maze_length=6, tb_log_name="q_agent-",
                   tb_log_dir="./logs/t_maze_tensorboard/", seed=None):
 
     env = envClass(maze_length=maze_length)
 
-    learning_setting = {}
-    learning_setting['learning_rate'] = 0.1
-    learning_setting['discount_rate'] = 0.99
-    learning_setting['epsilon_start'] = 1.0
-    learning_setting['epsilon_end'] = 0.1
-
     model = QAgent(env, tensorboard_log=tb_log_dir,
                    learning_setting=learning_setting)
+
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
 
 
-def train_sarsa_lambda_agent(envClass,
+def train_sarsa_lambda_agent(envClass, learning_setting,
                              total_timesteps=500000,
                              maze_length=6, tb_log_name="sarsalambda_agent-",
                              tb_log_dir="./logs/t_maze_tensorboard/",
@@ -32,47 +27,55 @@ def train_sarsa_lambda_agent(envClass,
 
     env = envClass(maze_length=maze_length)
 
-    learning_setting = {}
-    learning_setting['learning_rate'] = 0.1
-    learning_setting['lambda_value'] = 0.9
-    learning_setting['discount_rate'] = 0.99
-    learning_setting['epsilon_start'] = 1.0
-    learning_setting['epsilon_end'] = 0.1
-
     model = SarsaLambdaAgent(env, tensorboard_log=tb_log_dir,
                              learning_setting=learning_setting)
+
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name)
 
 
-def train_dqn_agent(envClass, nn_layer_size=8, total_timesteps=500000,
+def train_dqn_agent(envClass, learning_setting,
+                    total_timesteps=500000,
                     maze_length=6, tb_log_name="dqn-tmazev0-",
                     tb_log_dir="./logs/t_maze_tensorboard/", seed=None):
 
     env = envClass(maze_length=maze_length)
 
-    policy_kwargs = dict(net_arch=[nn_layer_size, nn_layer_size])
+    policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size'],
+                                   learning_setting['nn_layer_size']])
 
     model = DQN("MlpPolicy", env, verbose=0,
                 tensorboard_log=tb_log_dir, seed=seed,
-                policy_kwargs=policy_kwargs, learning_rate=1e-3,
-                target_update_interval=100)
+                policy_kwargs=policy_kwargs,
+                learning_rate=learning_setting['learning_rate'],
+                gamma=learning_setting['discount_rate'],
+                exploration_initial_eps=learning_setting['epsilon_start'],
+                exploration_final_eps=learning_setting['epsilon_end'],
+                target_update_interval=learning_setting['update_interval'])
+
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name,
                 callback=TensorboardCallback())
     model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
 
 
-def train_ppo_agent(envClass, nn_layer_size=8, total_timesteps=500000,
+def train_ppo_agent(envClass, learning_setting,
+                    total_timesteps=500000,
                     maze_length=6, tb_log_name="ppo-tmazev0-",
                     tb_log_dir="./logs/t_maze_tensorboard/", seed=None):
 
     env = envClass(maze_length=maze_length)
 
-    policy_kwargs = dict(net_arch=[dict(pi=[nn_layer_size, nn_layer_size],
-                         vf=[nn_layer_size, nn_layer_size])])
+    policy_kwargs = dict(net_arch=[
+                         dict(pi=[learning_setting['nn_layer_size'],
+                                  learning_setting['nn_layer_size']],
+                              vf=[learning_setting['nn_layer_size'],
+                                  learning_setting['nn_layer_size']])])
 
     model = PPO(MultiLayerActorCriticPolicy, env, verbose=0,
                 tensorboard_log=tb_log_dir, seed=seed,
-                policy_kwargs=policy_kwargs, learning_rate=1e-3)
+                policy_kwargs=policy_kwargs,
+                learning_rate=learning_setting['learning_rate'],
+                gamma=learning_setting['discount_rate'])
+
     model.learn(total_timesteps=total_timesteps, tb_log_name=tb_log_name,
                 callback=TensorboardCallback())
     model.save("saves/ppo_agent_" + str(datetime.datetime.now()))
