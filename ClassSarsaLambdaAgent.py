@@ -11,7 +11,7 @@ class SarsaLambdaAgent:
     http://incompleteideas.net/book/first/ebook/node77.html
     '''
 
-    def __init__(self, env, tensorboard_log, learning_setting):
+    def __init__(self, env, learning_setting):
         self.learning_rate = learning_setting['learning_rate']
         self.lambda_value = learning_setting['lambda_value']
         self.discount_rate = learning_setting['discount_rate']
@@ -24,7 +24,7 @@ class SarsaLambdaAgent:
         self.env = env
         self.action_size = env.action_space.n
         self.observation_space = env.observation_space
-        self.log_dir = tensorboard_log
+        self.log_dir = learning_setting['tb_log_dir']
         self.q_table = {}
         self.e_table = {}
 

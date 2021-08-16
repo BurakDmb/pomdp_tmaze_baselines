@@ -17,10 +17,69 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
     pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard
 
-## Running the code
+### Running the code
 
     python3 start_main.py
 
-## Running the tensorboard to observe the learning
+### Running the tensorboard to observe the learning
 
     tensorboard --logdir ./logs/t_maze_tensorboard/
+
+## Extending the code
+
+- `start_main.py`
+
+This is the main code for starting an experiment with defined parameters.
+For conducting an experiment, please configure the parameters in this file and run this code by executing the command `python3 start_main.py`.
+By design, every agent implementation will start in a new process(Multiprocessing with GPU is also supported), and the results will be logged into given tensorboard path.
+
+Before starting any experiment, please customize the learning_setting dictionaries which are named `q_learning_setting, sarsa_learning_setting, dqn_learning_setting, ppo_learning_setting`.
+
+Each learning_setting dictionary needs different parameters to work. The must-have learning parameters are defined in each method of the `UtilStableAgents.py` file.
+
+- `UtilStableAgents.py`
+
+In this file, methods for starting the agents to train for given environment is defined. These methods will get the learning_settings dictionary for parameterizing the learning process.
+
+In order to add a new agent implementation(or ready to use SB3 implementation), create a method with given method name and signature: `def train_***_agent(learning_setting):`
+
+Inside the method, you can create a model for given environment and start the learning process. You can also save it after the learning. Please remember that this method will be called from the multiprocessing pipeline in the `start_main.py`. So you dont need to call this function anywhere besides `start_main.py`.
+
+In the `TensorboardCallback(BaseCallback)` class, there is an example tensorboard callback function for customizing the tensorboard. You can create your own callback class for adding new metrics, etc.
+
+- `EnvTMaze.py`
+
+In this file, the T-Maze Environment is implemented with many different versions. There are:
+
+    TMazeEnv - T-Maze Environment with full observation
+    TMazeEnvV1 - T-Maze Environment with partial observation
+    TMazeEnvV2 - T-Maze Environment with partial observation(with the state implementation from the original paper)
+    TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
+    TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
+    TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
+        (adding new memory actions as new actions, e.g: up, set bit, south, east, east, clear bit, etc.)
+    TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
+        (embedding the memory actions with standard actions, e.g: north+set bit, east+nop, east+nop, south+clear bit, etc.)
+
+
+- `Class*Agent.py`
+
+In these files, custom agents could be implemented, by design, custom agent classes have some basic methods defined as:
+
+    def __init__(self, env, learning_setting):
+    def learn(self, total_timesteps, tb_log_name):
+    def pre_action(self, observation):
+    def post_action(self, observation, action, reward, next_observation, done):
+    def get_action(self, observation):
+    def post_episode(self):
+
+for ease up the implementation process. You can create your own agent by following these classes.
+
+- `UtilPolicies.py`
+
+In this file, custom policies could be defined for stable baselines agents.
+
+
+- `test_all.py`
+
+In this file, some unit test functions are defined to check the integrity of the code while implementing new features.

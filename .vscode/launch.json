@@ -19,24 +19,10 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Test Custom Policy",
+            "name": "Unittest Agent",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/test_custom_policy.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Test Custom Environment",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/test_custom_env.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Test Custom Agent",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/test_custom_agent.py",
+            "program": "${workspaceFolder}/test_all.py",
             "console": "integratedTerminal"
         },
     ]

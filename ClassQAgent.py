@@ -8,7 +8,7 @@ class QAgent:
     Q Learning Algorithm For Discrete Action, Discrete Observation space
     '''
 
-    def __init__(self, env, tensorboard_log, learning_setting):
+    def __init__(self, env, learning_setting):
         self.learning_rate = learning_setting['learning_rate']
         self.discount_rate = learning_setting['discount_rate']
         self.epsilon_start = learning_setting['epsilon_start']
@@ -20,7 +20,7 @@ class QAgent:
         self.env = env
         self.action_size = env.action_space.n
         self.observation_space = env.observation_space
-        self.log_dir = tensorboard_log
+        self.log_dir = learning_setting['tb_log_dir']
         self.q_table = {}
 
     def learn(self, total_timesteps, tb_log_name):
