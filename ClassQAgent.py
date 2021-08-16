@@ -1,4 +1,3 @@
-import random
 import numpy as np
 import datetime
 from torch.utils.tensorboard import SummaryWriter
@@ -15,6 +14,8 @@ class QAgent:
         self.epsilon_start = learning_setting['epsilon_start']
         self.epsilon_end = learning_setting['epsilon_end']
         self.epsilon = self.epsilon_start
+        self.seed = learning_setting['seed']
+        np.random.seed(self.seed)
 
         self.env = env
         self.action_size = env.action_space.n
@@ -55,7 +56,7 @@ class QAgent:
         self.init_q_value(observation)
 
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+            return np.random.randint(self.action_size)
         return self.get_action(observation)
 
     def post_action(self, observation, action, reward, next_observation, done):
