@@ -98,6 +98,10 @@ class TensorboardCallback(BaseCallback):
             epi_reward = self.model.env.unwrapped.envs[0].episode_returns[-1]
             epi_number = len(self.locals['self'].env.unwrapped.envs[0].
                              episode_lengths)
+            success_ratio = (self.locals['self'].env.unwrapped.envs[0].
+                             success_count /
+                             self.locals['self'].env.unwrapped.envs[0].
+                             episode_count) * 100
             self.tb_formatter.writer.add_scalar("_tmaze/Reward per episode",
                                                 epi_reward, epi_number)
             self.tb_formatter.writer.flush()
@@ -107,5 +111,8 @@ class TensorboardCallback(BaseCallback):
                            unwrapped.envs[0].
                            episode_lengths[-1],
                            epi_number)
+            self.tb_formatter.writer.\
+                add_scalar("_tmaze/Success Ratio per episode",
+                           success_ratio, epi_number)
             self.tb_formatter.writer.flush()
         return True

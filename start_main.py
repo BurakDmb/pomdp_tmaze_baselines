@@ -7,9 +7,9 @@ from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
 if __name__ == '__main__':
 
     mp.set_start_method('spawn')
-    number_of_parallel_experiments = 3
+    number_of_parallel_experiments = 4
     processes = []
-    total_timesteps = 5000
+    total_timesteps = 500000
     maze_length = 6
     envClass = TMazeEnv
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     dqn_learning_setting['envClass'] = envClass
     dqn_learning_setting['learning_rate'] = 1e-3
     dqn_learning_setting['discount_rate'] = 0.99
-    dqn_learning_setting['epsilon_start'] = 1.0
+    dqn_learning_setting['epsilon_start'] = 0.9
     dqn_learning_setting['epsilon_end'] = 0.01
     dqn_learning_setting['update_interval'] = 100
     dqn_learning_setting['nn_layer_size'] = 8

@@ -137,7 +137,12 @@ class SarsaLambdaAgent:
         self.epsilon = self.epsilon_start - \
                         (self.epsilon_start - self.epsilon_end) * \
                         self.time_step / self.total_timestep
+        self.success_ratio = (self.env.success_count /
+                              self.env.episode_count) * 100
         self.writer.add_scalar("_tmaze/Reward per episode",
                                self.episode_reward, self.episode)
         self.writer.add_scalar("_tmaze/Episode length per episode",
                                self.episode_step, self.episode)
+        self.writer.add_scalar("_tmaze/Success Ratio per episode",
+                               self.success_ratio,
+                               self.episode)

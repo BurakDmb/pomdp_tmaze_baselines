@@ -46,6 +46,8 @@ class TMazeEnv(gym.Env):
         self.observation_space = spaces.Box(low, high, dtype=np.int32)
 
         self.episode_reward = 0
+        self.success_count = 0
+        self.episode_count = 0
 
     # @staticmethod
     def _is_state_available(self, state):
@@ -86,9 +88,11 @@ class TMazeEnv(gym.Env):
         success = 0
         if next_state in self.li_terminal_states:
             done = True
+            self.episode_count += 1
             if next_state[1] == next_state[2]:
                 reward = self.fl_true_goal_reward
                 success = 1
+                self.success_count += 1
             else:
                 reward = self.fl_false_goal_reward
         return next_state, reward, done, success
@@ -100,7 +104,7 @@ class TMazeEnv(gym.Env):
 
         self.current_state = new_state
         self.episode_reward += reward
-        return self._get_observation(), reward, done, {}
+        return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
         self.current_state = random.choice(
@@ -368,10 +372,6 @@ class TMazeEnvV5(TMazeEnvV1):
 
         return observation
 
-    def _get_observations_dict(self):
-        obs = self._get_observation()
-        return obs
-
     def step(self, action):
         new_state = self.current_state
         reward = 0
@@ -404,7 +404,7 @@ class TMazeEnvV5(TMazeEnvV1):
 
         self.current_state = new_state
         self.episode_reward += reward
-        return self._get_observations_dict(), reward, done, {}
+        return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
         self.memory_bit = 0
@@ -464,10 +464,6 @@ class TMazeEnvV6(TMazeEnvV1):
         observation[4] = self.memory_bit
         return observation
 
-    def _get_observations_dict(self):
-        obs = self._get_observation()
-        return obs
-
     def step(self, action):
         new_state = self.current_state
         reward = 0
@@ -486,7 +482,7 @@ class TMazeEnvV6(TMazeEnvV1):
         elif memoryAction == 2:
             self.memory_bit = 1
 
-        return self._get_observations_dict(), reward, done, {}
+        return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
         self.memory_bit = 0
