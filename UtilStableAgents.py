@@ -7,8 +7,8 @@ from ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
 
 
-def train_q_agent(envClass, learning_setting):
-
+def train_q_agent(learning_setting):
+    envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
 
     model = QAgent(env, tensorboard_log=learning_setting['tb_log_dir'],
@@ -18,8 +18,8 @@ def train_q_agent(envClass, learning_setting):
                 tb_log_name=learning_setting['tb_log_name'])
 
 
-def train_sarsa_lambda_agent(envClass, learning_setting):
-
+def train_sarsa_lambda_agent(learning_setting):
+    envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
 
     model = SarsaLambdaAgent(env,
@@ -30,8 +30,8 @@ def train_sarsa_lambda_agent(envClass, learning_setting):
                 tb_log_name=learning_setting['tb_log_name'])
 
 
-def train_dqn_agent(envClass, learning_setting):
-
+def train_dqn_agent(learning_setting):
+    envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
 
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size'],
@@ -53,8 +53,8 @@ def train_dqn_agent(envClass, learning_setting):
     model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
 
 
-def train_ppo_agent(envClass, learning_setting):
-
+def train_ppo_agent(learning_setting):
+    envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
 
     policy_kwargs = dict(net_arch=[

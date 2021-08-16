@@ -58,7 +58,8 @@ class SarsaLambdaAgent:
                 if done:
                     self.episode += 1
                     break
-            self.post_episode()
+            if not self.timeStepLimit:
+                self.post_episode()
 
     def pre_action(self, observation):
         self.init_q_value(observation)
