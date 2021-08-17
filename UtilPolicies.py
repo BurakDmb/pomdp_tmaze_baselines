@@ -13,7 +13,36 @@ from stable_baselines3.common.torch_layers import (
 )
 
 
-class CustomACNetwork(nn.Module):
+class MlpACPolicy(ActorCriticPolicy):
+    def __init__(
+        self,
+        observation_space: gym.spaces.Space,
+        action_space: gym.spaces.Space,
+        lr_schedule: Callable[[float], float],
+        net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
+        activation_fn: Type[nn.Module] = nn.Tanh,
+        *args,
+        **kwargs,
+    ):
+
+        super(MlpACPolicy, self).__init__(
+            observation_space,
+            action_space,
+            lr_schedule,
+            net_arch,
+            activation_fn,
+            # Pass remaining arguments to base class
+            *args,
+            **kwargs,
+        )
+        # Disable orthogonal initialization
+        self.ortho_init = False
+
+    def _build_mlp_extractor(self) -> None:
+        self.mlp_extractor = MlpACNetwork(self.features_dim, self.net_arch)
+
+
+class MlpACNetwork(nn.Module):
     """
     Custom network for policy and value function.
     It receives as input the features extracted by the feature extractor.
@@ -36,7 +65,7 @@ class CustomACNetwork(nn.Module):
         feature_dim: int,
         net_arch: List[Union[int, Dict[str, List[int]]]],
     ):
-        super(CustomACNetwork, self).__init__()
+        super(MlpACNetwork, self).__init__()
 
         # IMPORTANT:
         # Save output dimensions, used to create the distributions
@@ -81,36 +110,43 @@ class CustomACNetwork(nn.Module):
         return self.policy_net(shared), self.value_net(shared)
 
 
-class MultiLayerActorCriticPolicy(ActorCriticPolicy):
+class MlpDQNPolicy(DQNPolicy):
     def __init__(
         self,
         observation_space: gym.spaces.Space,
         action_space: gym.spaces.Space,
-        lr_schedule: Callable[[float], float],
-        net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
-        activation_fn: Type[nn.Module] = nn.Tanh,
-        *args,
-        **kwargs,
+        lr_schedule: Schedule,
+        net_arch: Optional[List[int]] = None,
+        activation_fn: Type[nn.Module] = nn.ReLU,
+        features_extractor_class:
+            Type[BaseFeaturesExtractor] = FlattenExtractor,
+        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+        normalize_images: bool = True,
+        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
+        optimizer_kwargs: Optional[Dict[str, Any]] = None,
     ):
-
-        super(MultiLayerActorCriticPolicy, self).__init__(
+        super(MlpDQNPolicy, self).__init__(
             observation_space,
             action_space,
             lr_schedule,
             net_arch,
             activation_fn,
-            # Pass remaining arguments to base class
-            *args,
-            **kwargs,
+            features_extractor_class,
+            features_extractor_kwargs,
+            normalize_images,
+            optimizer_class,
+            optimizer_kwargs,
         )
-        # Disable orthogonal initialization
-        self.ortho_init = False
 
-    def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomACNetwork(self.features_dim, self.net_arch)
+    def make_q_net(self) -> QNetwork:
+        # Make sure we always have separate networks for
+        # features extractors etc.
+        net_args = self._update_features_extractor(self.net_args,
+                                                   features_extractor=None)
+        return MlpDQNNetwork(**net_args).to(self.device)
 
 
-class CustomDQNNetwork(QNetwork):
+class MlpDQNNetwork(QNetwork):
     def __init__(
         self,
         observation_space: gym.spaces.Space,
@@ -121,7 +157,7 @@ class CustomDQNNetwork(QNetwork):
         activation_fn: Type[nn.Module] = nn.ReLU,
         normalize_images: bool = True,
     ):
-        super(CustomDQNNetwork, self).__init__(
+        super(MlpDQNNetwork, self).__init__(
             observation_space,
             action_space,
             features_extractor,
@@ -180,37 +216,66 @@ class CustomDQNNetwork(QNetwork):
         return modules
 
 
-class CustomDQNPolicy(DQNPolicy):
-    def __init__(
-        self,
-        observation_space: gym.spaces.Space,
-        action_space: gym.spaces.Space,
-        lr_schedule: Schedule,
-        net_arch: Optional[List[int]] = None,
-        activation_fn: Type[nn.Module] = nn.ReLU,
-        features_extractor_class:
-            Type[BaseFeaturesExtractor] = FlattenExtractor,
-        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
-        normalize_images: bool = True,
-        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
-    ):
-        super(CustomDQNPolicy, self).__init__(
-            observation_space,
-            action_space,
-            lr_schedule,
-            net_arch,
-            activation_fn,
-            features_extractor_class,
-            features_extractor_kwargs,
-            normalize_images,
-            optimizer_class,
-            optimizer_kwargs,
-        )
+class QLSTMPolicy(MlpDQNPolicy):
 
     def make_q_net(self) -> QNetwork:
         # Make sure we always have separate networks for
         # features extractors etc.
         net_args = self._update_features_extractor(self.net_args,
                                                    features_extractor=None)
-        return QNetwork(**net_args).to(self.device)
+        return QLSTMNetwork(**net_args).to(self.device)
+
+
+class QLSTMNetwork(MlpDQNNetwork):
+    def create_mlp(self, input_dim: int, output_dim: int, net_arch: List[int],
+                   activation_fn: Type[nn.Module] = nn.ReLU,
+                   squash_output: bool = False
+                   ) -> List[nn.Module]:
+        """
+        Create a multi layer perceptron (MLP), which is
+        a collection of fully-connected layers each followed by an
+        activation function.
+
+        :param input_dim: Dimension of the input vector
+        :param output_dim:
+        :param net_arch: Architecture of the neural net
+            It represents the number of units per layer.
+            The length of this list is the number of layers.
+        :param activation_fn: The activation function
+            to use after each layer.
+        :param squash_output: Whether to squash the output using a Tanh
+            activation function
+        :return:
+        """
+
+        if len(net_arch) > 0:
+            modules = [nn.Linear(input_dim, net_arch[0]), activation_fn()]
+        else:
+            modules = []
+
+        for idx in range(len(net_arch) - 1):
+            modules.append(nn.Linear(net_arch[idx], net_arch[idx + 1]))
+            modules.append(activation_fn())
+
+        if output_dim > 0:
+            last_layer_dim = net_arch[-1] if len(net_arch) > 0 else input_dim
+            modules.append(nn.Linear(last_layer_dim, output_dim))
+        if squash_output:
+            modules.append(nn.Tanh())
+
+        # TODO: Number of stacked lstm layers is set to 1 for now,
+        # it could be parameterized in the future.
+        num_layers = 1
+        modules.append(nn.LSTM(output_dim, output_dim,
+                       num_layers=num_layers, batch_first=True))
+
+        return modules
+
+    def forward(self, obs: th.Tensor) -> th.Tensor:
+        inputX = self.extract_features(obs)
+        inputX = inputX.unsqueeze(1)
+        output, (hx, cx) = self.q_net(inputX)
+
+        hn = hx.view(-1, self.action_space.n)
+        out = hn
+        return out

@@ -83,6 +83,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['epsilon_end'] = 0.01
         dqn_learning_setting['exploration_fraction'] = 0.5
         dqn_learning_setting['update_interval'] = 100
+        dqn_learning_setting['learning_starts'] = 50000
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
@@ -107,7 +108,8 @@ def train_dqn_agent(learning_setting):
                 exploration_initial_eps=learning_setting['epsilon_start'],
                 exploration_final_eps=learning_setting['epsilon_end'],
                 target_update_interval=learning_setting['update_interval'],
-                exploration_fraction=learning_setting['exploration_fraction'])
+                exploration_fraction=learning_setting['exploration_fraction'],
+                learning_starts=learning_setting['learning_starts'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
@@ -150,7 +152,7 @@ def train_ppo_agent(learning_setting):
                 seed=learning_setting['seed'],
                 policy_kwargs=policy_kwargs,
                 learning_rate=learning_setting['learning_rate'],
-                gamma=learning_setting['discount_rate'])
+                gamma=learning_setting['discount_rate'], )
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],

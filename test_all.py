@@ -53,7 +53,7 @@ class TestCode(unittest.TestCase):
     def test_custom_ppo_policy(self):
         from EnvTMaze import TMazeEnv
         from UtilStableAgents import train_ppo_agent
-        from UtilPolicies import MultiLayerActorCriticPolicy
+        from UtilPolicies import MlpACPolicy
 
         ppo_learning_setting = {}
         ppo_learning_setting['envClass'] = TMazeEnv
@@ -65,7 +65,7 @@ class TestCode(unittest.TestCase):
         ppo_learning_setting['maze_length'] = 6
         ppo_learning_setting['total_timesteps'] = 50
         ppo_learning_setting['seed'] = None
-        ppo_learning_setting['policy'] = MultiLayerActorCriticPolicy
+        ppo_learning_setting['policy'] = MlpACPolicy
         ppo_learning_setting['save'] = False
 
         train_ppo_agent(learning_setting=ppo_learning_setting)
@@ -73,7 +73,7 @@ class TestCode(unittest.TestCase):
     def test_custom_dqn_policy(self):
         from EnvTMaze import TMazeEnv
         from UtilStableAgents import train_dqn_agent
-        from UtilPolicies import CustomDQNPolicy
+        from UtilPolicies import MlpDQNPolicy
 
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = TMazeEnv
@@ -83,17 +83,43 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['epsilon_end'] = 0.01
         dqn_learning_setting['exploration_fraction'] = 0.5
         dqn_learning_setting['update_interval'] = 100
+        dqn_learning_setting['learning_starts'] = 50
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
         dqn_learning_setting['maze_length'] = 6
-        dqn_learning_setting['total_timesteps'] = 50
+        dqn_learning_setting['total_timesteps'] = 100
         dqn_learning_setting['seed'] = None
         dqn_learning_setting['policy'] = "MlpPolicy"
         dqn_learning_setting['save'] = False
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
-        dqn_learning_setting['policy'] = CustomDQNPolicy
+        dqn_learning_setting['policy'] = MlpDQNPolicy
+        train_dqn_agent(learning_setting=dqn_learning_setting)
+
+    def test_custom_qlstm_policy(self):
+        from EnvTMaze import TMazeEnv
+        from UtilStableAgents import train_dqn_agent
+        from UtilPolicies import QLSTMPolicy
+
+        dqn_learning_setting = {}
+        dqn_learning_setting['envClass'] = TMazeEnv
+        dqn_learning_setting['learning_rate'] = 1e-3
+        dqn_learning_setting['discount_rate'] = 0.99
+        dqn_learning_setting['epsilon_start'] = 0.9
+        dqn_learning_setting['epsilon_end'] = 0.01
+        dqn_learning_setting['exploration_fraction'] = 0.5
+        dqn_learning_setting['update_interval'] = 100
+        dqn_learning_setting['learning_starts'] = 50
+        dqn_learning_setting['nn_layer_size'] = 8
+        dqn_learning_setting['tb_log_name'] = "qlstm-tmazev0"
+        dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        dqn_learning_setting['maze_length'] = 6
+        dqn_learning_setting['total_timesteps'] = 100
+        dqn_learning_setting['seed'] = None
+        dqn_learning_setting['policy'] = QLSTMPolicy
+        dqn_learning_setting['save'] = False
+
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
 

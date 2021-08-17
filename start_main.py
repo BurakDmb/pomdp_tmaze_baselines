@@ -2,14 +2,15 @@ import torch.multiprocessing as mp
 from EnvTMaze import TMazeEnv
 from UtilStableAgents import train_ppo_agent, train_q_agent
 from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
-from UtilPolicies import MultiLayerActorCriticPolicy
-from UtilPolicies import CustomDQNPolicy
+from UtilPolicies import MlpACPolicy
+from UtilPolicies import MlpDQNPolicy
+from UtilPolicies import QLSTMPolicy
 
 
 if __name__ == '__main__':
 
     mp.set_start_method('spawn')
-    number_of_parallel_experiments = 4
+    number_of_parallel_experiments = 1
     processes = []
     total_timesteps = 500000
     maze_length = 6
@@ -50,14 +51,33 @@ if __name__ == '__main__':
     dqn_learning_setting['epsilon_end'] = 0.01
     dqn_learning_setting['exploration_fraction'] = 0.5
     dqn_learning_setting['update_interval'] = 100
+    dqn_learning_setting['learning_starts'] = 50000
     dqn_learning_setting['nn_layer_size'] = 8
     dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
     dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
     dqn_learning_setting['maze_length'] = maze_length
     dqn_learning_setting['total_timesteps'] = total_timesteps
     dqn_learning_setting['seed'] = None
-    dqn_learning_setting['policy'] = CustomDQNPolicy
+    dqn_learning_setting['policy'] = MlpDQNPolicy
     dqn_learning_setting['save'] = False
+
+    qlstm_learning_setting = {}
+    qlstm_learning_setting['envClass'] = envClass
+    qlstm_learning_setting['learning_rate'] = 1e-3
+    qlstm_learning_setting['discount_rate'] = 0.99
+    qlstm_learning_setting['epsilon_start'] = 0.9
+    qlstm_learning_setting['epsilon_end'] = 0.01
+    qlstm_learning_setting['exploration_fraction'] = 0.5
+    qlstm_learning_setting['update_interval'] = 100
+    qlstm_learning_setting['learning_starts'] = 50000
+    qlstm_learning_setting['nn_layer_size'] = 8
+    qlstm_learning_setting['tb_log_name'] = "qlstm-tmazev0"
+    qlstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+    qlstm_learning_setting['maze_length'] = maze_length
+    qlstm_learning_setting['total_timesteps'] = total_timesteps
+    qlstm_learning_setting['seed'] = None
+    qlstm_learning_setting['policy'] = QLSTMPolicy
+    qlstm_learning_setting['save'] = False
 
     ppo_learning_setting = {}
     ppo_learning_setting['envClass'] = envClass
@@ -69,11 +89,12 @@ if __name__ == '__main__':
     ppo_learning_setting['maze_length'] = maze_length
     ppo_learning_setting['total_timesteps'] = total_timesteps
     ppo_learning_setting['seed'] = None
-    ppo_learning_setting['policy'] = MultiLayerActorCriticPolicy
+    ppo_learning_setting['policy'] = MlpACPolicy
     ppo_learning_setting['save'] = False
 
     # Change the flags to True/False for only running specific agents
-    start_q, start_sarsa, start_dqn, start_ppo = True, True, True, True
+    start_q, start_sarsa, start_dqn,\
+        start_qlstm, start_ppo = True, True, True, True, True
 
     for rank in range(number_of_parallel_experiments):
 
@@ -96,10 +117,18 @@ if __name__ == '__main__':
             p3.start()
             processes.append(p3)
 
-        if start_ppo:
-            p4 = mp.Process(target=train_ppo_agent,
-                            kwargs={'learning_setting': ppo_learning_setting})
+        if start_qlstm:
+            p4 = mp.Process(target=train_dqn_agent,
+                            kwargs={'learning_setting': qlstm_learning_setting}
+                            )
             p4.start()
             processes.append(p4)
+
+        if start_ppo:
+            p5 = mp.Process(target=train_ppo_agent,
+                            kwargs={'learning_setting': ppo_learning_setting})
+            p5.start()
+            processes.append(p5)
+
     for p in processes:
         p.join()
