@@ -2,6 +2,8 @@ import torch.multiprocessing as mp
 from EnvTMaze import TMazeEnv
 from UtilStableAgents import train_ppo_agent, train_q_agent
 from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
+from UtilPolicies import MultiLayerActorCriticPolicy
+from UtilPolicies import CustomDQNPolicy
 
 
 if __name__ == '__main__':
@@ -24,6 +26,7 @@ if __name__ == '__main__':
     q_learning_setting['maze_length'] = maze_length
     q_learning_setting['total_timesteps'] = total_timesteps
     q_learning_setting['seed'] = None
+    q_learning_setting['save'] = False
 
     sarsa_learning_setting = {}
     sarsa_learning_setting['envClass'] = envClass
@@ -37,6 +40,7 @@ if __name__ == '__main__':
     sarsa_learning_setting['maze_length'] = maze_length
     sarsa_learning_setting['total_timesteps'] = total_timesteps
     sarsa_learning_setting['seed'] = None
+    sarsa_learning_setting['save'] = False
 
     dqn_learning_setting = {}
     dqn_learning_setting['envClass'] = envClass
@@ -44,6 +48,7 @@ if __name__ == '__main__':
     dqn_learning_setting['discount_rate'] = 0.99
     dqn_learning_setting['epsilon_start'] = 0.9
     dqn_learning_setting['epsilon_end'] = 0.01
+    dqn_learning_setting['exploration_fraction'] = 0.5
     dqn_learning_setting['update_interval'] = 100
     dqn_learning_setting['nn_layer_size'] = 8
     dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
@@ -51,6 +56,8 @@ if __name__ == '__main__':
     dqn_learning_setting['maze_length'] = maze_length
     dqn_learning_setting['total_timesteps'] = total_timesteps
     dqn_learning_setting['seed'] = None
+    dqn_learning_setting['policy'] = CustomDQNPolicy
+    dqn_learning_setting['save'] = False
 
     ppo_learning_setting = {}
     ppo_learning_setting['envClass'] = envClass
@@ -62,6 +69,8 @@ if __name__ == '__main__':
     ppo_learning_setting['maze_length'] = maze_length
     ppo_learning_setting['total_timesteps'] = total_timesteps
     ppo_learning_setting['seed'] = None
+    ppo_learning_setting['policy'] = MultiLayerActorCriticPolicy
+    ppo_learning_setting['save'] = False
 
     # Change the flags to True/False for only running specific agents
     start_q, start_sarsa, start_dqn, start_ppo = True, True, True, True

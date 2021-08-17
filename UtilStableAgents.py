@@ -1,7 +1,6 @@
 from stable_baselines3 import PPO, DQN
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
-from UtilPolicies import MultiLayerActorCriticPolicy
 from ClassQAgent import QAgent
 from ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
@@ -22,6 +21,7 @@ def train_q_agent(learning_setting):
         q_learning_setting['maze_length'] = maze_length
         q_learning_setting['total_timesteps'] = total_timesteps
         q_learning_setting['seed'] = None
+        q_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -30,6 +30,11 @@ def train_q_agent(learning_setting):
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'])
+
+    # TODO: Implement saving q model
+    if learning_setting['save']:
+        pass
+
     return model
 
 
@@ -49,6 +54,7 @@ def train_sarsa_lambda_agent(learning_setting):
         sarsa_learning_setting['maze_length'] = maze_length
         sarsa_learning_setting['total_timesteps'] = total_timesteps
         sarsa_learning_setting['seed'] = None
+        sarsa_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -57,6 +63,12 @@ def train_sarsa_lambda_agent(learning_setting):
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'])
+
+    # TODO: Implement saving sarsa model
+    if learning_setting['save']:
+        pass
+
+    return model
 
 
 def train_dqn_agent(learning_setting):
@@ -69,6 +81,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['discount_rate'] = 0.99
         dqn_learning_setting['epsilon_start'] = 0.9
         dqn_learning_setting['epsilon_end'] = 0.01
+        dqn_learning_setting['exploration_fraction'] = 0.5
         dqn_learning_setting['update_interval'] = 100
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
@@ -76,6 +89,8 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['maze_length'] = maze_length
         dqn_learning_setting['total_timesteps'] = total_timesteps
         dqn_learning_setting['seed'] = None
+        dqn_learning_setting['policy'] = "MlpPolicy"
+        dqn_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -83,7 +98,7 @@ def train_dqn_agent(learning_setting):
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size'],
                                    learning_setting['nn_layer_size']])
 
-    model = DQN("MlpPolicy", env, verbose=0,
+    model = DQN(learning_setting['policy'], env, verbose=0,
                 tensorboard_log=learning_setting['tb_log_dir'],
                 seed=learning_setting['seed'],
                 policy_kwargs=policy_kwargs,
@@ -91,12 +106,17 @@ def train_dqn_agent(learning_setting):
                 gamma=learning_setting['discount_rate'],
                 exploration_initial_eps=learning_setting['epsilon_start'],
                 exploration_final_eps=learning_setting['epsilon_end'],
-                target_update_interval=learning_setting['update_interval'])
+                target_update_interval=learning_setting['update_interval'],
+                exploration_fraction=learning_setting['exploration_fraction'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
                 callback=TensorboardCallback())
-    model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
+
+    if learning_setting['save']:
+        model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
+
+    return model
 
 
 def train_ppo_agent(learning_setting):
@@ -113,6 +133,8 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['maze_length'] = maze_length
         ppo_learning_setting['total_timesteps'] = total_timesteps
         ppo_learning_setting['seed'] = None
+        ppo_learning_setting['policy'] = "MlpPolicy"
+        ppo_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -123,7 +145,7 @@ def train_ppo_agent(learning_setting):
                               vf=[learning_setting['nn_layer_size'],
                                   learning_setting['nn_layer_size']])])
 
-    model = PPO(MultiLayerActorCriticPolicy, env, verbose=0,
+    model = PPO(learning_setting['policy'], env, verbose=0,
                 tensorboard_log=learning_setting['tb_log_dir'],
                 seed=learning_setting['seed'],
                 policy_kwargs=policy_kwargs,
@@ -133,7 +155,11 @@ def train_ppo_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
                 callback=TensorboardCallback())
-    model.save("saves/ppo_agent_" + str(datetime.datetime.now()))
+
+    if learning_setting['save']:
+        model.save("saves/ppo_agent_" + str(datetime.datetime.now()))
+
+    return model
 
 
 class TensorboardCallback(BaseCallback):

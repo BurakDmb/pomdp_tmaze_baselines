@@ -19,7 +19,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Unittest Agent",
+            "name": "Test All",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test_all.py",
