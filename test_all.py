@@ -14,7 +14,7 @@ class TestCode(unittest.TestCase):
         learning_setting['epsilon_start'] = 0.33
         learning_setting['epsilon_end'] = 0.33
         learning_setting['tb_log_name'] = "q-tmazev0"
-        learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         learning_setting['maze_length'] = 6
         learning_setting['total_timesteps'] = 50
         learning_setting['seed'] = None
@@ -60,8 +60,9 @@ class TestCode(unittest.TestCase):
         ppo_learning_setting['learning_rate'] = 1e-3
         ppo_learning_setting['discount_rate'] = 0.99
         ppo_learning_setting['nn_layer_size'] = 8
+        ppo_learning_setting['n_steps'] = 64
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
-        ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        ppo_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         ppo_learning_setting['maze_length'] = 6
         ppo_learning_setting['total_timesteps'] = 50
         ppo_learning_setting['seed'] = None
@@ -87,7 +88,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['learning_starts'] = 50
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
-        dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        dqn_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         dqn_learning_setting['maze_length'] = 6
         dqn_learning_setting['total_timesteps'] = 100
         dqn_learning_setting['seed'] = None
@@ -98,7 +99,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['policy'] = MlpDQNPolicy
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
-    def test_custom_qlstm_policy(self):
+    def test_qlstm_policy(self):
         from EnvTMaze import TMazeEnv
         from UtilStableAgents import train_dqn_agent
         from UtilPolicies import QLSTMPolicy
@@ -115,7 +116,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['buffer_size'] = 1000000
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "qlstm-tmazev0"
-        dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        dqn_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         dqn_learning_setting['maze_length'] = 6
         dqn_learning_setting['total_timesteps'] = 100
         dqn_learning_setting['seed'] = None
@@ -123,6 +124,48 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['save'] = False
 
         train_dqn_agent(learning_setting=dqn_learning_setting)
+
+    def test_lstm_ppo_policy(self):
+        from EnvTMaze import TMazeEnv
+        from UtilStableAgents import train_ppo_agent
+        from UtilPolicies import LSTMACPolicy
+
+        ppoLSTM_learning_setting = {}
+        ppoLSTM_learning_setting['envClass'] = TMazeEnv
+        ppoLSTM_learning_setting['learning_rate'] = 1e-3
+        ppoLSTM_learning_setting['discount_rate'] = 0.99
+        ppoLSTM_learning_setting['nn_layer_size'] = 8
+        ppoLSTM_learning_setting['n_steps'] = 64
+        ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
+        ppoLSTM_learning_setting['tb_log_dir'] = \
+            "./logs/test_t_maze_tensorboard/"
+        ppoLSTM_learning_setting['maze_length'] = 6
+        ppoLSTM_learning_setting['total_timesteps'] = 50
+        ppoLSTM_learning_setting['seed'] = None
+        ppoLSTM_learning_setting['policy'] = LSTMACPolicy
+        ppoLSTM_learning_setting['save'] = False
+
+        train_ppo_agent(learning_setting=ppoLSTM_learning_setting)
+
+    def test_a2c_agent(self):
+        from EnvTMaze import TMazeEnv
+        from UtilStableAgents import train_a2c_agent
+
+        a2c_learning_setting = {}
+        a2c_learning_setting['envClass'] = TMazeEnv
+        a2c_learning_setting['learning_rate'] = 7e-4
+        a2c_learning_setting['discount_rate'] = 0.99
+        a2c_learning_setting['nn_layer_size'] = 8
+        a2c_learning_setting['n_steps'] = 5
+        a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
+        a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        a2c_learning_setting['maze_length'] = 6
+        a2c_learning_setting['total_timesteps'] = 50
+        a2c_learning_setting['seed'] = None
+        a2c_learning_setting['policy'] = "MlpPolicy"
+        a2c_learning_setting['save'] = False
+
+        train_a2c_agent(learning_setting=a2c_learning_setting)
 
 
 if __name__ == '__main__':

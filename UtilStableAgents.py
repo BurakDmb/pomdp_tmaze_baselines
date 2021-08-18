@@ -1,4 +1,4 @@
-from stable_baselines3 import PPO, DQN
+from stable_baselines3 import PPO, DQN, A2C
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
 from ClassQAgent import QAgent
@@ -118,7 +118,8 @@ def train_dqn_agent(learning_setting):
                 callback=TensorboardCallback())
 
     if learning_setting['save']:
-        model.save("saves/dqn_agent_"+str(datetime.datetime.now()))
+        model.save("saves/" + learning_setting['tb_log_name'] +
+                   "/" + str(datetime.datetime.now()))
 
     return model
 
@@ -132,6 +133,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['learning_rate'] = 1e-3
         ppo_learning_setting['discount_rate'] = 0.99
         ppo_learning_setting['nn_layer_size'] = 8
+        ppo_learning_setting['n_steps'] = 2048
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
         ppo_learning_setting['maze_length'] = maze_length
@@ -154,14 +156,63 @@ def train_ppo_agent(learning_setting):
                 seed=learning_setting['seed'],
                 policy_kwargs=policy_kwargs,
                 learning_rate=learning_setting['learning_rate'],
-                gamma=learning_setting['discount_rate'], )
+                gamma=learning_setting['discount_rate'],
+                n_steps=learning_setting['n_steps'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
                 callback=TensorboardCallback())
 
     if learning_setting['save']:
-        model.save("saves/ppo_agent_" + str(datetime.datetime.now()))
+        model.save("saves/" + learning_setting['tb_log_name'] +
+                   "/" + str(datetime.datetime.now()))
+
+    return model
+
+
+def train_a2c_agent(learning_setting):
+    """
+    A2C(Advantage Actor Critic Algorithm, Must-Have Learning Settings And
+    Example Parameter Values:
+        a2c_learning_setting = {}
+        a2c_learning_setting['envClass'] = envClass
+        a2c_learning_setting['learning_rate'] = 7e-4
+        a2c_learning_setting['discount_rate'] = 0.99
+        a2c_learning_setting['nn_layer_size'] = 8
+        a2c_learning_setting['n_steps'] = 5
+        a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
+        a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        a2c_learning_setting['maze_length'] = maze_length
+        a2c_learning_setting['total_timesteps'] = total_timesteps
+        a2c_learning_setting['seed'] = None
+        a2c_learning_setting['policy'] = "MlpPolicy"
+        a2c_learning_setting['save'] = False
+    """
+
+    envClass = learning_setting['envClass']
+    env = envClass(maze_length=learning_setting['maze_length'])
+
+    policy_kwargs = dict(net_arch=[
+                         dict(pi=[learning_setting['nn_layer_size'],
+                                  learning_setting['nn_layer_size']],
+                              vf=[learning_setting['nn_layer_size'],
+                                  learning_setting['nn_layer_size']])])
+
+    model = A2C(learning_setting['policy'], env, verbose=0,
+                tensorboard_log=learning_setting['tb_log_dir'],
+                seed=learning_setting['seed'],
+                policy_kwargs=policy_kwargs,
+                learning_rate=learning_setting['learning_rate'],
+                gamma=learning_setting['discount_rate'],
+                n_steps=learning_setting['n_steps'])
+
+    model.learn(total_timesteps=learning_setting['total_timesteps'],
+                tb_log_name=learning_setting['tb_log_name'],
+                callback=TensorboardCallback())
+
+    if learning_setting['save']:
+        model.save("saves/" + learning_setting['tb_log_name'] +
+                   "/" + str(datetime.datetime.now()))
 
     return model
 

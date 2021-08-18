@@ -2,9 +2,11 @@ import torch.multiprocessing as mp
 from EnvTMaze import TMazeEnv
 from UtilStableAgents import train_ppo_agent, train_q_agent
 from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
+from UtilStableAgents import train_a2c_agent
 from UtilPolicies import MlpACPolicy
 from UtilPolicies import MlpDQNPolicy
 from UtilPolicies import QLSTMPolicy
+from UtilPolicies import LSTMACPolicy
 
 
 if __name__ == '__main__':
@@ -85,7 +87,8 @@ if __name__ == '__main__':
     ppo_learning_setting['envClass'] = envClass
     ppo_learning_setting['learning_rate'] = 1e-3
     ppo_learning_setting['discount_rate'] = 0.99
-    ppo_learning_setting['nn_layer_size'] = 4
+    ppo_learning_setting['nn_layer_size'] = 8
+    ppo_learning_setting['n_steps'] = 2048
     ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
     ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
     ppo_learning_setting['maze_length'] = maze_length
@@ -94,9 +97,42 @@ if __name__ == '__main__':
     ppo_learning_setting['policy'] = MlpACPolicy
     ppo_learning_setting['save'] = False
 
+    ppoLSTM_learning_setting = {}
+    ppoLSTM_learning_setting['envClass'] = envClass
+    ppoLSTM_learning_setting['learning_rate'] = 1e-3
+    ppoLSTM_learning_setting['discount_rate'] = 0.99
+    ppoLSTM_learning_setting['nn_layer_size'] = 8
+    ppoLSTM_learning_setting['n_steps'] = 2048
+    ppoLSTM_learning_setting['tb_log_name'] = "ppoLSTM-tmazev0"
+    ppoLSTM_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+    ppoLSTM_learning_setting['maze_length'] = maze_length
+    ppoLSTM_learning_setting['total_timesteps'] = total_timesteps
+    ppoLSTM_learning_setting['seed'] = None
+    ppoLSTM_learning_setting['policy'] = LSTMACPolicy
+    ppoLSTM_learning_setting['save'] = False
+
+    a2c_learning_setting = {}
+    a2c_learning_setting['envClass'] = envClass
+    a2c_learning_setting['learning_rate'] = 1e-3
+    a2c_learning_setting['discount_rate'] = 0.99
+    a2c_learning_setting['nn_layer_size'] = 8
+    a2c_learning_setting['n_steps'] = 50
+    a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
+    a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+    a2c_learning_setting['maze_length'] = maze_length
+    a2c_learning_setting['total_timesteps'] = total_timesteps
+    a2c_learning_setting['seed'] = None
+    a2c_learning_setting['policy'] = "MlpPolicy"
+    a2c_learning_setting['save'] = False
+
     # Change the flags to True/False for only running specific agents
-    start_q, start_sarsa, start_dqn,\
-        start_qlstm, start_ppo = True, True, True, True, True
+    start_q,\
+        start_sarsa,\
+        start_dqn,\
+        start_qlstm,\
+        start_ppo,\
+        start_ppoLSTM,\
+        start_a2c = True, True, True, True, True, True, True
 
     for rank in range(number_of_parallel_experiments):
 
@@ -131,6 +167,20 @@ if __name__ == '__main__':
                             kwargs={'learning_setting': ppo_learning_setting})
             p5.start()
             processes.append(p5)
+
+        if start_ppoLSTM:
+            p6 = mp.Process(target=train_ppo_agent,
+                            kwargs={'learning_setting':
+                                    ppoLSTM_learning_setting})
+            p6.start()
+            processes.append(p6)
+
+        if start_a2c:
+            p7 = mp.Process(target=train_a2c_agent,
+                            kwargs={'learning_setting':
+                                    a2c_learning_setting})
+            p7.start()
+            processes.append(p7)
 
     for p in processes:
         p.join()
