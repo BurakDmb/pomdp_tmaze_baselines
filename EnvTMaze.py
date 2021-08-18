@@ -396,7 +396,7 @@ class TMazeEnvV5(TMazeEnvV1):
             # else:
             #     reward = 5 * self.fl_default_reward
             done = False
-
+            success = 0
             if action == 4:
                 self.memory_bit = 0
             elif action == 5:
@@ -427,7 +427,7 @@ class TMazeEnvV6(TMazeEnvV1):
         high[4] = 1
         high[-1] = 2
         self.observation_space = spaces.Box(low, high, dtype=np.int32)
-        self.cl_action_space = spaces.Discrete(12)
+        self.action_space = spaces.Discrete(12)
         self.memory_bit = 0
 
     def _get_observation(self):
@@ -465,7 +465,6 @@ class TMazeEnvV6(TMazeEnvV1):
         return observation
 
     def step(self, action):
-        new_state = self.current_state
         reward = 0
 
         # if the action is movement action then do the same
@@ -482,6 +481,8 @@ class TMazeEnvV6(TMazeEnvV1):
         elif memoryAction == 2:
             self.memory_bit = 1
 
+        self.current_state = new_state
+        self.episode_reward += reward
         return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
