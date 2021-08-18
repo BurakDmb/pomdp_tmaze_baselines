@@ -50,7 +50,7 @@ Inside the method, you can create a model for given environment and start the le
 In the `TensorboardCallback(BaseCallback)` class, there is an example tensorboard callback function for customizing the tensorboard. You can create your own callback class for adding new metrics, etc.
 
 List of currently implemented/used algorithms:
-    
+
     Q Learning
     Sarsa(Lambda)
     Deep Q Learning(DQN) With MLP Policy Network
@@ -73,7 +73,6 @@ In this file, the T-Maze Environment is implemented with many different versions
     TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
         (embedding the memory actions with standard actions, e.g: north+set bit, east+nop, east+nop, south+clear bit, etc.)
 
-
 - `Class*Agent.py`
 
 In these files, custom agents could be implemented, by design, custom agent classes have some basic methods defined as:
@@ -90,7 +89,6 @@ for ease up the implementation process. You can create your own agent by followi
 - `UtilPolicies.py`
 
 In this file, custom policies could be defined for stable baselines agents.
-
 
 - `test_all.py`
 
