@@ -22,8 +22,8 @@ if __name__ == '__main__':
     q_learning_setting['envClass'] = envClass
     q_learning_setting['learning_rate'] = 0.1
     q_learning_setting['discount_rate'] = 0.99
-    q_learning_setting['epsilon_start'] = 0.33
-    q_learning_setting['epsilon_end'] = 0.33
+    q_learning_setting['epsilon_start'] = 0.99
+    q_learning_setting['epsilon_end'] = 0.01
     q_learning_setting['tb_log_name'] = "q-tmazev0"
     q_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
     q_learning_setting['maze_length'] = maze_length
@@ -36,8 +36,8 @@ if __name__ == '__main__':
     sarsa_learning_setting['learning_rate'] = 0.1
     sarsa_learning_setting['lambda_value'] = 0.9
     sarsa_learning_setting['discount_rate'] = 0.99
-    sarsa_learning_setting['epsilon_start'] = 0.33
-    sarsa_learning_setting['epsilon_end'] = 0.33
+    sarsa_learning_setting['epsilon_start'] = 0.99
+    sarsa_learning_setting['epsilon_end'] = 0.01
     sarsa_learning_setting['tb_log_name'] = "sarsa-l-tmazev0"
     sarsa_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
     sarsa_learning_setting['maze_length'] = maze_length
