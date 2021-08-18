@@ -27,6 +27,16 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
 Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to your configuration.
 
+### Example Results
+
+- Agents Learning in Fully Observable T Maze Environment
+
+![Agents Learning in Fully Observable T Maze Environment](./screenshots/image_1.png)
+
+- Agents Learning in Partially Observable T Maze Environment
+
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_2.png)
+
 ## Detailed Information About The Project Structure
 
 - `start_main.py`
