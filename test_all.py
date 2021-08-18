@@ -83,6 +83,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['epsilon_end'] = 0.01
         dqn_learning_setting['exploration_fraction'] = 0.5
         dqn_learning_setting['update_interval'] = 100
+        dqn_learning_setting['buffer_size'] = 1000000
         dqn_learning_setting['learning_starts'] = 50
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
@@ -111,6 +112,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['exploration_fraction'] = 0.5
         dqn_learning_setting['update_interval'] = 100
         dqn_learning_setting['learning_starts'] = 50
+        dqn_learning_setting['buffer_size'] = 1000000
         dqn_learning_setting['nn_layer_size'] = 8
         dqn_learning_setting['tb_log_name'] = "qlstm-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"

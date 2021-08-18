@@ -12,7 +12,7 @@ if __name__ == '__main__':
     mp.set_start_method('spawn')
     number_of_parallel_experiments = 1
     processes = []
-    total_timesteps = 500000
+    total_timesteps = 50000
     maze_length = 6
     envClass = TMazeEnv
 
@@ -51,7 +51,8 @@ if __name__ == '__main__':
     dqn_learning_setting['epsilon_end'] = 0.01
     dqn_learning_setting['exploration_fraction'] = 0.5
     dqn_learning_setting['update_interval'] = 100
-    dqn_learning_setting['learning_starts'] = 50000
+    dqn_learning_setting['learning_starts'] = 5000
+    dqn_learning_setting['buffer_size'] = 10000
     dqn_learning_setting['nn_layer_size'] = 8
     dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
     dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
@@ -69,7 +70,8 @@ if __name__ == '__main__':
     qlstm_learning_setting['epsilon_end'] = 0.01
     qlstm_learning_setting['exploration_fraction'] = 0.5
     qlstm_learning_setting['update_interval'] = 100
-    qlstm_learning_setting['learning_starts'] = 50000
+    qlstm_learning_setting['learning_starts'] = 5000
+    qlstm_learning_setting['buffer_size'] = 10000
     qlstm_learning_setting['nn_layer_size'] = 8
     qlstm_learning_setting['tb_log_name'] = "qlstm-tmazev0"
     qlstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
@@ -83,7 +85,7 @@ if __name__ == '__main__':
     ppo_learning_setting['envClass'] = envClass
     ppo_learning_setting['learning_rate'] = 1e-3
     ppo_learning_setting['discount_rate'] = 0.99
-    ppo_learning_setting['nn_layer_size'] = 8
+    ppo_learning_setting['nn_layer_size'] = 4
     ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
     ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
     ppo_learning_setting['maze_length'] = maze_length

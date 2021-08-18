@@ -248,6 +248,12 @@ class QLSTMNetwork(MlpDQNNetwork):
         :return:
         """
 
+        # TODO: Number of stacked lstm layers is set to 1 for now,
+        # it could be parameterized in the future.
+        num_layers = 1
+        self.LSTM = nn.LSTM(input_dim, input_dim,
+                            num_layers=num_layers, batch_first=True)
+
         if len(net_arch) > 0:
             modules = [nn.Linear(input_dim, net_arch[0]), activation_fn()]
         else:
@@ -263,19 +269,13 @@ class QLSTMNetwork(MlpDQNNetwork):
         if squash_output:
             modules.append(nn.Tanh())
 
-        # TODO: Number of stacked lstm layers is set to 1 for now,
-        # it could be parameterized in the future.
-        num_layers = 1
-        modules.append(nn.LSTM(output_dim, output_dim,
-                       num_layers=num_layers, batch_first=True))
-
         return modules
 
     def forward(self, obs: th.Tensor) -> th.Tensor:
         inputX = self.extract_features(obs)
         inputX = inputX.unsqueeze(1)
-        output, (hx, cx) = self.q_net(inputX)
+        output, (hx, cx) = self.LSTM(inputX)
+        hn = hx.view(-1, self.observation_space.shape[0])
+        output = self.q_net(hn)
 
-        hn = hx.view(-1, self.action_space.n)
-        out = hn
-        return out
+        return output
