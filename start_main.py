@@ -14,7 +14,7 @@ if __name__ == '__main__':
     mp.set_start_method('spawn')
     number_of_parallel_experiments = 1
     processes = []
-    total_timesteps = 50000
+    total_timesteps = 500000
     maze_length = 6
     envClass = TMazeEnv
 
