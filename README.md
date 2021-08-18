@@ -25,7 +25,7 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
     tensorboard --logdir ./logs/t_maze_tensorboard/
 
-## Extending the code
+## Detailed Information About The Project Structure
 
 - `start_main.py`
 
@@ -33,7 +33,7 @@ This is the main code for starting an experiment with defined parameters.
 For conducting an experiment, please configure the parameters in this file and run this code by executing the command `python3 start_main.py`.
 By design, every agent implementation will start in a new process(Multiprocessing with GPU is also supported), and the results will be logged into given tensorboard path.
 
-Before starting any experiment, please customize the learning_setting dictionaries which are named `q_learning_setting, sarsa_learning_setting, dqn_learning_setting, ppo_learning_setting`.
+Before starting any experiment, please customize the learning_setting dictionaries which are named `*_learning_setting` (where * is the agent name, please see `start_main.py` for examples).
 
 Each learning_setting dictionary needs different parameters to work. The must-have learning parameters are defined in each method of the `UtilStableAgents.py` file.
 
@@ -51,8 +51,8 @@ List of currently implemented/used algorithms:
     
     Q Learning
     Sarsa(Lambda)
-    Deep Q Learning(DQN) With MLP Network
-    Proximal Policy Optimization(PPO) With MLP Network
+    Deep Q Learning(DQN) With MLP Policy Network
+    Proximal Policy Optimization(PPO) With MLP Policy Network
     DQN With LSTM Policy Network
     PPO With LSTM Policy Network
     Advantage Actor Critic(A2C)

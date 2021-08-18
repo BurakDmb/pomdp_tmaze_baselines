@@ -9,7 +9,7 @@ import datetime
 def train_q_agent(learning_setting):
     """
     Q-Learning Algorithm, Must-Have Learning Settings And
-    Example Parameter Values:
+    Default Parameter Values:
         q_learning_setting = {}
         q_learning_setting['envClass'] = envClass
         q_learning_setting['learning_rate'] = 0.1
@@ -41,7 +41,7 @@ def train_q_agent(learning_setting):
 def train_sarsa_lambda_agent(learning_setting):
     """
     SARSA(Lambda) Algorithm, Must-Have Learning Settings And
-    Example Parameter Values:
+    Default Parameter Values:
         sarsa_learning_setting = {}
         sarsa_learning_setting['envClass'] = envClass
         sarsa_learning_setting['learning_rate'] = 0.1
@@ -74,7 +74,7 @@ def train_sarsa_lambda_agent(learning_setting):
 def train_dqn_agent(learning_setting):
     """
     Deep Q-Learning Algorithm, Must-Have Learning Settings And
-    Example Parameter Values:
+    Default Parameter Values:
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = envClass
         dqn_learning_setting['learning_rate'] = 1e-3
@@ -127,7 +127,7 @@ def train_dqn_agent(learning_setting):
 def train_ppo_agent(learning_setting):
     """
     PPO(Proximal Policy Optimization Algorithm, Must-Have Learning Settings And
-    Example Parameter Values:
+    Default Parameter Values:
         ppo_learning_setting = {}
         ppo_learning_setting['envClass'] = envClass
         ppo_learning_setting['learning_rate'] = 1e-3
@@ -173,7 +173,7 @@ def train_ppo_agent(learning_setting):
 def train_a2c_agent(learning_setting):
     """
     A2C(Advantage Actor Critic Algorithm, Must-Have Learning Settings And
-    Example Parameter Values:
+    Default Parameter Values:
         a2c_learning_setting = {}
         a2c_learning_setting['envClass'] = envClass
         a2c_learning_setting['learning_rate'] = 7e-4
