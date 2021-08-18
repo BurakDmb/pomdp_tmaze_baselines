@@ -25,6 +25,8 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
     tensorboard --logdir ./logs/t_maze_tensorboard/
 
+Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to your configuration.
+
 ## Detailed Information About The Project Structure
 
 - `start_main.py`
