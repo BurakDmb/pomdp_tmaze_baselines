@@ -29,13 +29,17 @@ Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to yo
 
 ### Example Results
 
-- Agents Learning in Fully Observable T Maze Environment
+- Agents Learning in Fully Observable T Maze Environment(TmazeEnv)
 
 ![Agents Learning in Fully Observable T Maze Environment](./screenshots/image_1.png)
 
-- Agents Learning in Partially Observable T Maze Environment
+- Agents Learning in Partially Observable T Maze Environment(TmazeEnvV1)
 
 ![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_2.png)
+
+- Agents Learning in Partially Observable T Maze Environment With External Memory Wrapper(TmazeEnvV5)
+
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_3.png)
 
 ## Detailed Information About The Project Structure
 
@@ -79,9 +83,9 @@ In this file, the T-Maze Environment is implemented with many different versions
     TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
     TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
     TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
-        (adding new memory actions as new actions, e.g: up, set bit, south, east, east, clear bit, etc.)
+        (adding new memory actions as new actions, example actions: (up), (set bit), (south), (east), (east), (clear bit), ... etc.
     TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
-        (embedding the memory actions with standard actions, e.g: north+set bit, east+nop, east+nop, south+clear bit, etc.)
+        (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
 
 - `Class*Agent.py`
 
