@@ -17,6 +17,8 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
     pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard
 
+Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
+
 ### Running the code
 
     python3 start_main.py
