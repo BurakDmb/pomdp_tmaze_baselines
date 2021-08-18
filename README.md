@@ -47,6 +47,16 @@ Inside the method, you can create a model for given environment and start the le
 
 In the `TensorboardCallback(BaseCallback)` class, there is an example tensorboard callback function for customizing the tensorboard. You can create your own callback class for adding new metrics, etc.
 
+List of currently implemented/used algorithms:
+    
+    Q Learning
+    Sarsa(Lambda)
+    Deep Q Learning(DQN) With MLP Network
+    Proximal Policy Optimization(PPO) With MLP Network
+    DQN With LSTM Policy Network
+    PPO With LSTM Policy Network
+    Advantage Actor Critic(A2C)
+
 - `EnvTMaze.py`
 
 In this file, the T-Maze Environment is implemented with many different versions. There are:
