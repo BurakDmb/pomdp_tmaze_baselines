@@ -93,6 +93,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['seed'] = None
         dqn_learning_setting['policy'] = "MlpPolicy"
         dqn_learning_setting['save'] = False
+        dqn_learning_setting['device'] = 'cpu'
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -111,7 +112,8 @@ def train_dqn_agent(learning_setting):
                 target_update_interval=learning_setting['update_interval'],
                 exploration_fraction=learning_setting['exploration_fraction'],
                 learning_starts=learning_setting['learning_starts'],
-                buffer_size=learning_setting['buffer_size'])
+                buffer_size=learning_setting['buffer_size'],
+                device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
@@ -141,6 +143,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['seed'] = None
         ppo_learning_setting['policy'] = "MlpPolicy"
         ppo_learning_setting['save'] = False
+        ppo_learning_setting['device'] = 'cpu'
     """
     envClass = learning_setting['envClass']
     env = envClass(maze_length=learning_setting['maze_length'])
@@ -157,7 +160,8 @@ def train_ppo_agent(learning_setting):
                 policy_kwargs=policy_kwargs,
                 learning_rate=learning_setting['learning_rate'],
                 gamma=learning_setting['discount_rate'],
-                n_steps=learning_setting['n_steps'])
+                n_steps=learning_setting['n_steps'],
+                device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],
@@ -187,6 +191,7 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['seed'] = None
         a2c_learning_setting['policy'] = "MlpPolicy"
         a2c_learning_setting['save'] = False
+        a2c_learning_setting['device'] = 'cpu'
     """
 
     envClass = learning_setting['envClass']
@@ -204,7 +209,8 @@ def train_a2c_agent(learning_setting):
                 policy_kwargs=policy_kwargs,
                 learning_rate=learning_setting['learning_rate'],
                 gamma=learning_setting['discount_rate'],
-                n_steps=learning_setting['n_steps'])
+                n_steps=learning_setting['n_steps'],
+                device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'],

@@ -63,7 +63,7 @@ if __name__ == '__main__':
     dqn_learning_setting['seed'] = None
     dqn_learning_setting['policy'] = MlpDQNPolicy
     dqn_learning_setting['save'] = False
-    dqn_learning_setting['device'] = 'cpu'
+    dqn_learning_setting['device'] = 'cuda:0'
 
     qlstm_learning_setting = {}
     qlstm_learning_setting['envClass'] = envClass
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     qlstm_learning_setting['seed'] = None
     qlstm_learning_setting['policy'] = QLSTMPolicy
     qlstm_learning_setting['save'] = False
-    qlstm_learning_setting['device'] = 'cpu'
+    qlstm_learning_setting['device'] = 'cuda:0'
 
     ppo_learning_setting = {}
     ppo_learning_setting['envClass'] = envClass
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     ppo_learning_setting['seed'] = None
     ppo_learning_setting['policy'] = MlpACPolicy
     ppo_learning_setting['save'] = False
-    ppo_learning_setting['device'] = 'cpu'
+    ppo_learning_setting['device'] = 'cuda:1'
 
     ppoLSTM_learning_setting = {}
     ppoLSTM_learning_setting['envClass'] = envClass
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     ppoLSTM_learning_setting['seed'] = None
     ppoLSTM_learning_setting['policy'] = LSTMACPolicy
     ppoLSTM_learning_setting['save'] = False
-    ppoLSTM_learning_setting['device'] = 'cpu'
+    ppoLSTM_learning_setting['device'] = 'cuda:2'
 
     a2c_learning_setting = {}
     a2c_learning_setting['envClass'] = envClass
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     a2c_learning_setting['seed'] = None
     a2c_learning_setting['policy'] = "MlpPolicy"
     a2c_learning_setting['save'] = False
-    a2c_learning_setting['device'] = 'cpu'
+    a2c_learning_setting['device'] = 'cuda:3'
 
     # Change the flags to True/False for only running specific agents
     start_q,\

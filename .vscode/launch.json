@@ -19,6 +19,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Run Main GPU",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/start_main_with_gpu.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Test All",
             "type": "python",
             "request": "launch",
