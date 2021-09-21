@@ -1,5 +1,5 @@
 import torch.multiprocessing as mp
-from EnvTMaze import TMazeEnv
+from EnvTMaze import TMazeEnvV1
 from UtilStableAgents import train_ppo_agent, train_q_agent
 from UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
 from UtilStableAgents import train_a2c_agent
@@ -12,11 +12,11 @@ from UtilPolicies import LSTMACPolicy
 if __name__ == '__main__':
 
     mp.set_start_method('spawn')
-    number_of_parallel_experiments = 1
+    number_of_parallel_experiments = 4
     processes = []
-    total_timesteps = 500000
+    total_timesteps = 50000000
     maze_length = 6
-    envClass = TMazeEnv
+    envClass = TMazeEnvV1
 
     q_learning_setting = {}
     q_learning_setting['envClass'] = envClass
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     q_learning_setting['maze_length'] = maze_length
     q_learning_setting['total_timesteps'] = total_timesteps
     q_learning_setting['seed'] = None
-    q_learning_setting['save'] = False
+    q_learning_setting['save'] = True
 
     sarsa_learning_setting = {}
     sarsa_learning_setting['envClass'] = envClass
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     sarsa_learning_setting['maze_length'] = maze_length
     sarsa_learning_setting['total_timesteps'] = total_timesteps
     sarsa_learning_setting['seed'] = None
-    sarsa_learning_setting['save'] = False
+    sarsa_learning_setting['save'] = True
 
     dqn_learning_setting = {}
     dqn_learning_setting['envClass'] = envClass
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     dqn_learning_setting['total_timesteps'] = total_timesteps
     dqn_learning_setting['seed'] = None
     dqn_learning_setting['policy'] = MlpDQNPolicy
-    dqn_learning_setting['save'] = False
+    dqn_learning_setting['save'] = True
     dqn_learning_setting['device'] = 'cuda:0'
 
     qlstm_learning_setting = {}
@@ -82,8 +82,8 @@ if __name__ == '__main__':
     qlstm_learning_setting['total_timesteps'] = total_timesteps
     qlstm_learning_setting['seed'] = None
     qlstm_learning_setting['policy'] = QLSTMPolicy
-    qlstm_learning_setting['save'] = False
-    qlstm_learning_setting['device'] = 'cuda:0'
+    qlstm_learning_setting['save'] = True
+    qlstm_learning_setting['device'] = 'cuda:1'
 
     ppo_learning_setting = {}
     ppo_learning_setting['envClass'] = envClass
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     ppo_learning_setting['total_timesteps'] = total_timesteps
     ppo_learning_setting['seed'] = None
     ppo_learning_setting['policy'] = MlpACPolicy
-    ppo_learning_setting['save'] = False
+    ppo_learning_setting['save'] = True
     ppo_learning_setting['device'] = 'cuda:1'
 
     ppoLSTM_learning_setting = {}
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     ppoLSTM_learning_setting['total_timesteps'] = total_timesteps
     ppoLSTM_learning_setting['seed'] = None
     ppoLSTM_learning_setting['policy'] = LSTMACPolicy
-    ppoLSTM_learning_setting['save'] = False
+    ppoLSTM_learning_setting['save'] = True
     ppoLSTM_learning_setting['device'] = 'cuda:2'
 
     a2c_learning_setting = {}
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     a2c_learning_setting['total_timesteps'] = total_timesteps
     a2c_learning_setting['seed'] = None
     a2c_learning_setting['policy'] = "MlpPolicy"
-    a2c_learning_setting['save'] = False
+    a2c_learning_setting['save'] = True
     a2c_learning_setting['device'] = 'cuda:3'
 
     # Change the flags to True/False for only running specific agents
