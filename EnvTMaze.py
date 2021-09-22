@@ -138,7 +138,6 @@ class TMazeEnvV1(TMazeEnv):
         high[-1] = 2
         self.observation_space = spaces.Box(low, high, dtype=np.int32)
 
-    # Needs Update
     def _get_observation(self):
         observation = np.zeros(5, dtype=int)
         state = self.current_state
@@ -163,7 +162,7 @@ class TMazeEnvV1(TMazeEnv):
             observation[3] = 1
 
         # the agent can only get the true goal location either in the light
-        # location or in the terminal state
+        # (start) location or in the terminal state
         if state[0] == self.light_x or state in self.li_terminal_states:
             observation[-1] = state[2]
         else:
