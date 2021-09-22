@@ -5,27 +5,30 @@
 
 ### Install Pytorch with your own configuration
 
-#### Follow the link: <https://pytorch.org/get-started/locally/>
-
 #### Example configuration for Cuda 10.2, pip, linux build
 
-    pip3 install torch torchvision torchaudio
+`pip3 install torch torchvision torchaudio`
 
-Note: If you are planning to use Cuda 11, then please follow the instructions on the link below.
+Note: If you are planning to use Cuda 11, then please follow the instructions on the link below:
+<https://pytorch.org/get-started/locally/>
 
 ### Installing the additional dependencies
 
-    pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard
+`pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard`
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
-### Running the code
+### Running the code with cpu configuration
 
-    python3 start_main.py
+`python3 start_main.py`
+
+### Running the code with multi-gpu configuration
+
+`python3 start_main.py multigpu`
 
 ### Running the tensorboard to observe the learning
 
-    tensorboard --logdir ./logs/t_maze_tensorboard/
+`tensorboard --logdir ./logs/t_maze_tensorboard/`
 
 Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to your configuration.
 
@@ -67,38 +70,44 @@ In the `TensorboardCallback(BaseCallback)` class, there is an example tensorboar
 
 List of currently implemented/used algorithms:
 
-    Q Learning
-    Sarsa(Lambda)
-    Deep Q Learning(DQN) With MLP Policy Network
-    Proximal Policy Optimization(PPO) With MLP Policy Network
-    DQN With LSTM Policy Network
-    PPO With LSTM Policy Network
-    Advantage Actor Critic(A2C)
+```text
+Q Learning
+Sarsa(Lambda)
+Deep Q Learning(DQN) With MLP Policy Network
+Proximal Policy Optimization(PPO) With MLP Policy Network
+DQN With LSTM Policy Network
+PPO With LSTM Policy Network
+Advantage Actor Critic(A2C)
+```
 
 - `EnvTMaze.py`
 
 In this file, the T-Maze Environment is implemented with many different versions. There are:
 
-    TMazeEnv - T-Maze Environment with full observation
-    TMazeEnvV1 - T-Maze Environment with partial observation
-    TMazeEnvV2 - T-Maze Environment with partial observation(with the state implementation from the original paper)
-    TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
-    TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
-    TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
-        (adding new memory actions as new actions, example actions: (up), (set bit), (south), (east), (east), (clear bit), ... etc.
-    TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
-        (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
+```text
+TMazeEnv - T-Maze Environment with full observation
+TMazeEnvV1 - T-Maze Environment with partial observation
+TMazeEnvV2 - T-Maze Environment with partial observation(with the state implementation from the original paper)
+TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
+TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
+TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
+    (adding new memory actions as new actions, example actions: (up), (set bit), (south), (east), (east), (clear bit), ... etc.
+TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
+    (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
+```
 
 - `Class*Agent.py`
 
 In these files, custom agents could be implemented, by design, custom agent classes have some basic methods defined as:
 
-    def __init__(self, env, learning_setting):
-    def learn(self, total_timesteps, tb_log_name):
-    def pre_action(self, observation):
-    def post_action(self, observation, action, reward, next_observation, done):
-    def get_action(self, observation):
-    def post_episode(self):
+```python
+def __init__(self, env, learning_setting):
+def learn(self, total_timesteps, tb_log_name):
+def pre_action(self, observation):
+def post_action(self, observation, action, reward, next_observation, done):
+def get_action(self, observation):
+def post_episode(self):
+```
 
 for ease up the implementation process. You can create your own agent by following these classes.
 
@@ -109,6 +118,40 @@ In this file, custom policies could be defined for stable baselines agents.
 - `test_all.py`
 
 In this file, some unit test functions are defined to check the integrity of the code while implementing new features.
+
+## T-Maze Environment
+
+### General Information
+
+T-Maze Environment is a single agent navigation problem which the goal is to reach the end of the maze platform. At the end of the maze, there is a cross-road where the agent needs to decide to turn the correct direction. The correct turn information is either encoded in the state information all the time or only the start of the episode, depending the configuration of the environment(MDP or POMDP). The name of this environment comes from the shape of the maze which it could be seen as T-shaped. The length of the maze can be varied and it is parameterized with the integer N in this environment.
+
+Also, for the partially observable configuration, the main difficulty comes from the need of remembering the long term dependencies. This simple change in this environment makes the problem very hard to optimally solve for all cases.
+
+Below, you can see a maze with length 6:
+
+```python
+grid=['XXXXX_',
+      'O_____',
+      'XXXXX_']
+```
+
+An agent starts in the coordinate (1, 0). This position is marked as O in this array and the episode ends when the agent either arrives/turns to (0, N) or (2, N).
+
+### States and Actions
+
+States are 3-dimensitonal discrete variables which is defined below:
+
+```math
+state = [x, y, \text{y of the true goal location}]
+```
+
+Actions are 1-dimensional discrete variables which can take these actions below:
+
+```math
+action = north/east/south/west
+```
+
+Note that this n, e, s, w notation is encoded as integers 0, 1, 2, 3 respectively.
 
 ## License
 
