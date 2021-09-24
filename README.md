@@ -125,6 +125,10 @@ In this file, some unit test functions are defined to check the integrity of the
 
 T-Maze Environment is a single agent navigation problem which the goal is to reach the end of the maze platform. At the end of the maze, there is a cross-road where the agent needs to decide to turn the correct direction. The correct turn information is either encoded in the state information all the time or only the start of the episode, depending the configuration of the environment(MDP or POMDP). The name of this environment comes from the shape of the maze which it could be seen as T-shaped. The length of the maze can be varied and it is parameterized with the integer N in this environment.
 
+B. Bakker. Reinforcement Learning with long short-term Memory. Advances in Neural Information
+Processing Systems, 2(14):1475–1482, 2002
+<http://papers.neurips.cc/paper/1953-reinforcement-learning-with-long-short-term-memory.pdf>
+
 Also, for the partially observable configuration, the main difficulty comes from the need of remembering the long term dependencies. This simple change in this environment makes the problem very hard to optimally solve for all cases.
 
 Below, you can see a maze with length 6:

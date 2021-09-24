@@ -7,6 +7,10 @@ from UtilStableAgents import train_a2c_agent
 if __name__ == '__main__':
     params = len(sys.argv)
     if params == 1 and sys.argv[0] == 'multigpu':
+        from parameters_multi_gpu import number_of_parallel_experiments
+        from parameters_multi_gpu import start_q, start_sarsa, start_dqn
+        from parameters_multi_gpu import start_qlstm, start_ppo
+        from parameters_multi_gpu import start_ppoLSTM, start_a2c
         from parameters_multi_gpu import q_learning_setting
         from parameters_multi_gpu import sarsa_learning_setting
         from parameters_multi_gpu import dqn_learning_setting
@@ -15,6 +19,10 @@ if __name__ == '__main__':
         from parameters_multi_gpu import ppoLSTM_learning_setting
         from parameters_multi_gpu import a2c_learning_setting
     else:
+        from parameters import number_of_parallel_experiments
+        from parameters import start_q, start_sarsa, start_dqn
+        from parameters import start_qlstm, start_ppo
+        from parameters import start_ppoLSTM, start_a2c
         from parameters import q_learning_setting
         from parameters import sarsa_learning_setting
         from parameters import dqn_learning_setting
@@ -24,17 +32,7 @@ if __name__ == '__main__':
         from parameters import a2c_learning_setting
 
     mp.set_start_method('spawn')
-    number_of_parallel_experiments = 4
     processes = []
-
-    # Change the flags to True/False for only running specific agents
-    start_q,\
-        start_sarsa,\
-        start_dqn,\
-        start_qlstm,\
-        start_ppo,\
-        start_ppoLSTM,\
-        start_a2c = True, True, True, True, True, True, True
 
     for rank in range(number_of_parallel_experiments):
 

@@ -334,7 +334,7 @@ class TMazeEnvV5(TMazeEnvV1):
         high[-1] = 2
         self.observation_space = spaces.Box(low, high, dtype=np.int32)
         self.action_space = spaces.Discrete(6)
-        self.memory_bit = 0
+        self.memory_bit = 1
 
     def _get_observation(self):
         observation = np.zeros(6, dtype=int)
@@ -374,7 +374,7 @@ class TMazeEnvV5(TMazeEnvV1):
     def step(self, action):
         new_state = self.current_state
         reward = 0
-        # if the action is movement action then do the
+        # if the agents action is movement action(which is 0,1,2,3) then do the
         # same as original environment
         if action in range(4):
 
@@ -387,26 +387,19 @@ class TMazeEnvV5(TMazeEnvV1):
         # then do not move the agent, set the reward as zero and
         # clear/set the bit.
         else:
-            # TODO: add a condition for punishing the agents
-            # for not going the end.
-
-            # if self.memory_bit == 1:
-            #     reward = -2 * self.fl_default_reward
-            # else:
-            #     reward = 5 * self.fl_default_reward
             done = False
             success = 0
             if action == 4:
                 self.memory_bit = 0
             elif action == 5:
-                self.memory_bit = 1
+                self.memory_bit = 2
 
         self.current_state = new_state
         self.episode_reward += reward
         return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
-        self.memory_bit = 0
+        self.memory_bit = 1
         self.current_state = random.choice(
                 self.li_initial_states)
         self.episode_reward = 0
@@ -427,7 +420,7 @@ class TMazeEnvV6(TMazeEnvV1):
         high[-1] = 2
         self.observation_space = spaces.Box(low, high, dtype=np.int32)
         self.action_space = spaces.Discrete(12)
-        self.memory_bit = 0
+        self.memory_bit = 1
 
     def _get_observation(self):
         observation = np.zeros(6, dtype=int)
@@ -478,14 +471,14 @@ class TMazeEnvV6(TMazeEnvV1):
         if memoryAction == 1:
             self.memory_bit = 0
         elif memoryAction == 2:
-            self.memory_bit = 1
+            self.memory_bit = 2
 
         self.current_state = new_state
         self.episode_reward += reward
         return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
-        self.memory_bit = 0
+        self.memory_bit = 1
         self.current_state = random.choice(
                 self.li_initial_states)
         self.episode_reward = 0
