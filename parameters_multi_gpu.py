@@ -8,6 +8,17 @@ total_timesteps = 500000
 maze_length = 6
 envClass = TMazeEnvV1
 
+number_of_parallel_experiments = 3
+
+# Change the flags to True/False for only running specific agents
+start_q = True
+start_sarsa = True
+start_dqn = True
+start_qlstm = True
+start_ppo = True
+start_ppoLSTM = True
+start_a2c = True
+
 q_learning_setting = {}
 q_learning_setting['envClass'] = envClass
 q_learning_setting['learning_rate'] = 0.1
