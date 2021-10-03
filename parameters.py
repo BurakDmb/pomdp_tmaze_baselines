@@ -1,12 +1,12 @@
-from EnvTMaze import TMazeEnvV6
+from EnvTMaze import TMazeEnvV5
 from UtilPolicies import MlpACPolicy
 from UtilPolicies import MlpDQNPolicy
 from UtilPolicies import QLSTMPolicy
 from UtilPolicies import LSTMACPolicy
 
-total_timesteps = 25_000
+total_timesteps = 50_000
 maze_length = 15
-envClass = TMazeEnvV6
+envClass = TMazeEnvV5
 
 number_of_parallel_experiments = 1
 
