@@ -275,7 +275,7 @@ class QLSTMNetwork(MlpDQNNetwork):
         inputX = self.extract_features(obs)
         inputX = inputX.unsqueeze(1)
         output, (hx, cx) = self.LSTM(inputX)
-        hn = hx.view(-1, self.observation_space.shape[0])
+        hn = hx.view(-1, inputX.shape[2])
         output = self.q_net(hn)
 
         return output

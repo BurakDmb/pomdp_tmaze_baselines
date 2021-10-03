@@ -38,12 +38,11 @@ class TMazeEnv(gym.Env):
         self.action_space = spaces.Discrete(4)
 
         # Full observability: (x, y, y of the true goal)
-        low = np.zeros(3, dtype=int)
         high = np.zeros(3, dtype=int)
         high[0] = self.grid_size[0] - 1
         high[1] = self.grid_size[1] - 1
         high[2] = 2
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
 
         self.episode_reward = 0
         self.success_count = 0
@@ -113,7 +112,7 @@ class TMazeEnv(gym.Env):
         return self._get_observation()
 
     def get_observation_space_size(self):
-        return self.observation_space.shape[0]
+        return len(self.observation_space.nvec)
 
     def get_action_space_size(self):
         return self.action_space.n
@@ -133,10 +132,9 @@ class TMazeEnvV1(TMazeEnv):
 
         # Partial observability: (wall_north, wall_east,
         # wall_south, wall_west, y of the true goal)
-        low = np.zeros(5, dtype=int)
         high = np.full(5, 1.0, dtype=int)
         high[-1] = 2
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
 
     def _get_observation(self):
         observation = np.zeros(5, dtype=int)
@@ -184,9 +182,8 @@ class TMazeEnvV2(TMazeEnvV1):
         - Upper-corner; 111
         - Lower-corner; 000
         '''
-        low = np.zeros(3, dtype=int)
         high = np.full(3, 1.0, dtype=int)
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
 
     def _get_observation(self):
         observation = np.zeros(3, dtype=int)
@@ -224,10 +221,8 @@ class TMazeEnvV3(TMazeEnv):
 
         # Full observability with one hot vectors
         in_number_of_states = len(self.di_state_map.keys())
-
-        low = np.zeros(in_number_of_states, dtype=int)
         high = np.full(in_number_of_states, 1.0, dtype=int)
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
 
     def _get_observation(self):
         state = self.current_state
@@ -268,9 +263,8 @@ class TMazeEnvV4(TMazeEnv):
         # Partial observability with one hot vectors
         in_number_of_observations = len(self.di_observation_map.keys())
 
-        low = np.zeros(in_number_of_observations, dtype=int)
         high = np.full(in_number_of_observations, 1.0, dtype=int)
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
 
     def _get_observation_o(self, state):
 
@@ -328,11 +322,10 @@ class TMazeEnvV5(TMazeEnvV1):
 
         # Partial observability: (wall_north, wall_east,
         # wall_south, wall_west, external memory bit, y of the true goal)
-        low = np.zeros(6, dtype=int)
         high = np.full(6, 1.0, dtype=int)
-        high[4] = 1
+        high[4] = 2
         high[-1] = 2
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
         self.action_space = spaces.Discrete(6)
         self.memory_bit = 1
 
@@ -414,11 +407,10 @@ class TMazeEnvV6(TMazeEnvV1):
 
         # Partial observability: (wall_north, wall_east,
         # wall_south, wall_west, external memory bit, y of the true goal)
-        low = np.zeros(6, dtype=int)
         high = np.full(6, 1.0, dtype=int)
-        high[4] = 1
+        high[4] = 2
         high[-1] = 2
-        self.observation_space = spaces.Box(low, high, dtype=np.int32)
+        self.observation_space = spaces.MultiDiscrete(high+1)
         self.action_space = spaces.Discrete(12)
         self.memory_bit = 1
 
