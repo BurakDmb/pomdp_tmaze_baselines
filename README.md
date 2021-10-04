@@ -14,7 +14,7 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 
 ### Installing the additional dependencies
 
-`pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard`
+`pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard tensorboard-reducer`
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
@@ -31,6 +31,19 @@ Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.htm
 `tensorboard --logdir ./logs/t_maze_tensorboard/`
 
 Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to your configuration.
+
+### Calculating the averages of parallel runs
+
+For these algorithms, run these commands below:
+
+```bash
+tb-reducer -i 'logs/t_maze_tensorboard/q-t*' -o logs/t_maze_tensorboard/q/ -r mean --lax-steps --lax-tags
+tb-reducer -i 'logs/t_maze_tensorboard/sarsa*' -o logs/t_maze_tensorboard/sarsa/ -r mean --lax-steps --lax-tags
+tb-reducer -i 'logs/t_maze_tensorboard/qlstm*' -o logs/t_maze_tensorboard/qlstm/ -r mean --lax-steps --lax-tags
+tb-reducer -i 'logs/t_maze_tensorboard/ppo-*' -o logs/t_maze_tensorboard/ppo/ -r mean --lax-steps --lax-tags
+tb-reducer -i 'logs/t_maze_tensorboard/a2c-*' -o logs/t_maze_tensorboard/a2c/ -r mean --lax-steps --lax-tags
+tb-reducer -i 'logs/t_maze_tensorboard/ppoLSTM-*' -o logs/t_maze_tensorboard/ppoLSTM/ -r mean --lax-steps --lax-tags
+```
 
 ### Example Results
 
