@@ -68,6 +68,7 @@ class TestCode(unittest.TestCase):
         ppo_learning_setting['seed'] = None
         ppo_learning_setting['policy'] = MlpACPolicy
         ppo_learning_setting['save'] = False
+        ppo_learning_setting['device'] = 'cpu'
 
         train_ppo_agent(learning_setting=ppo_learning_setting)
 
@@ -94,6 +95,8 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['seed'] = None
         dqn_learning_setting['policy'] = "MlpPolicy"
         dqn_learning_setting['save'] = False
+        dqn_learning_setting['device'] = 'cpu'
+
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
         dqn_learning_setting['policy'] = MlpDQNPolicy
@@ -122,6 +125,7 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['seed'] = None
         dqn_learning_setting['policy'] = QLSTMPolicy
         dqn_learning_setting['save'] = False
+        dqn_learning_setting['device'] = 'cpu'
 
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
@@ -144,6 +148,7 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['seed'] = None
         ppoLSTM_learning_setting['policy'] = LSTMACPolicy
         ppoLSTM_learning_setting['save'] = False
+        ppoLSTM_learning_setting['device'] = 'cpu'
 
         train_ppo_agent(learning_setting=ppoLSTM_learning_setting)
 
@@ -153,19 +158,38 @@ class TestCode(unittest.TestCase):
 
         a2c_learning_setting = {}
         a2c_learning_setting['envClass'] = TMazeEnv
-        a2c_learning_setting['learning_rate'] = 7e-4
+        a2c_learning_setting['learning_rate'] = 1e-3
         a2c_learning_setting['discount_rate'] = 0.99
         a2c_learning_setting['nn_layer_size'] = 8
-        a2c_learning_setting['n_steps'] = 5
+        a2c_learning_setting['n_steps'] = 256
         a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
-        a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        a2c_learning_setting['tb_log_dir'] = \
+            "./logs/test_t_maze_tensorboard/"
         a2c_learning_setting['maze_length'] = 6
         a2c_learning_setting['total_timesteps'] = 50
         a2c_learning_setting['seed'] = None
         a2c_learning_setting['policy'] = "MlpPolicy"
         a2c_learning_setting['save'] = False
+        a2c_learning_setting['device'] = 'cpu'
 
         train_a2c_agent(learning_setting=a2c_learning_setting)
+
+    def test_fixed_size_obs_seq_env(self):
+        from EnvTMaze import TMazeEnvV7
+
+        env = TMazeEnvV7(maze_length=6, memory_seq_length=3)
+        self.assertIsNotNone(env.reset())
+        env.step(4)
+        self.assertEqual(1, env.nextMemoryIndex)
+        env.step(4)
+        self.assertEqual(2, env.nextMemoryIndex)
+        env.step(4)
+        self.assertEqual(0, env.nextMemoryIndex)
+
+
+def unittest_main(exit=False):
+    print("*** Running unit tests ***")
+    unittest.main(__name__, exit=exit)
 
 
 if __name__ == '__main__':

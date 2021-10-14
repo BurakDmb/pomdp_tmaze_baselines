@@ -9,6 +9,7 @@ class SarsaLambdaAgent:
     Discrete Observation Space
     Algorithm: Sutton, Barto, "Reinforcement Learning: An Introduction"
     http://incompleteideas.net/book/first/ebook/node77.html
+    https://www.researchgate.net/publication/221656193_Robustness_Analysis_of_SARSAlambda_Different_Models_of_Reward_and_Initialisation
     '''
 
     def __init__(self, env, learning_setting):
@@ -83,8 +84,10 @@ class SarsaLambdaAgent:
             self.get_q_values(next_observation)[next_action] - \
             self.get_q_values(observation)[action]
 
-        self.set_e_value(observation, action,
-                         self.get_e_values(observation)[action] + 1)
+        # self.set_e_value(observation, action,
+        #                  self.get_e_values(observation)[action] + 1)
+
+        self.set_e_value(observation, action, 1)
 
         it = np.nditer(self.e_table, flags=['multi_index'])
         for x in it:

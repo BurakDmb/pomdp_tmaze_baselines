@@ -4,15 +4,16 @@ from UtilPolicies import MlpDQNPolicy
 from UtilPolicies import QLSTMPolicy
 from UtilPolicies import LSTMACPolicy
 
-total_timesteps = 500000
-maze_length = 6
+total_timesteps = 500_000
+maze_length = 15
 envClass = TMazeEnvV1
 
 number_of_parallel_experiments = 3
 
 # Change the flags to True/False for only running specific agents
 start_q = True
-start_sarsa = True
+start_sarsa_low = True
+start_sarsa_high = True
 start_dqn = True
 start_qlstm = True
 start_ppo = True
@@ -32,19 +33,36 @@ q_learning_setting['total_timesteps'] = total_timesteps
 q_learning_setting['seed'] = None
 q_learning_setting['save'] = True
 
-sarsa_learning_setting = {}
-sarsa_learning_setting['envClass'] = envClass
-sarsa_learning_setting['learning_rate'] = 0.1
-sarsa_learning_setting['lambda_value'] = 0.9
-sarsa_learning_setting['discount_rate'] = 0.99
-sarsa_learning_setting['epsilon_start'] = 0.99
-sarsa_learning_setting['epsilon_end'] = 0.01
-sarsa_learning_setting['tb_log_name'] = "sarsa-l-tmazev0"
-sarsa_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
-sarsa_learning_setting['maze_length'] = maze_length
-sarsa_learning_setting['total_timesteps'] = total_timesteps
-sarsa_learning_setting['seed'] = None
-sarsa_learning_setting['save'] = True
+sarsa_low_l_learning_setting = {}
+sarsa_low_l_learning_setting['envClass'] = envClass
+sarsa_low_l_learning_setting['learning_rate'] = 1e-2
+sarsa_low_l_learning_setting['lambda_value'] = 0.1
+sarsa_low_l_learning_setting['discount_rate'] = 0.99
+sarsa_low_l_learning_setting['epsilon_start'] = 0.3
+sarsa_low_l_learning_setting['epsilon_end'] = 0.01
+sarsa_low_l_learning_setting['memory_seq_length'] = 1
+sarsa_low_l_learning_setting['tb_log_name'] = "sarsa_low_l-tmazev0"
+sarsa_low_l_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+sarsa_low_l_learning_setting['maze_length'] = maze_length
+sarsa_low_l_learning_setting['total_timesteps'] = total_timesteps
+sarsa_low_l_learning_setting['seed'] = None
+sarsa_low_l_learning_setting['save'] = False
+
+
+sarsa_high_l_learning_setting = {}
+sarsa_high_l_learning_setting['envClass'] = envClass
+sarsa_high_l_learning_setting['learning_rate'] = 1e-2
+sarsa_high_l_learning_setting['lambda_value'] = 0.9
+sarsa_high_l_learning_setting['discount_rate'] = 0.99
+sarsa_high_l_learning_setting['epsilon_start'] = 0.3
+sarsa_high_l_learning_setting['epsilon_end'] = 0.01
+sarsa_high_l_learning_setting['memory_seq_length'] = 1
+sarsa_high_l_learning_setting['tb_log_name'] = "sarsa_high_l-tmazev0"
+sarsa_high_l_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+sarsa_high_l_learning_setting['maze_length'] = maze_length
+sarsa_high_l_learning_setting['total_timesteps'] = total_timesteps
+sarsa_high_l_learning_setting['seed'] = None
+sarsa_high_l_learning_setting['save'] = False
 
 dqn_learning_setting = {}
 dqn_learning_setting['envClass'] = envClass
@@ -52,6 +70,7 @@ dqn_learning_setting['learning_rate'] = 1e-3
 dqn_learning_setting['discount_rate'] = 0.99
 dqn_learning_setting['epsilon_start'] = 0.9
 dqn_learning_setting['epsilon_end'] = 0.01
+dqn_learning_setting['memory_seq_length'] = 1
 dqn_learning_setting['exploration_fraction'] = 0.5
 dqn_learning_setting['update_interval'] = 100
 dqn_learning_setting['learning_starts'] = 5000
@@ -72,6 +91,7 @@ qlstm_learning_setting['learning_rate'] = 1e-3
 qlstm_learning_setting['discount_rate'] = 0.99
 qlstm_learning_setting['epsilon_start'] = 0.9
 qlstm_learning_setting['epsilon_end'] = 0.01
+qlstm_learning_setting['memory_seq_length'] = 1
 qlstm_learning_setting['exploration_fraction'] = 0.5
 qlstm_learning_setting['update_interval'] = 100
 qlstm_learning_setting['learning_starts'] = 5000
@@ -92,6 +112,7 @@ ppo_learning_setting['learning_rate'] = 1e-3
 ppo_learning_setting['discount_rate'] = 0.99
 ppo_learning_setting['nn_layer_size'] = 8
 ppo_learning_setting['n_steps'] = 2048
+ppo_learning_setting['memory_seq_length'] = 1
 ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
 ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
 ppo_learning_setting['maze_length'] = maze_length
@@ -107,6 +128,7 @@ ppoLSTM_learning_setting['learning_rate'] = 1e-3
 ppoLSTM_learning_setting['discount_rate'] = 0.99
 ppoLSTM_learning_setting['nn_layer_size'] = 8
 ppoLSTM_learning_setting['n_steps'] = 2048
+ppoLSTM_learning_setting['memory_seq_length'] = 1
 ppoLSTM_learning_setting['tb_log_name'] = "ppoLSTM-tmazev0"
 ppoLSTM_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
 ppoLSTM_learning_setting['maze_length'] = maze_length
@@ -122,6 +144,7 @@ a2c_learning_setting['learning_rate'] = 1e-3
 a2c_learning_setting['discount_rate'] = 0.99
 a2c_learning_setting['nn_layer_size'] = 8
 a2c_learning_setting['n_steps'] = 50
+a2c_learning_setting['memory_seq_length'] = 1
 a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
 a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
 a2c_learning_setting['maze_length'] = maze_length

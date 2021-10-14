@@ -38,11 +38,11 @@ class TMazeEnv(gym.Env):
         self.action_space = spaces.Discrete(4)
 
         # Full observability: (x, y, y of the true goal)
-        high = np.zeros(3, dtype=int)
-        high[0] = self.grid_size[0] - 1
-        high[1] = self.grid_size[1] - 1
-        high[2] = 2
-        self.observation_space = spaces.MultiDiscrete(high+1)
+        self.high = np.zeros(3, dtype=int)
+        self.high[0] = self.grid_size[0] - 1
+        self.high[1] = self.grid_size[1] - 1
+        self.high[2] = 2
+        self.observation_space = spaces.MultiDiscrete(self.high+1)
 
         self.episode_reward = 0
         self.success_count = 0
@@ -132,9 +132,9 @@ class TMazeEnvV1(TMazeEnv):
 
         # Partial observability: (wall_north, wall_east,
         # wall_south, wall_west, y of the true goal)
-        high = np.full(5, 1.0, dtype=int)
-        high[-1] = 2
-        self.observation_space = spaces.MultiDiscrete(high+1)
+        self.high = np.full(5, 1.0, dtype=int)
+        self.high[-1] = 2
+        self.observation_space = spaces.MultiDiscrete(self.high+1)
 
     def _get_observation(self):
         observation = np.zeros(5, dtype=int)
@@ -475,3 +475,95 @@ class TMazeEnvV6(TMazeEnvV1):
                 self.li_initial_states)
         self.episode_reward = 0
         return self._get_observation()
+
+
+# Partial observable, memory with
+# fixed sized sequence with observations.
+class TMazeEnvV7(TMazeEnvV1):
+    def __init__(self, **kwargs):
+        super(TMazeEnvV7, self).__init__(**kwargs)
+        self.memory_seq_length = kwargs.get('memory_seq_length', 1)
+        # Partial observability: (wall_north, wall_east,
+        # wall_south, wall_west, y of the true goal
+        # and additional dimensions of size memory_seq_length*observation_size)
+        # Note that max. number of dimensions for a np array is 32.
+        # So the maximum fixed sequence size could be 5.
+
+        # Actions are defined n e s w, add observation to the memory.
+        self.obs_number_of_dimension = (len(self.high) +
+                                        len(self.high)*self.memory_seq_length)
+        self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                        len(self.high), dtype=int)
+        self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+        self.high[4::5] = 2
+        self.observation_space = spaces.MultiDiscrete(self.high+1)
+        self.action_space = spaces.Discrete(5)
+
+        self.nextMemoryIndex = 0
+
+    def _get_observation(self):
+        observation = np.zeros(self.obs_number_of_dimension, dtype=int)
+        state = self.current_state
+        # Partial observability
+
+        # north direction
+        if state[1] == 0 or self.grid[state[1] - 1][state[0]] == 'X':
+            observation[0] = 1
+
+        # east direction
+        if (state[0] == (self.grid_size[0] - 1) or
+           self.grid[state[1]][state[0] + 1] == 'X'):
+            observation[1] = 1
+
+        # south direction
+        if (state[1] == (self.grid_size[1] - 1) or
+           self.grid[state[1] + 1][state[0]] == 'X'):
+            observation[2] = 1
+
+        # west direction
+        if state[0] == 0 or self.grid[state[1]][state[0] - 1] == 'X':
+            observation[3] = 1
+
+        # the agent can only get the true goal location either in the light
+        # location or in the terminal state
+        if state[0] == self.light_x or state in self.li_terminal_states:
+            observation[-1] = state[2]
+        else:
+            # otherwise, it gets a neutral direction for the true goal
+            observation[-1] = 1
+
+        observation[5:] = self.external_memory
+        return observation
+
+    def step(self, action):
+        reward = 2*self.fl_default_reward
+        done = False
+        success = 0
+        # Check if add observation to memory action or not
+        if action == 4:
+            self.add_observation_to_memory()
+        else:
+            new_state, reward, done, success = self._one_agent_step(
+                    self.current_state, action)
+            self.current_state = new_state
+
+        self.episode_reward += reward
+        return self._get_observation(), reward, done, {'success': success}
+
+    def reset(self):
+        self.memory_bit = 1
+        self.current_state = random.choice(
+                self.li_initial_states)
+        self.episode_reward = 0
+        return self._get_observation()
+
+    def add_observation_to_memory(self):
+        # The memory update strategy could be changed, for now, it is set to
+        # First In First Out Strategy
+
+        self.external_memory[self.nextMemoryIndex * 5 + 0:
+                             self.nextMemoryIndex * 5
+                             + 5] = self._get_observation()[:5]
+        self.nextMemoryIndex += 1
+        if self.nextMemoryIndex == self.memory_seq_length:
+            self.nextMemoryIndex = 0
