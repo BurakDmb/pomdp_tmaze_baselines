@@ -22,10 +22,10 @@ class QAgent:
         self.observation_space = env.observation_space
         self.log_dir = learning_setting['tb_log_dir']
 
-        # self.q_table = {}
-        observation_dims = env.observation_space.nvec
-        q_shape = np.append(observation_dims, self.action_size)
-        self.q_table = np.zeros(q_shape)
+        self.q_table = {}
+        # observation_dims = env.observation_space.nvec
+        # q_shape = np.append(observation_dims, self.action_size)
+        # self.q_table = np.zeros(q_shape)
 
     def learn(self, total_timesteps, tb_log_name):
         self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name
@@ -58,6 +58,7 @@ class QAgent:
                 self.post_episode()
 
     def pre_action(self, observation):
+        self.init_q_value(observation)
 
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size)
@@ -77,14 +78,22 @@ class QAgent:
         return np.random.choice(np.flatnonzero(self.get_q_values(observation)
                                 == self.get_q_values(observation).max()))
 
+    def init_q_value(self, observation):
+        obs_key = tuple(observation)
+        if obs_key not in self.q_table:
+            self.q_table[obs_key] = np.zeros((self.action_size,))
+
     def get_q_values(self, observation):
-        return self.q_table[tuple(observation)]
+        obs_key = tuple(observation)
+        if obs_key not in self.q_table:
+            self.q_table[obs_key] = np.zeros((self.action_size,))
+        return self.q_table[obs_key]
 
     def get_max_q_value(self, observation):
         return self.get_q_values(observation).max()
 
     def set_q_value(self, observation, action, q_value):
-        self.q_table[tuple(observation)+tuple([action])] = q_value
+        self.get_q_values(observation)[action] = q_value
 
     def post_episode(self):
         self.epsilon = self.epsilon_start - \
@@ -99,3 +108,8 @@ class QAgent:
         self.writer.add_scalar("_tmaze/Success Ratio per episode",
                                self.success_ratio,
                                self.episode)
+        if self.env.__class__.__name__ == "TMazeEnvV7":
+            self.writer.add_scalar("_tmaze/Difference of " +
+                                   "Saved Memory From True Goal",
+                                   (self.env.external_memory[4] -
+                                    self.env.current_state[2]), self.episode)

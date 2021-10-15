@@ -17,7 +17,7 @@ class TMazeEnv(gym.Env):
 
         # Rewards
         self.fl_default_reward = -0.1
-        self.fl_false_goal_reward = -0.1
+        self.fl_false_goal_reward = -4.0
         self.fl_true_goal_reward = 4.0
         # print("default_tmaze: ", kwargs.get('arg1'))
         self.fl_intended_direction_prob = 1.0
@@ -560,6 +560,12 @@ class TMazeEnvV7(TMazeEnvV1):
     def add_observation_to_memory(self):
         # The memory update strategy could be changed, for now, it is set to
         # First In First Out Strategy
+        if self._get_observation()[:5][4] == 2:
+            pass
+        elif self._get_observation()[:5][4] == 1:
+            pass
+        else:
+            pass
 
         self.external_memory[self.nextMemoryIndex * 5 + 0:
                              self.nextMemoryIndex * 5
