@@ -251,6 +251,20 @@ class TensorboardCallback(BaseCallback):
                              episode_count) * 100
             self.tb_formatter.writer.add_scalar("_tmaze/Reward per episode",
                                                 epi_reward, epi_number)
+
+            if (self.locals['self'].env.unwrapped.envs[0].unwrapped.__class__.
+                __name__ == "TMazeEnvV7" or
+                self.locals['self'].env.unwrapped.envs[0].unwrapped.__class__.
+                    __name__ == "TMazeEnvV8"):
+
+                self.tb_formatter.writer.\
+                    add_scalar("_tmaze/Absolute Difference of " +
+                               "Saved Memory From True Goal",
+                               (abs(self.locals['self'].env.unwrapped.
+                                envs[0].unwrapped.external_memory[4] -
+                                self.locals['self'].env.unwrapped.envs[0].
+                                unwrapped.current_state[2])), epi_number)
+
             self.tb_formatter.writer.flush()
             self.tb_formatter.writer.\
                 add_scalar("_tmaze/Episode length per episode",

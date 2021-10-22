@@ -63,40 +63,40 @@ if __name__ == '__main__':
                                     sarsa_high_l_learning_setting}
                             )
             p3.start()
-            processes.append(p2)
+            processes.append(p3)
 
         if start_dqn:
             p4 = mp.Process(target=train_dqn_agent,
                             kwargs={'learning_setting': dqn_learning_setting})
             p4.start()
-            processes.append(p3)
+            processes.append(p4)
 
         if start_qlstm:
             p5 = mp.Process(target=train_dqn_agent,
                             kwargs={'learning_setting': qlstm_learning_setting}
                             )
             p5.start()
-            processes.append(p4)
+            processes.append(p5)
 
         if start_ppo:
             p6 = mp.Process(target=train_ppo_agent,
                             kwargs={'learning_setting': ppo_learning_setting})
             p6.start()
-            processes.append(p5)
+            processes.append(p6)
 
         if start_ppoLSTM:
             p7 = mp.Process(target=train_ppo_agent,
                             kwargs={'learning_setting':
                                     ppoLSTM_learning_setting})
             p7.start()
-            processes.append(p6)
+            processes.append(p7)
 
         if start_a2c:
             p8 = mp.Process(target=train_a2c_agent,
                             kwargs={'learning_setting':
                                     a2c_learning_setting})
             p8.start()
-            processes.append(p7)
+            processes.append(p8)
 
     for p in processes:
         p.join()

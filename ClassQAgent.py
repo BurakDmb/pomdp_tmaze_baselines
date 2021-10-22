@@ -108,8 +108,10 @@ class QAgent:
         self.writer.add_scalar("_tmaze/Success Ratio per episode",
                                self.success_ratio,
                                self.episode)
-        if self.env.__class__.__name__ == "TMazeEnvV7":
-            self.writer.add_scalar("_tmaze/Difference of " +
+
+        if self.env.__class__.__name__ == "TMazeEnvV7" or \
+                self.env.__class__.__name__ == "TMazeEnvV8":
+            self.writer.add_scalar("_tmaze/Absolute Difference of " +
                                    "Saved Memory From True Goal",
-                                   (self.env.external_memory[4] -
-                                    self.env.current_state[2]), self.episode)
+                                   (abs(self.env.external_memory[4] -
+                                    self.env.current_state[2])), self.episode)
