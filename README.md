@@ -3,7 +3,27 @@
 
 ## Installation
 
-### Install Pytorch with your own configuration
+### Opening with vscode dev containers(Recommended) 
+
+To run with vscode, please install the extention "Remote - Containers" and after that open the project folder normally.
+
+By default it asks that this project contains a Dev Container configuration file and you can open this folder by clicking the button "Reopen in Container". 
+
+If it does not show up, you can press F1 and search for "Remote Containers: Reopen in Container"
+
+### Install with docker
+
+    cd .devcontainer
+    docker build -t pomdp:v0 .
+    docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -it pomdp:v0
+
+After that you you can clone the code and run.
+
+
+### Local Installation
+
+Install Pytorch with your own configuration
+
 
 #### Example configuration for Cuda 10.2, pip, linux build
 
