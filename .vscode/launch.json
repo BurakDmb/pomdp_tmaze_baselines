@@ -19,7 +19,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run Main GPU",
+            "name": "Run Main Multi GPU",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/start_main.py",

@@ -65,20 +65,6 @@ tb-reducer -i 'logs/t_maze_tensorboard/a2c-*' -o logs/t_maze_tensorboard/a2c/ -r
 tb-reducer -i 'logs/t_maze_tensorboard/ppoLSTM-*' -o logs/t_maze_tensorboard/ppoLSTM/ -r mean --lax-steps --lax-tags
 ```
 
-### Example Results
-
-- Agents Learning in Fully Observable T Maze Environment(TmazeEnv)
-
-![Agents Learning in Fully Observable T Maze Environment](./screenshots/image_1.png)
-
-- Agents Learning in Partially Observable T Maze Environment(TmazeEnvV1)
-
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_2.png)
-
-- Agents Learning in Partially Observable T Maze Environment With External Memory Wrapper(TmazeEnvV5)
-
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_3.png)
-
 ## Detailed Information About The Project Structure
 
 - `start_main.py`
@@ -124,9 +110,17 @@ TMazeEnvV2 - T-Maze Environment with partial observation(with the state implemen
 TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
 TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
 TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
-    (adding new memory actions as new actions, example actions: (up), (set bit), (south), (east), (east), (clear bit), ... etc.
-TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper
+    (adding new memory actions as new actions, example actions: (north), (south), (east), (east), (set bit))
+TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper (cross product of two action sets)
     (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
+TMazeEnvV7 - T-Maze Environment - partial observation with external memory of fixed size sequence with observations
+    (adding new memory actions as new actions, example actions: (north), (south), (east), (east), (add obs to memory)
+TMazeEnvV8 - T-Maze Environment - partial observation with external memory of fixed size sequence with observations
+    (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
+TMazeEnvV9 - T-Maze Environment - partial observation with external memory - Generic Memory Implementation(None, Kk, Bk, Ok, OAk Memory Types) (Possible actions are the cross product of movement and memory action sets)
+    Ref: Icarte, Rodrigo Toro, et al. "The act of remembering: a study in
+    partially observable reinforcement learning."
+    arXiv preprint arXiv:2010.01753 (2020).
 ```
 
 - `Class*Agent.py`
@@ -178,8 +172,8 @@ An agent starts in the coordinate (1, 0). This position is marked as O in this a
 
 States are 3-dimensitonal discrete variables which is defined below:
 
-```math
-state = [x, y, \text{y of the true goal location}]
+```
+state = [x, y, y of the true goal location]
 ```
 
 Actions are 1-dimensional discrete variables which can take these actions below:
@@ -189,6 +183,21 @@ action = north/east/south/west
 ```
 
 Note that this n, e, s, w notation is encoded as integers 0, 1, 2, 3 respectively.
+
+
+### Example Results
+
+- Agents Learning in Fully Observable T Maze Environment(TmazeEnv)
+
+![Agents Learning in Fully Observable T Maze Environment](./screenshots/image_1.png)
+
+- Agents Learning in Partially Observable T Maze Environment(TmazeEnvV1)
+
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_2.png)
+
+- Agents Learning in Partially Observable T Maze Environment With External Memory Wrapper(TmazeEnvV5)
+
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_3.png)
 
 ## License
 
