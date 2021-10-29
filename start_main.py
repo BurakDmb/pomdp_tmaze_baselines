@@ -12,11 +12,13 @@ if __name__ == '__main__':
     if params == 1 and sys.argv[0] == 'multigpu':
         from parameters_multi_gpu import number_of_parallel_experiments
         from parameters_multi_gpu import start_q, start_sarsa_low
+        from parameters_multi_gpu import start_sarsa_middle
         from parameters_multi_gpu import start_sarsa_high, start_dqn
         from parameters_multi_gpu import start_qlstm, start_ppo
         from parameters_multi_gpu import start_ppoLSTM, start_a2c
         from parameters_multi_gpu import q_learning_setting
         from parameters_multi_gpu import sarsa_low_l_learning_setting
+        from parameters_multi_gpu import sarsa_middle_l_learning_setting
         from parameters_multi_gpu import sarsa_high_l_learning_setting
         from parameters_multi_gpu import dqn_learning_setting
         from parameters_multi_gpu import qlstm_learning_setting
@@ -26,11 +28,13 @@ if __name__ == '__main__':
     else:
         from parameters import number_of_parallel_experiments
         from parameters import start_q, start_sarsa_low
+        from parameters import start_sarsa_middle
         from parameters import start_sarsa_high, start_dqn
         from parameters import start_qlstm, start_ppo
         from parameters import start_ppoLSTM, start_a2c
         from parameters import q_learning_setting
         from parameters import sarsa_low_l_learning_setting
+        from parameters import sarsa_middle_l_learning_setting
         from parameters import sarsa_high_l_learning_setting
         from parameters import dqn_learning_setting
         from parameters import qlstm_learning_setting
@@ -44,59 +48,67 @@ if __name__ == '__main__':
     for rank in range(number_of_parallel_experiments):
 
         if start_q:
-            p1 = mp.Process(target=train_q_agent,
-                            kwargs={'learning_setting': q_learning_setting})
-            p1.start()
-            processes.append(p1)
+            p = mp.Process(target=train_q_agent,
+                           kwargs={'learning_setting': q_learning_setting})
+            p.start()
+            processes.append(p)
 
         if start_sarsa_low:
-            p2 = mp.Process(target=train_sarsa_lambda_agent,
-                            kwargs={'learning_setting':
-                                    sarsa_low_l_learning_setting}
-                            )
-            p2.start()
-            processes.append(p2)
+            p = mp.Process(target=train_sarsa_lambda_agent,
+                           kwargs={'learning_setting':
+                                   sarsa_low_l_learning_setting}
+                           )
+            p.start()
+            processes.append(p)
+
+        if start_sarsa_middle:
+            p = mp.Process(target=train_sarsa_lambda_agent,
+                           kwargs={'learning_setting':
+                                   sarsa_middle_l_learning_setting}
+                           )
+            p.start()
+            processes.append(p)
 
         if start_sarsa_high:
-            p3 = mp.Process(target=train_sarsa_lambda_agent,
-                            kwargs={'learning_setting':
-                                    sarsa_high_l_learning_setting}
-                            )
-            p3.start()
-            processes.append(p3)
+            p = mp.Process(target=train_sarsa_lambda_agent,
+                           kwargs={'learning_setting':
+                                   sarsa_high_l_learning_setting}
+                           )
+            p.start()
+            processes.append(p)
 
         if start_dqn:
-            p4 = mp.Process(target=train_dqn_agent,
-                            kwargs={'learning_setting': dqn_learning_setting})
-            p4.start()
-            processes.append(p4)
+            p = mp.Process(target=train_dqn_agent,
+                           kwargs={'learning_setting': dqn_learning_setting})
+            p.start()
+            processes.append(p)
 
         if start_qlstm:
-            p5 = mp.Process(target=train_dqn_agent,
-                            kwargs={'learning_setting': qlstm_learning_setting}
-                            )
-            p5.start()
-            processes.append(p5)
+            p = mp.Process(target=train_dqn_agent,
+                           kwargs={'learning_setting': qlstm_learning_setting}
+                           )
+            p.start()
+            processes.append(p)
 
         if start_ppo:
-            p6 = mp.Process(target=train_ppo_agent,
-                            kwargs={'learning_setting': ppo_learning_setting})
-            p6.start()
-            processes.append(p6)
+            p = mp.Process(target=train_ppo_agent,
+                           kwargs={'learning_setting': ppo_learning_setting})
+            p.start()
+            processes.append(p)
 
         if start_ppoLSTM:
-            p7 = mp.Process(target=train_ppo_agent,
-                            kwargs={'learning_setting':
-                                    ppoLSTM_learning_setting})
-            p7.start()
-            processes.append(p7)
+            p = mp.Process(target=train_ppo_agent,
+                           kwargs={'learning_setting':
+                                   ppoLSTM_learning_setting})
+            p.start()
+            processes.append(p)
 
         if start_a2c:
-            p8 = mp.Process(target=train_a2c_agent,
-                            kwargs={'learning_setting':
-                                    a2c_learning_setting})
-            p8.start()
-            processes.append(p8)
+            p = mp.Process(target=train_a2c_agent,
+                           kwargs={'learning_setting':
+                                   a2c_learning_setting})
+            p.start()
+            processes.append(p)
 
     for p in processes:
         p.join()

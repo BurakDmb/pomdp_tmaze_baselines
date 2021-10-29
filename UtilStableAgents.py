@@ -24,7 +24,7 @@ def train_q_agent(learning_setting):
         q_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
-    env = envClass(maze_length=learning_setting['maze_length'])
+    env = envClass(**learning_setting)
 
     model = QAgent(env, learning_setting=learning_setting)
 
@@ -57,7 +57,7 @@ def train_sarsa_lambda_agent(learning_setting):
         sarsa_learning_setting['save'] = False
     """
     envClass = learning_setting['envClass']
-    env = envClass(maze_length=learning_setting['maze_length'])
+    env = envClass(**learning_setting)
 
     model = SarsaLambdaAgent(env, learning_setting=learning_setting)
 
@@ -96,7 +96,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['device'] = 'cpu'
     """
     envClass = learning_setting['envClass']
-    env = envClass(maze_length=learning_setting['maze_length'])
+    env = envClass(**learning_setting)
 
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size'],
                                    learning_setting['nn_layer_size']])
@@ -146,7 +146,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['device'] = 'cpu'
     """
     envClass = learning_setting['envClass']
-    env = envClass(maze_length=learning_setting['maze_length'])
+    env = envClass(**learning_setting)
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size'],
@@ -195,7 +195,7 @@ def train_a2c_agent(learning_setting):
     """
 
     envClass = learning_setting['envClass']
-    env = envClass(maze_length=learning_setting['maze_length'])
+    env = envClass(**learning_setting)
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size'],

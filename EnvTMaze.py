@@ -657,7 +657,8 @@ class TMazeEnvV8(TMazeEnvV1):
         return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
-        self.memory_bit = 1
+        self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                        len(self.high), dtype=int)
         self.current_state = random.choice(
                 self.li_initial_states)
         self.episode_reward = 0
@@ -679,3 +680,254 @@ class TMazeEnvV8(TMazeEnvV1):
         self.nextMemoryIndex += 1
         if self.nextMemoryIndex == self.memory_seq_length:
             self.nextMemoryIndex = 0
+
+
+# Partial observable,
+# Augmented external memory with the options of
+# None, Kk, Bk, Ok and OAk which is encoded as
+# 0, 1, 2, 3, 4 respectively.
+# Small k corrensponds as the memory length.
+# Actions are defined seperately
+# None: 4 movement actions
+# Kk: 4 movement actions (Memory always updates according the history)
+# Bk: 4 movement x 2 memory actions (Set memory bit or dont save)
+#     = Total of 8 possible actions
+# Ok: 4 movement x 2 memory actions (Save observation or dont save)
+#     = Total of 8 possible actions
+# OAk: 4 movement x 2 memory actions (Save obs-action pair or dont save)
+#      = Total of 8 possible actions
+# Ref: Icarte, Rodrigo Toro, et al. "The act of remembering: a study in
+# partially observable reinforcement learning."
+# arXiv preprint arXiv:2010.01753 (2020).
+class TMazeEnvV9(TMazeEnvV1):
+    def __init__(self, **kwargs):
+        super(TMazeEnvV9, self).__init__(**kwargs)
+        self.memory_type = kwargs.get('memory_type', 0)
+        self.memory_length = kwargs.get('memory_length', 1)
+
+        # Memory type 0 = None
+        if self.memory_type == 0:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal)
+            self.obs_number_of_dimension = 5
+            self.high = np.full(5, 1.0, dtype=int)
+            self.high[-1] = 2
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+            self.action_space = self.action_space
+
+        # Memory type 1 = Kk
+        elif self.memory_type == 1:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal
+            # and additional dimensions with size
+            # (memory_seq_length*observation_size)
+            # Note that max. number of dimensions for a np array is 32.
+            # So the maximum fixed sequence size could be 5.
+
+            self.obs_single_size = len(self.high)
+            self.mem_single_size = self.obs_single_size
+            # Actions are defined n e s w, add observation to the memory.
+            self.obs_number_of_dimension = (self.obs_single_size +
+                                            self.mem_single_size *
+                                            self.memory_length)
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+            self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+            self.high[4::self.obs_single_size] = 2
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+            self.action_space = self.action_space
+
+        # Memory type 2 = Bk
+        elif self.memory_type == 2:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, external memory bit, y of the true goal)
+            self.obs_single_size = len(self.high)
+            self.mem_single_size = 1
+            # Actions are defined n e s w, add observation to the memory.
+            self.obs_number_of_dimension = (self.obs_single_size +
+                                            self.mem_single_size *
+                                            self.memory_length)
+            high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+            high[4] = 2
+            high[5:] = 2
+            self.observation_space = spaces.MultiDiscrete(high+1)
+            self.action_space = spaces.Discrete(self.action_space.n * 3)
+            self.external_memory = np.zeros(self.memory_length, dtype=int)
+
+        # Memory type 3 = Ok
+        elif self.memory_type == 3:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal
+            # and additional dimensions of size
+            # memory_seq_length*observation_size)
+            # Note that max. number of dimensions for a np array is 32.
+            # So the maximum fixed sequence size could be 5.
+
+            self.obs_single_size = len(self.high)
+            self.mem_single_size = self.obs_single_size
+            # Actions are defined n e s w, add observation to the memory.
+            self.obs_number_of_dimension = (self.obs_single_size +
+                                            self.mem_single_size *
+                                            self.memory_length)
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+            self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+            self.high[4::self.obs_single_size] = 2
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+            self.action_space = spaces.Discrete(self.action_space.n * 2)
+
+        # Memory type 4 = OAk
+        elif self.memory_type == 4:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal
+            # and additional dimensions of size
+            # memory_seq_length*observation_size)
+            # Note that max. number of dimensions for a np array is 32.
+            # So the maximum fixed sequence size could be 5.
+
+            self.action_space = spaces.Discrete(self.action_space.n * 2)
+            self.obs_single_size = len(self.high)
+            self.act_single_size = 1
+            self.mem_single_size = self.obs_single_size + self.act_single_size
+
+            # Actions are defined n e s w, add observation to the memory.
+            self.obs_number_of_dimension = (self.obs_single_size +
+                                            self.mem_single_size *
+                                            self.memory_length)
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+            self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+            self.high[4] = 2
+            self.high[(4+self.obs_single_size)::(self.mem_single_size)] = 2
+            self.high[(5+self.obs_single_size)::(
+                self.mem_single_size)] = self.action_space.n
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+
+    def _get_observation(self):
+        observation = np.zeros(self.obs_number_of_dimension, dtype=int)
+        state = self.current_state
+        # Partial observability
+
+        # north direction
+        if state[1] == 0 or self.grid[state[1] - 1][state[0]] == 'X':
+            observation[0] = 1
+
+        # east direction
+        if (state[0] == (self.grid_size[0] - 1) or
+           self.grid[state[1]][state[0] + 1] == 'X'):
+            observation[1] = 1
+
+        # south direction
+        if (state[1] == (self.grid_size[1] - 1) or
+           self.grid[state[1] + 1][state[0]] == 'X'):
+            observation[2] = 1
+
+        # west direction
+        if state[0] == 0 or self.grid[state[1]][state[0] - 1] == 'X':
+            observation[3] = 1
+
+        # the agent can only get the true goal location either in the light
+        # location or in the terminal state
+        if state[0] == self.light_x or state in self.li_terminal_states:
+            observation[4] = state[2]
+        else:
+            # otherwise, it gets a neutral direction for the true goal
+            observation[4] = 1
+
+        # Memory type 0 = None
+        if self.memory_type != 0:
+            observation[5:] = self.external_memory
+
+        return observation
+
+    def step(self, action):
+        done = False
+        success = 0
+
+        # Memory type 0 = None
+        if self.memory_type == 0:
+            movementAction = action
+            memoryAction = 0
+        # Memory type 1 = Kk
+        elif self.memory_type == 1:
+            movementAction = action
+            memoryAction = 1
+        # Memory type 2 = Bk
+        elif self.memory_type == 2:
+            movementAction = action // 3
+            memoryAction = action % 3
+        # Memory type 3 = Ok
+        elif self.memory_type == 3:
+            movementAction = action // 2
+            memoryAction = action % 2
+        # Memory type 4 = OAk
+        elif self.memory_type == 4:
+            movementAction = action // 2
+            memoryAction = action % 2
+
+        # Check if add observation to memory action or not
+        if memoryAction != 0:
+            self.add_observation_to_memory(memoryAction, action)
+
+        new_state, reward, done, success = self._one_agent_step(
+                self.current_state, movementAction)
+        self.current_state = new_state
+
+        self.episode_reward += reward
+        return self._get_observation(), reward, done, {'success': success}
+
+    def reset(self):
+        # Memory type 1 = Kk
+        if self.memory_type == 1:
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+
+        # Memory type 2 = Bk
+        elif self.memory_type == 2:
+            self.external_memory = np.zeros(self.memory_length, dtype=int)
+
+        # Memory type 3 = Ok
+        elif self.memory_type == 3:
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+
+        # Memory type 4 = OAk
+        elif self.memory_type == 4:
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+
+        self.current_state = random.choice(
+                self.li_initial_states)
+        self.episode_reward = 0
+        return self._get_observation()
+
+    def add_observation_to_memory(self, memoryAction, action):
+        # The memory update strategy could be changed, for now, it is set to
+        # First In First Out Strategy
+
+        # In each add step, shift memory by self.mem_single_size and
+        # add the new element into the starting of the array.
+
+        self.external_memory = np.roll(self.external_memory,
+                                       self.mem_single_size)
+
+        # Memory type 1 = Kk
+        if self.memory_type == 1:
+            self.external_memory[0:self.mem_single_size] = \
+                self._get_observation()[:self.obs_single_size]
+
+        # Memory type 2 = Bk
+        elif self.memory_type == 2:
+            binaryAction = 1 if memoryAction == 1 else 0
+            self.external_memory[0:self.mem_single_size] = binaryAction
+        # Memory type 3 = Ok
+        elif self.memory_type == 3:
+            self.external_memory[0:self.mem_single_size] = \
+                self._get_observation()[:self.obs_single_size]
+
+        # Memory type 4 = OAk
+        elif self.memory_type == 4:
+            self.external_memory[0:self.mem_single_size] = \
+                np.append(self._get_observation()[:self.obs_single_size],
+                          [action])
+        pass
