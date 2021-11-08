@@ -9,35 +9,6 @@ ARG HTTPS_PROXY=""
 ENV HTTP_PROXY=HTTP_PROXY
 ENV HTTPS_PROXY=HTTPS_PROXY
 
-# ENV TZ=Europe/Istanbul
-# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# RUN apt-get update
-
-# RUN apt-get install -y wget \
-#     locales \
-#     lsb-release \
-#     mesa-utils \
-#     git \
-#     subversion \
-#     nano \
-#     xterm \
-#     wget \
-#     curl \
-#     htop \
-#     libssl-dev \
-#     build-essential \
-#     dbus-x11 \
-#     software-properties-common && rm -rf /var/lib/apt/lists/*
-
-# RUN wget \
-#     https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-#     && mkdir /root/.conda \
-#     && bash Miniconda3-latest-Linux-x86_64.sh -b \
-#     && rm -f Miniconda3-latest-Linux-x86_64.sh 
-# ENV PATH="/root/miniconda3/bin:${PATH}"
-# ARG PATH="/root/miniconda3/bin:${PATH}"
-
 RUN conda --version
 RUN conda config --set ssl_verify false
 
@@ -51,3 +22,7 @@ RUN source activate env && conda info && \
 
 
 RUN conda info && pip install tensorboard-reducer --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
+
+RUN apt update && apt install xauth -y && apt-get clean
+
+RUN echo conda activate env >> ~/.bashrc
