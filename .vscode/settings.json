@@ -1,5 +1,4 @@
 {
     "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "docker.host":"ssh://bhdemirbilek@10.1.46.207"
+    "python.linting.enabled": true
 }
