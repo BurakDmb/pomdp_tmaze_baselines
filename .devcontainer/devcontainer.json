@@ -15,6 +15,10 @@
 
 	"build": {
 		"dockerfile": "Dockerfile",
+		"args": {
+			"HTTP_PROXY": "http://10.1.200.207:808",
+			"HTTPS_PROXY": "http://10.1.200.207:808",
+		}
 		// Update 'VARIANT' to pick an Ubuntu version: hirsute, focal, bionic
 		// Use hirsute or bionic on local arm64/Apple Silicon.
 	},
