@@ -41,6 +41,4 @@
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "root",
-	"workspaceMount": "source=/home/bhdemirbilek/workspace,target=/workspace,type=bind,consistency=cached",
-	"workspaceFolder": "/workspace",
 }
