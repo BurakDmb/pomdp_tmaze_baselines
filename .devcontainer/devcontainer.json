@@ -13,7 +13,7 @@
 		"--device",
 		"/dev/nvidiactl",
 		"--net", "host", 
-        "-e", "DISPLAY=${env:DISPLAY}",
+        "-e", "DISPLAY=${localEnv:DISPLAY}",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
 
 	],
@@ -21,8 +21,8 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"HTTP_PROXY": "${env:HTTP_PROXY}",
-			"HTTPS_PROXY": "${env:HTTPS_PROXY}",
+			"HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+			"HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
 		}
 		// Update 'VARIANT' to pick an Ubuntu version: hirsute, focal, bionic
 		// Use hirsute or bionic on local arm64/Apple Silicon.
