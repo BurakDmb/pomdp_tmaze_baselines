@@ -13,7 +13,7 @@
 		"--device",
 		"/dev/nvidiactl",
 		"--net", "host", 
-        "-e", "DISPLAY=${localEnv:DISPLAY}",
+        "-e", "DISPLAY=${env:DISPLAY}",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
 
 	],
@@ -21,8 +21,6 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
-			"HTTP_PROXY": "${localEnv:HTTP_PROXY}",
-			"HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
 		}
 		// Update 'VARIANT' to pick an Ubuntu version: hirsute, focal, bionic
 		// Use hirsute or bionic on local arm64/Apple Silicon.
@@ -42,5 +40,7 @@
 	// "postCreateCommand": "uname -a",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "root"
+	"remoteUser": "root",
+	"workspaceMount": "source=/home/bhdemirbilek/workspace,target=/workspace,type=bind,consistency=cached",
+	"workspaceFolder": "/workspace",
 }

@@ -18,10 +18,10 @@ RUN . /root/.bashrc && \
 
 RUN source activate env && conda info && conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 RUN source activate env && conda info && \
-    conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib stable-baselines3 tensorboard flake8 -y
+    conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib stable-baselines3 tensorboard numpy pandas flake8 -y
 
 
-RUN conda info && pip install tensorboard-reducer --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
+RUN conda info && pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
 
 RUN apt update && apt install xauth -y && apt-get clean
 
