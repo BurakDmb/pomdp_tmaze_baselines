@@ -15,8 +15,7 @@ If it does not show up, you can press F1 and search for "Remote Containers: Reop
 
     cd .devcontainer
     docker build -t pomdp:v0 .
-    docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -it pomdp:v0
-    docker run --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/$(id -un)/.Xauthority -e XAUTHORITY=/home/$(id -un)/.Xauthority  -d -p 222:22 --rm --name test-pomdp:v0 -v $(pwd)/../:/root/workspace pomdp:v0
+    docker run --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/home/$(id -un)/.Xauthority -e XAUTHORITY=/home/$(id -un)/.Xauthority  -d -p 222:22 --rm --name test-pomdp -v $(pwd)/../:/root/workspace pomdp:v0
     
 After that you you can clone the code and run.
 
