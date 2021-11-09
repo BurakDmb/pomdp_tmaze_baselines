@@ -37,7 +37,7 @@ RUN mkdir /root/.ssh
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN echo "export PATH=/opt/conda/bin:$$PATH" >> /root/.bashrc
+RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
 
 
 
