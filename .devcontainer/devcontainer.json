@@ -13,10 +13,11 @@
 		"--device",
 		"/dev/nvidiactl",
 		"--net", "host", 
-        	"-e", "DISPLAY=${env:DISPLAY}",
-        	"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
-		"-d"
-
+		"-e", "DISPLAY=$DISPLAY",
+		"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
+		"-v", "${localEnv:HOME}/.Xauthority:/root/.Xauthority",
+		"-e", "XAUTHORITY=/home/root/.Xauthority",
+		"--name", "test-pomdp"
 	],
 
 	"build": {

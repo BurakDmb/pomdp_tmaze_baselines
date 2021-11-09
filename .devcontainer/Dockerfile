@@ -39,6 +39,8 @@ RUN apt-get clean && \
 RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
 RUN echo "export http_proxy=$http_proxy" >> /root/.bashrc
 RUN echo "export https_proxy=$https_proxy" >> /root/.bashrc
+RUN git config --global http.sslVerify "false"
+
 EXPOSE 222
 CMD    ["/usr/sbin/sshd", "-D"]
 
