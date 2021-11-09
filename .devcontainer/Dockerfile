@@ -30,6 +30,7 @@ RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_confi
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/#X11DisplayOffset 10/X11DisplayOffset 10/g' /etc/ssh/sshd_config
 RUN sed -ri 's/#X11UseLocalhost yes/X11UseLocalhost no/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#Port 22/Port 222/g' /etc/ssh/sshd_config
 RUN mkdir /root/.ssh
 
 RUN apt-get clean && \
@@ -37,7 +38,7 @@ RUN apt-get clean && \
 
 RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
 
-EXPOSE 22
+EXPOSE 222
 CMD    ["/usr/sbin/sshd", "-D"]
 
 
