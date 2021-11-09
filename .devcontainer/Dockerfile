@@ -2,13 +2,6 @@
 FROM gpuci/miniconda-cuda:11.4-base-ubuntu20.04
 # ARG DEBIAN_FRONTEND=noninteractive
 
-
-ARG HTTP_PROXY=""
-ARG HTTPS_PROXY=""
-
-ENV HTTP_PROXY=HTTP_PROXY
-ENV HTTPS_PROXY=HTTPS_PROXY
-
 RUN conda --version
 RUN conda config --set ssl_verify false
 
