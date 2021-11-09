@@ -3,10 +3,8 @@ FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
 RUN conda --version
 RUN conda config --set ssl_verify false
 
-
 RUN conda info && \
     conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib stable-baselines3 tensorboard numpy pandas flake8 -y
-
 
 RUN conda info && pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
 
@@ -20,7 +18,7 @@ RUN apt-get update \
     libgl1 \
     libglx0 \
     libegl1 \
-    freeglut3-dev openssh-server mesa-utils nano \
+    freeglut3-dev openssh-server mesa-utils nano git \
   && rm -rf /var/lib/apt/lists/*
 # Env vars for the nvidia-container-runtime.
 ENV NVIDIA_VISIBLE_DEVICES all
@@ -38,8 +36,6 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
-
-
 
 EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
