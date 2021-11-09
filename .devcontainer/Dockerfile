@@ -37,8 +37,8 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN echo "export PATH=/opt/conda/bin:\$PATH" >> /root/.bashrc
-RUN echo "export http_proxy=$http_proxy" >> /etc/environment
-RUN echo "export https_proxy=$https_proxy" >> /etc/environment
+RUN echo "http_proxy=$http_proxy" >> /etc/environment
+RUN echo "https_proxy=$https_proxy" >> /etc/environment
 EXPOSE 222
 CMD    ["/usr/sbin/sshd", "-D"]
 
