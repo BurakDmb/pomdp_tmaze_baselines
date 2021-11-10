@@ -85,16 +85,18 @@ class SarsaLambdaAgent:
         self.set_e_value(observation, action,
                          self.get_e_values(observation)[action] + 1)
 
+        self.set_e_value(observation, action, 1)
+
         for obs, e_values in self.e_table.items():
             for a in range(self.action_size):
-                self.set_q_value(obs, a,
-                                 self.get_q_values(obs)[a] +
-                                 self.learning_rate * delta *
-                                 self.get_e_values(obs)[a])
-                self.set_e_value(obs, a,
-                                 self.discount_rate *
-                                 self.lambda_value *
-                                 self.get_e_values(obs)[a])
+                q_val = (self.get_q_values(obs)[a] +
+                         self.learning_rate * delta *
+                         self.get_e_values(obs)[a])
+                e_val = (self.discount_rate *
+                         self.lambda_value *
+                         self.get_e_values(obs)[a])
+                self.set_q_value(obs, a, q_val)
+                self.set_e_value(obs, a, e_val)
 
         # Setting the cumulative reward for the episode
         self.episode_reward += reward
