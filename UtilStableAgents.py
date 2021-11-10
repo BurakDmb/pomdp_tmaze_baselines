@@ -77,29 +77,32 @@ def train_dqn_agent(learning_setting):
     Default Parameter Values:
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = envClass
-        dqn_learning_setting['learning_rate'] = 1e-3
+        dqn_learning_setting['learning_rate'] = 1e-5
         dqn_learning_setting['discount_rate'] = 0.99
-        dqn_learning_setting['epsilon_start'] = 0.9
-        dqn_learning_setting['epsilon_end'] = 0.01
-        dqn_learning_setting['exploration_fraction'] = 0.5
-        dqn_learning_setting['update_interval'] = 100
-        dqn_learning_setting['learning_starts'] = 50000
-        dqn_learning_setting['buffer_size'] = 1000000
-        dqn_learning_setting['nn_layer_size'] = 8
+        dqn_learning_setting['epsilon_start'] = 0.1
+        dqn_learning_setting['epsilon_end'] = 0.1
+        dqn_learning_setting['memory_type'] = memory_type
+        dqn_learning_setting['memory_length'] = 3
+        dqn_learning_setting['exploration_fraction'] = 1.0
+        dqn_learning_setting['update_interval'] = 128
+        dqn_learning_setting['learning_starts'] = 512
+        dqn_learning_setting['buffer_size'] = 100000
+        dqn_learning_setting['nn_num_layers'] = 4
+        dqn_learning_setting['nn_layer_size'] = 512
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
-        dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         dqn_learning_setting['maze_length'] = maze_length
         dqn_learning_setting['total_timesteps'] = total_timesteps
         dqn_learning_setting['seed'] = None
-        dqn_learning_setting['policy'] = "MlpPolicy"
+        dqn_learning_setting['policy'] = MlpDQNPolicy
         dqn_learning_setting['save'] = False
-        dqn_learning_setting['device'] = 'cpu'
+        dqn_learning_setting['device'] = 'cuda:0'
     """
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
 
-    policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size'],
-                                   learning_setting['nn_layer_size']])
+    policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size']] *
+                         learning_setting['nn_num_layers'])
 
     model = DQN(learning_setting['policy'], env, verbose=0,
                 tensorboard_log=learning_setting['tb_log_dir'],
@@ -132,27 +135,30 @@ def train_ppo_agent(learning_setting):
     Default Parameter Values:
         ppo_learning_setting = {}
         ppo_learning_setting['envClass'] = envClass
-        ppo_learning_setting['learning_rate'] = 1e-3
+        ppo_learning_setting['learning_rate'] = 1e-5
         ppo_learning_setting['discount_rate'] = 0.99
-        ppo_learning_setting['nn_layer_size'] = 8
-        ppo_learning_setting['n_steps'] = 2048
+        ppo_learning_setting['nn_num_layers'] = 4
+        ppo_learning_setting['nn_layer_size'] = 512
+        ppo_learning_setting['n_steps'] = 128
+        ppo_learning_setting['memory_type'] = memory_type
+        ppo_learning_setting['memory_length'] = 3
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
-        ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         ppo_learning_setting['maze_length'] = maze_length
         ppo_learning_setting['total_timesteps'] = total_timesteps
         ppo_learning_setting['seed'] = None
-        ppo_learning_setting['policy'] = "MlpPolicy"
+        ppo_learning_setting['policy'] = MlpACPolicy
         ppo_learning_setting['save'] = False
-        ppo_learning_setting['device'] = 'cpu'
+        ppo_learning_setting['device'] = 'cuda:0'
     """
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
 
     policy_kwargs = dict(net_arch=[
-                         dict(pi=[learning_setting['nn_layer_size'],
-                                  learning_setting['nn_layer_size']],
-                              vf=[learning_setting['nn_layer_size'],
-                                  learning_setting['nn_layer_size']])])
+                         dict(pi=[learning_setting['nn_layer_size']] *
+                              learning_setting['nn_num_layers'],
+                              vf=[learning_setting['nn_layer_size']] *
+                              learning_setting['nn_num_layers'])])
 
     model = PPO(learning_setting['policy'], env, verbose=0,
                 tensorboard_log=learning_setting['tb_log_dir'],
@@ -180,28 +186,31 @@ def train_a2c_agent(learning_setting):
     Default Parameter Values:
         a2c_learning_setting = {}
         a2c_learning_setting['envClass'] = envClass
-        a2c_learning_setting['learning_rate'] = 7e-4
+        a2c_learning_setting['learning_rate'] = 1e-5
         a2c_learning_setting['discount_rate'] = 0.99
-        a2c_learning_setting['nn_layer_size'] = 8
-        a2c_learning_setting['n_steps'] = 5
+        a2c_learning_setting['nn_num_layers'] = 4
+        a2c_learning_setting['nn_layer_size'] = 512
+        a2c_learning_setting['n_steps'] = 128
+        a2c_learning_setting['memory_type'] = memory_type
+        a2c_learning_setting['memory_length'] = 3
         a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
-        a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard/"
+        a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         a2c_learning_setting['maze_length'] = maze_length
         a2c_learning_setting['total_timesteps'] = total_timesteps
         a2c_learning_setting['seed'] = None
         a2c_learning_setting['policy'] = "MlpPolicy"
         a2c_learning_setting['save'] = False
-        a2c_learning_setting['device'] = 'cpu'
+        a2c_learning_setting['device'] = 'cuda:0'
     """
 
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
 
     policy_kwargs = dict(net_arch=[
-                         dict(pi=[learning_setting['nn_layer_size'],
-                                  learning_setting['nn_layer_size']],
-                              vf=[learning_setting['nn_layer_size'],
-                                  learning_setting['nn_layer_size']])])
+                         dict(pi=[learning_setting['nn_layer_size']] *
+                              learning_setting['nn_num_layers'],
+                              vf=[learning_setting['nn_layer_size']] *
+                              learning_setting['nn_num_layers'])])
 
     model = A2C(learning_setting['policy'], env, verbose=0,
                 tensorboard_log=learning_setting['tb_log_dir'],

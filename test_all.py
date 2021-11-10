@@ -59,7 +59,8 @@ class TestCode(unittest.TestCase):
         ppo_learning_setting['envClass'] = TMazeEnv
         ppo_learning_setting['learning_rate'] = 1e-3
         ppo_learning_setting['discount_rate'] = 0.99
-        ppo_learning_setting['nn_layer_size'] = 8
+        ppo_learning_setting['nn_num_layers'] = 4
+        ppo_learning_setting['nn_layer_size'] = 512
         ppo_learning_setting['n_steps'] = 64
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppo_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
@@ -87,7 +88,8 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['update_interval'] = 100
         dqn_learning_setting['buffer_size'] = 1000000
         dqn_learning_setting['learning_starts'] = 50
-        dqn_learning_setting['nn_layer_size'] = 8
+        dqn_learning_setting['nn_num_layers'] = 4
+        dqn_learning_setting['nn_layer_size'] = 512
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         dqn_learning_setting['maze_length'] = 6
@@ -117,7 +119,8 @@ class TestCode(unittest.TestCase):
         dqn_learning_setting['update_interval'] = 100
         dqn_learning_setting['learning_starts'] = 50
         dqn_learning_setting['buffer_size'] = 1000000
-        dqn_learning_setting['nn_layer_size'] = 8
+        dqn_learning_setting['nn_num_layers'] = 4
+        dqn_learning_setting['nn_layer_size'] = 512
         dqn_learning_setting['tb_log_name'] = "qlstm-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         dqn_learning_setting['maze_length'] = 6
@@ -138,7 +141,8 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['envClass'] = TMazeEnv
         ppoLSTM_learning_setting['learning_rate'] = 1e-3
         ppoLSTM_learning_setting['discount_rate'] = 0.99
-        ppoLSTM_learning_setting['nn_layer_size'] = 8
+        ppoLSTM_learning_setting['nn_num_layers'] = 4
+        ppoLSTM_learning_setting['nn_layer_size'] = 512
         ppoLSTM_learning_setting['n_steps'] = 64
         ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
         ppoLSTM_learning_setting['tb_log_dir'] = \
@@ -160,7 +164,8 @@ class TestCode(unittest.TestCase):
         a2c_learning_setting['envClass'] = TMazeEnv
         a2c_learning_setting['learning_rate'] = 1e-3
         a2c_learning_setting['discount_rate'] = 0.99
-        a2c_learning_setting['nn_layer_size'] = 8
+        a2c_learning_setting['nn_num_layers'] = 4
+        a2c_learning_setting['nn_layer_size'] = 512
         a2c_learning_setting['n_steps'] = 256
         a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
         a2c_learning_setting['tb_log_dir'] = \
