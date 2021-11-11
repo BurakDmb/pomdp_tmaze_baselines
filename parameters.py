@@ -4,13 +4,13 @@ from UtilPolicies import MlpDQNPolicy
 from UtilPolicies import QLSTMPolicy
 from UtilPolicies import LSTMACPolicy
 
-total_timesteps = 500_000
+total_timesteps = 1_000_000
 maze_length = 6
 envClass = TMazeEnvV9
 
 number_of_parallel_experiments = 4
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
-memory_type = 3
+memory_type = 4
 
 # Change the flags to True/False for only running specific agents
 start_q = True
