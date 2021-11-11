@@ -29,7 +29,8 @@ def train_q_agent(learning_setting):
     model = QAgent(env, learning_setting=learning_setting)
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'])
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()))
 
     # TODO: Implement saving q model
     if learning_setting['save']:
@@ -62,7 +63,8 @@ def train_sarsa_lambda_agent(learning_setting):
     model = SarsaLambdaAgent(env, learning_setting=learning_setting)
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'])
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()))
 
     # TODO: Implement saving sarsa model
     if learning_setting['save']:
@@ -119,7 +121,8 @@ def train_dqn_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'],
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()),
                 callback=TensorboardCallback())
 
     if learning_setting['save']:
@@ -170,7 +173,8 @@ def train_ppo_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'],
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()),
                 callback=TensorboardCallback())
 
     if learning_setting['save']:
@@ -222,7 +226,8 @@ def train_a2c_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'],
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()),
                 callback=TensorboardCallback())
 
     if learning_setting['save']:

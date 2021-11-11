@@ -1,5 +1,4 @@
 import numpy as np
-import datetime
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -28,9 +27,7 @@ class QAgent:
         # self.q_table = np.zeros(q_shape)
 
     def learn(self, total_timesteps, tb_log_name):
-        self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name
-                                    + "-"
-                                    + str(datetime.datetime.now()))
+        self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name)
         self.time_step = 0
         self.episode = 0
         self.timeStepLimit = False
