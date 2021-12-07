@@ -12,17 +12,33 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run Main",
+            "name": "Train Compare Algorithms",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/start_main.py",
+            "program": "${workspaceFolder}/train_compare_algorithms.py",
             "console": "integratedTerminal"
         },
         {
-            "name": "Run Main Multi GPU",
+            "name": "Multi GPU-Train Compare Algorithms ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/start_main.py",
+            "program": "${workspaceFolder}/train_compare_algorithms.py",
+            "console": "integratedTerminal",
+            "args": ["multigpu"]
+        },
+        {
+            "name": "Train Compare Architectures",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_compare_architectures.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Multi GPU-Train Compare Architectures ",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_compare_architectures.py",
             "console": "integratedTerminal",
             "args": ["multigpu"]
         },
