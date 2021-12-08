@@ -4,9 +4,11 @@ RUN conda --version
 RUN conda config --set ssl_verify false
 
 RUN conda info && \
-    conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib stable-baselines3 tensorboard numpy pandas flake8 -y
+    conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas flake8 -y
 
 RUN conda info && pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
+
+RUN conda info && pip3 install git+https://github.com/DLR-RM/stable-baselines3 --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir && pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm --trusted-host pypi.org --trusted-host files.pythonhosted.org --no-cache-dir
 
 # Dependencies for glvnd and X11 and ssh.
 RUN apt-get update \

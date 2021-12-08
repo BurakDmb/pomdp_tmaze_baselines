@@ -1,4 +1,5 @@
 from stable_baselines3 import PPO, DQN, A2C
+from sb3_contrib import RecurrentPPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
 from ClassQAgent import QAgent
@@ -224,6 +225,62 @@ def train_a2c_agent(learning_setting):
                 gamma=learning_setting['discount_rate'],
                 n_steps=learning_setting['n_steps'],
                 device=learning_setting['device'])
+
+    model.learn(total_timesteps=learning_setting['total_timesteps'],
+                tb_log_name=learning_setting['tb_log_name'] +
+                "-" + str(datetime.datetime.now()),
+                callback=TensorboardCallback())
+
+    if learning_setting['save']:
+        model.save("saves/" + learning_setting['tb_log_name'] +
+                   "/" + str(datetime.datetime.now()))
+
+    return model
+
+
+def train_ppo_lstm_agent(learning_setting):
+    """
+    PPO LSTM (Proximal Policy Optimization Algorithm,
+    Must-Have Learning Settings And
+    Default Parameter Values:
+        ppolstm_learning_setting = {}
+        ppolstm_learning_setting['envClass'] = envClass
+        ppolstm_learning_setting['learning_rate'] = 1e-5
+        ppolstm_learning_setting['discount_rate'] = 0.99
+        ppolstm_learning_setting['nn_num_layers'] = 2
+        ppolstm_learning_setting['nn_layer_size'] = 64
+        ppolstm_learning_setting['n_steps'] = 32
+        ppolstm_learning_setting['memory_type'] = memory_type
+        ppolstm_learning_setting['memory_length'] = 3
+        ppolstm_learning_setting['tb_log_name'] = "ppo-tmazev0"
+        ppolstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
+        ppolstm_learning_setting['maze_length'] = maze_length
+        ppolstm_learning_setting['total_timesteps'] = total_timesteps
+        ppolstm_learning_setting['seed'] = None
+        ppolstm_learning_setting['policy'] = MlpACPolicy
+        ppolstm_learning_setting['save'] = False
+        ppolstm_learning_setting['device'] = 'cuda:0'
+    """
+    envClass = learning_setting['envClass']
+    env = envClass(**learning_setting)
+
+    policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
+                                        * learning_setting['nn_num_layers'])],
+                         shared_lstm=True,
+                         ortho_init=False)
+
+    model = RecurrentPPO(
+        learning_setting['policy'],
+        env,
+        n_steps=learning_setting['n_steps'],
+        learning_rate=learning_setting['learning_rate'],
+        verbose=0,
+        tensorboard_log=learning_setting['tb_log_dir'],
+        seed=learning_setting['seed'],
+        policy_kwargs=policy_kwargs,
+        gamma=learning_setting['discount_rate'],
+        device=learning_setting['device']
+    )
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +

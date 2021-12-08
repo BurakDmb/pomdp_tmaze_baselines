@@ -3,27 +3,27 @@
 
 ## Installation
 
-### Opening with vscode dev containers(Recommended) 
+### Opening with vscode dev containers(Recommended)
 
 To run with vscode, please install the extention "Remote - Containers" and after that open the project folder normally.
 
-By default it asks that this project contains a Dev Container configuration file and you can open this folder by clicking the button "Reopen in Container". 
+By default it asks that this project contains a Dev Container configuration file and you can open this folder by clicking the button "Reopen in Container".
 
 If it does not show up, you can press F1 and search for "Remote Containers: Reopen in Container"
 
 ### Install with docker
 
-    cd .devcontainer
-    docker build -t pomdp:v0 .
-    docker run --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/root/.Xauthority -e XAUTHORITY=/root/.Xauthority --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --rm --name test-pomdp -v $(pwd)/../:/root/workspace pomdp:v0
-    
-After that you you can clone the code and run.
+```bash
+cd .devcontainer
+docker build -t pomdp:v0 .
+docker run --gpus all --device /dev/nvidia0 --device /dev/nvidia-uvm --device /dev/nvidia-uvm-tools --device /dev/nvidiactl -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY -v $HOME/.Xauthority:/root/.Xauthority -e XAUTHORITY=/root/.Xauthority --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --rm --name test-pomdp -v $(pwd)/../:/root/workspace pomdp:v0
+```
 
+After that you you can clone the code and run.
 
 ### Local Installation
 
 Install Pytorch with your own configuration
-
 
 #### Example configuration for Cuda 10.2, pip, linux build
 
@@ -35,6 +35,10 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 ### Installing the additional dependencies
 
 `pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard tensorboard-reducer`
+
+`pip3 install git+https://github.com/DLR-RM/stable-baselines3`
+
+`pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm`
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
@@ -172,7 +176,7 @@ An agent starts in the coordinate (1, 0). This position is marked as O in this a
 
 States are 3-dimensitonal discrete variables which is defined below:
 
-```
+```pseudo
 state = [x, y, y of the true goal location]
 ```
 
@@ -183,7 +187,6 @@ action = north/east/south/west
 ```
 
 Note that this n, e, s, w notation is encoded as integers 0, 1, 2, 3 respectively.
-
 
 ### Example Results
 

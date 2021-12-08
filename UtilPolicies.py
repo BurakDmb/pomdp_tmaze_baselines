@@ -109,6 +109,12 @@ class MlpACNetwork(nn.Module):
         shared = self.shared_net(features)
         return self.policy_net(shared), self.value_net(shared)
 
+    def forward_actor(self, features: th.Tensor) -> th.Tensor:
+        return self.policy_net(self.shared_net(features))
+
+    def forward_critic(self, features: th.Tensor) -> th.Tensor:
+        return self.value_net(self.shared_net(features))
+
 
 class MlpDQNPolicy(DQNPolicy):
     def __init__(
@@ -166,10 +172,8 @@ class MlpDQNNetwork(QNetwork):
             activation_fn,
             normalize_images,
         )
-        q_net = self.create_mlp(observation_space.shape[0],
-                                self.action_space.n,
-                                self.net_arch,
-                                self.activation_fn)
+        q_net = self.create_mlp(self.features_dim, self.action_space.n,
+                                self.net_arch, self.activation_fn)
         self.q_net = nn.Sequential(*q_net)
 
     def forward(self, obs: th.Tensor) -> th.Tensor:
@@ -178,7 +182,7 @@ class MlpDQNNetwork(QNetwork):
         :param obs: Observation
         :return: The estimated Q-Value for each action.
         """
-        return self.q_net(obs.float())
+        return self.q_net(self.extract_features(obs))
 
     def create_mlp(self, input_dim: int, output_dim: int, net_arch: List[int],
                    activation_fn: Type[nn.Module] = nn.ReLU,
@@ -253,20 +257,12 @@ class QLSTMNetwork(MlpDQNNetwork):
         # TODO: Number of stacked lstm layers is set to 1 for now,
         # it could be parameterized in the future.
 
-        # num_layers = 1
-        # self.LSTM = nn.LSTM(input_dim, input_dim,
-        #                     num_layers=num_layers, batch_first=True)
-        self.input_dim = input_dim
-        self.hidden_dim = net_arch[0]
-        self.output_dim = output_dim
-        self.LSTM = nn.LSTMCell(input_dim, self.hidden_dim, dtype=th.float32)
-        self.lstm_hx = th.randn(1, self.hidden_dim,
-                                dtype=th.float32)
-        self.lstm_cx = th.randn(1, self.hidden_dim,
-                                dtype=th.float32)
+        num_layers = 1
+        self.LSTM = nn.LSTM(input_dim, input_dim,
+                            num_layers=num_layers, batch_first=True)
 
         if len(net_arch) > 0:
-            modules = [nn.Linear(self.hidden_dim, net_arch[0]),
+            modules = [nn.Linear(input_dim, net_arch[0]),
                        activation_fn()]
         else:
             modules = []
@@ -284,40 +280,11 @@ class QLSTMNetwork(MlpDQNNetwork):
         return modules
 
     def forward(self, obs: th.Tensor) -> th.Tensor:
-
-        with th.no_grad():
-            # Observation shape includes batch size.
-            # Capture the batch size and extend the lstm layers accordingly
-            if (self.lstm_hx.shape[0] == 1 and
-                    obs.shape[0] > self.lstm_hx.shape[0]):
-                self.lstm_hx = self.lstm_hx.repeat(obs.shape[0], 1).float()
-                self.lstm_cx = self.lstm_cx.repeat(obs.shape[0], 1).float()
-                inputX = obs.float()
-            # Observation is single state and it needs to be repeated
-            # to use the current lstm layers.
-            elif (obs.shape[0] == 1 and
-                    obs.shape[0] < self.lstm_hx.shape[0]):
-                inputX = obs.repeat(self.lstm_hx.shape[0], 1).float()
-            # In all other conditions, batch size matches and
-            # therefore it doesnt need any changes.
-            else:
-                inputX = obs.float()
-            if obs.device != self.lstm_hx.device:
-                self.lstm_hx = self.lstm_hx.to(obs.device).float()
-                self.lstm_cx = self.lstm_cx.to(obs.device).float()
-
-        # inputX = self.extract_features(obs)
-        # inputX = th.unsqueeze(obs, 1)
-        # output, (hx, cx) = self.LSTM(obs)
-        self.lstm_hx, self.lstm_cx = self.LSTM(inputX,
-                                               (self.lstm_hx, self.lstm_cx))
-        if not obs.requires_grad:
-            if obs.shape[0] == 1 and obs.shape[0] < self.lstm_hx.shape[0]:
-                output = self.q_net(self.lstm_hx[0:1, :])
-                return output
-        # hn = hx.view(-1, inputX.shape[2])
-        output = self.q_net(self.lstm_hx)
-
+        inputX = self.extract_features(obs)
+        inputX = inputX.unsqueeze(1)
+        output, (hx, cx) = self.LSTM(inputX)
+        hn = hx.view(-1, inputX.shape[2])
+        output = self.q_net(hn)
         return output
 
 
