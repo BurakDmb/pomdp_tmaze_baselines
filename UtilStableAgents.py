@@ -143,7 +143,8 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['discount_rate'] = 0.99
         ppo_learning_setting['nn_num_layers'] = 4
         ppo_learning_setting['nn_layer_size'] = 512
-        ppo_learning_setting['n_steps'] = 128
+        ppo_learning_setting['n_steps'] = 32
+        ppo_learning_setting['batch_size'] = 32
         ppo_learning_setting['memory_type'] = memory_type
         ppo_learning_setting['memory_length'] = 3
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
@@ -169,6 +170,7 @@ def train_ppo_agent(learning_setting):
                 seed=learning_setting['seed'],
                 policy_kwargs=policy_kwargs,
                 learning_rate=learning_setting['learning_rate'],
+                batch_size=learning_setting['batch_size'],
                 gamma=learning_setting['discount_rate'],
                 n_steps=learning_setting['n_steps'],
                 device=learning_setting['device'])
@@ -250,6 +252,7 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['nn_num_layers'] = 2
         ppolstm_learning_setting['nn_layer_size'] = 64
         ppolstm_learning_setting['n_steps'] = 32
+        ppolstm_learning_setting['batch_size'] = 32
         ppolstm_learning_setting['memory_type'] = memory_type
         ppolstm_learning_setting['memory_length'] = 3
         ppolstm_learning_setting['tb_log_name'] = "ppo-tmazev0"
@@ -274,6 +277,7 @@ def train_ppo_lstm_agent(learning_setting):
         env,
         n_steps=learning_setting['n_steps'],
         learning_rate=learning_setting['learning_rate'],
+        batch_size=learning_setting['batch_size'],
         verbose=0,
         tensorboard_log=learning_setting['tb_log_dir'],
         seed=learning_setting['seed'],
