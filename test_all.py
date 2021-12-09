@@ -62,6 +62,7 @@ class TestCode(unittest.TestCase):
         ppo_learning_setting['nn_num_layers'] = 4
         ppo_learning_setting['nn_layer_size'] = 512
         ppo_learning_setting['n_steps'] = 64
+        ppo_learning_setting['batch_size'] = 64
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppo_learning_setting['tb_log_dir'] = "./logs/test_t_maze_tensorboard/"
         ppo_learning_setting['maze_length'] = 6
@@ -134,8 +135,7 @@ class TestCode(unittest.TestCase):
 
     def test_lstm_ppo_policy(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_ppo_agent
-        from UtilPolicies import LSTMACPolicy
+        from UtilStableAgents import train_ppo_lstm_agent
 
         ppoLSTM_learning_setting = {}
         ppoLSTM_learning_setting['envClass'] = TMazeEnv
@@ -144,17 +144,22 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['nn_num_layers'] = 4
         ppoLSTM_learning_setting['nn_layer_size'] = 512
         ppoLSTM_learning_setting['n_steps'] = 64
+        ppoLSTM_learning_setting['batch_size'] = 64
+        ppoLSTM_learning_setting['memory_type'] = 0
+        ppoLSTM_learning_setting['memory_length'] = 1
+        ppoLSTM_learning_setting['intrinsic_enabled'] = 1
         ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
         ppoLSTM_learning_setting['tb_log_dir'] = \
             "./logs/test_t_maze_tensorboard/"
         ppoLSTM_learning_setting['maze_length'] = 6
         ppoLSTM_learning_setting['total_timesteps'] = 50
         ppoLSTM_learning_setting['seed'] = None
-        ppoLSTM_learning_setting['policy'] = LSTMACPolicy
+        ppoLSTM_learning_setting['policy'] = "MlpLstmPolicy"
         ppoLSTM_learning_setting['save'] = False
         ppoLSTM_learning_setting['device'] = 'cpu'
+        ppoLSTM_learning_setting['train_func'] = train_ppo_lstm_agent
 
-        train_ppo_agent(learning_setting=ppoLSTM_learning_setting)
+        train_ppo_lstm_agent(learning_setting=ppoLSTM_learning_setting)
 
     def test_a2c_agent(self):
         from EnvTMaze import TMazeEnv

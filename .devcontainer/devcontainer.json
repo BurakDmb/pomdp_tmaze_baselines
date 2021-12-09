@@ -1,29 +1,27 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// docker build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t pomdp:v0 .
+// docker run --privileged --gpus all --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --rm --name test-pomdp -v $(pwd)/../:/home/$(whoami)/workspace pomdp:v0
+
 {
 	"name": "pomdp",
 	"runArgs": ["--init",
+		"--privileged",
 		"--gpus",
 		"all",
-		"--device",
-		"/dev/nvidia0",
-		"--device",
-		"/dev/nvidia-uvm",
-		"--device",
-		"/dev/nvidia-uvm-tools",
-		"--device",
-		"/dev/nvidiactl",
-		"--net", "host", 
-		"-e", "DISPLAY=$DISPLAY",
-		"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
-		"-v", "${localEnv:HOME}/.Xauthority:/root/.Xauthority",
-		"-e", "XAUTHORITY=/home/root/.Xauthority",
-		"--name", "test-pomdp"
+		"--net", "host",
+		"--env", "http_proxy=$http_proxy",
+		"--env", "https_proxy=$https_proxy",
+		"--name", "test-pomdp",
+		"-v", "$(pwd)/../:/home/$(whoami)/workspace"
 	],
-
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": {
+			"UNAME": "$(whoami)",
+			"UID": "$(id -u)",
+			"GID": "$(id -g)",
 		}
+
 		// Update 'VARIANT' to pick an Ubuntu version: hirsute, focal, bionic
 		// Use hirsute or bionic on local arm64/Apple Silicon.
 	},
@@ -42,5 +40,5 @@
 	// "postCreateCommand": "uname -a",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "root",
+	"remoteUser": "$(whoami)",
 }

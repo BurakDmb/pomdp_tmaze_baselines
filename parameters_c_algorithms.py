@@ -157,6 +157,7 @@ ppo_learning_setting['discount_rate'] = 0.99
 ppo_learning_setting['nn_num_layers'] = 4
 ppo_learning_setting['nn_layer_size'] = 32
 ppo_learning_setting['n_steps'] = 128
+ppo_learning_setting['batch_size'] = 128
 ppo_learning_setting['memory_type'] = memory_type
 ppo_learning_setting['memory_length'] = 1
 ppo_learning_setting['intrinsic_enabled'] = 0
