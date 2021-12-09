@@ -17,6 +17,7 @@ RUN apt-get update \
     git \
     curl \
     wget \
+    screen \
   && rm -rf /var/lib/apt/lists/*
 
 ENV GIT_SSL_NO_VERIFY true
