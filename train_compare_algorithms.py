@@ -7,24 +7,24 @@ if __name__ == '__main__':
     unittest_main()
 
     params = len(sys.argv)
-    if params == 1 and sys.argv[0] == 'multigpu':
+    if params == 2 and sys.argv[1] == 'multigpu':
         pass
     else:
-        from parameters_c_algorithms import number_of_parallel_experiments
-        from parameters_c_algorithms import start_q, start_sarsa_low
-        from parameters_c_algorithms import start_sarsa_middle
-        from parameters_c_algorithms import start_sarsa_high, start_dqn
-        from parameters_c_algorithms import start_qlstm, start_ppo
-        from parameters_c_algorithms import start_ppoLSTM, start_a2c
-        from parameters_c_algorithms import q_learning_setting
-        from parameters_c_algorithms import sarsa_low_l_learning_setting
-        from parameters_c_algorithms import sarsa_middle_l_learning_setting
-        from parameters_c_algorithms import sarsa_high_l_learning_setting
-        from parameters_c_algorithms import dqn_learning_setting
-        from parameters_c_algorithms import qlstm_learning_setting
-        from parameters_c_algorithms import ppo_learning_setting
-        from parameters_c_algorithms import ppoLSTM_learning_setting
-        from parameters_c_algorithms import a2c_learning_setting
+        from params_gpu_comp_alg import number_of_parallel_experiments
+        from params_gpu_comp_alg import start_q, start_sarsa_low
+        from params_gpu_comp_alg import start_sarsa_middle
+        from params_gpu_comp_alg import start_sarsa_high, start_dqn
+        from params_gpu_comp_alg import start_qlstm, start_ppo
+        from params_gpu_comp_alg import start_ppoLSTM, start_a2c
+        from params_gpu_comp_alg import q_learning_setting
+        from params_gpu_comp_alg import sarsa_low_l_learning_setting
+        from params_gpu_comp_alg import sarsa_middle_l_learning_setting
+        from params_gpu_comp_alg import sarsa_high_l_learning_setting
+        from params_gpu_comp_alg import dqn_learning_setting
+        from params_gpu_comp_alg import qlstm_learning_setting
+        from params_gpu_comp_alg import ppo_learning_setting
+        from params_gpu_comp_alg import ppoLSTM_learning_setting
+        from params_gpu_comp_alg import a2c_learning_setting
 
     mp.set_start_method('spawn')
     processes = []
