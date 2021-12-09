@@ -17,7 +17,7 @@ If it does not show up, you can press F1 and search for "Remote Containers: Reop
 cd .devcontainer
 docker build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t pomdp:v0 .
 
-docker run --privileged --gpus all --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --rm --name test-pomdp -v $(pwd)/../:/home/$(whoami)/workspace pomdp:v0
+docker run --privileged --gpus all --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --restart always --name test-pomdp -v $(pwd)/../:/home/$(whoami)/workspace pomdp:v0
 ```
 
 After that you you can clone the code and run.
