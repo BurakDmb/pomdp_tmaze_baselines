@@ -7,7 +7,23 @@ if __name__ == '__main__':
 
     params = len(sys.argv)
     if params == 1 and sys.argv[0] == 'multigpu':
-        pass
+        from mgpu_parameters_c_architecture import number_of_parallel_experiments
+        from mgpu_parameters_c_architecture import start_no_memory
+        from mgpu_parameters_c_architecture import start_no_memory_intr
+        from mgpu_parameters_c_architecture import start_o_k_memory
+        from mgpu_parameters_c_architecture import start_o_k_intr_memory
+        from mgpu_parameters_c_architecture import start_oa_k_memory
+        from mgpu_parameters_c_architecture import start_oa_k_intr_memory
+        from mgpu_parameters_c_architecture import start_lstm
+        from mgpu_parameters_c_architecture import start_lstm_intr
+        from mgpu_parameters_c_architecture import no_memory_learning_setting
+        from mgpu_parameters_c_architecture import no_memory_intr_learning_setting
+        from mgpu_parameters_c_architecture import o_k_memory_learning_setting
+        from mgpu_parameters_c_architecture import o_k_intr_memory_learning_setting
+        from mgpu_parameters_c_architecture import oa_k_memory_learning_setting
+        from mgpu_parameters_c_architecture import oa_k_intr_memory_learning_setting
+        from mgpu_parameters_c_architecture import lstm_learning_setting
+        from mgpu_parameters_c_architecture import lstm_intr_learning_setting
     else:
         from parameters_c_architecture import number_of_parallel_experiments
         from parameters_c_architecture import start_no_memory
