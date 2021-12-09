@@ -44,7 +44,7 @@ no_memory_learning_setting['total_timesteps'] = total_timesteps
 no_memory_learning_setting['seed'] = None
 no_memory_learning_setting['policy'] = MlpACPolicy
 no_memory_learning_setting['save'] = False
-no_memory_learning_setting['device'] = 'cuda:0'
+no_memory_learning_setting['device'] = 'cuda:3'
 no_memory_learning_setting['train_func'] = train_ppo_agent
 
 no_memory_intr_learning_setting = {}
@@ -65,7 +65,7 @@ no_memory_intr_learning_setting['total_timesteps'] = total_timesteps
 no_memory_intr_learning_setting['seed'] = None
 no_memory_intr_learning_setting['policy'] = MlpACPolicy
 no_memory_intr_learning_setting['save'] = False
-no_memory_intr_learning_setting['device'] = 'cuda:0'
+no_memory_intr_learning_setting['device'] = 'cuda:3'
 no_memory_intr_learning_setting['train_func'] = train_ppo_agent
 
 o_k_memory_learning_setting = {}
@@ -86,7 +86,7 @@ o_k_memory_learning_setting['total_timesteps'] = total_timesteps
 o_k_memory_learning_setting['seed'] = None
 o_k_memory_learning_setting['policy'] = MlpACPolicy
 o_k_memory_learning_setting['save'] = False
-o_k_memory_learning_setting['device'] = 'cuda:1'
+o_k_memory_learning_setting['device'] = 'cuda:2'
 o_k_memory_learning_setting['train_func'] = train_ppo_agent
 
 o_k_intr_memory_learning_setting = {}
@@ -107,7 +107,7 @@ o_k_intr_memory_learning_setting['total_timesteps'] = total_timesteps
 o_k_intr_memory_learning_setting['seed'] = None
 o_k_intr_memory_learning_setting['policy'] = MlpACPolicy
 o_k_intr_memory_learning_setting['save'] = False
-o_k_intr_memory_learning_setting['device'] = 'cuda:1'
+o_k_intr_memory_learning_setting['device'] = 'cuda:2'
 o_k_intr_memory_learning_setting['train_func'] = train_ppo_agent
 
 
@@ -129,7 +129,7 @@ oa_k_memory_learning_setting['total_timesteps'] = total_timesteps
 oa_k_memory_learning_setting['seed'] = None
 oa_k_memory_learning_setting['policy'] = MlpACPolicy
 oa_k_memory_learning_setting['save'] = False
-oa_k_memory_learning_setting['device'] = 'cuda:2'
+oa_k_memory_learning_setting['device'] = 'cuda:1'
 oa_k_memory_learning_setting['train_func'] = train_ppo_agent
 
 oa_k_intr_memory_learning_setting = {}
@@ -150,7 +150,7 @@ oa_k_intr_memory_learning_setting['total_timesteps'] = total_timesteps
 oa_k_intr_memory_learning_setting['seed'] = None
 oa_k_intr_memory_learning_setting['policy'] = MlpACPolicy
 oa_k_intr_memory_learning_setting['save'] = False
-oa_k_intr_memory_learning_setting['device'] = 'cuda:2'
+oa_k_intr_memory_learning_setting['device'] = 'cuda:1'
 oa_k_intr_memory_learning_setting['train_func'] = train_ppo_agent
 
 lstm_learning_setting = {}
@@ -171,7 +171,7 @@ lstm_learning_setting['total_timesteps'] = total_timesteps
 lstm_learning_setting['seed'] = None
 lstm_learning_setting['policy'] = "MlpLstmPolicy"
 lstm_learning_setting['save'] = False
-lstm_learning_setting['device'] = 'cuda:3'
+lstm_learning_setting['device'] = 'cuda:0'
 lstm_learning_setting['train_func'] = train_ppo_lstm_agent
 
 lstm_intr_learning_setting = {}
@@ -192,5 +192,5 @@ lstm_intr_learning_setting['total_timesteps'] = total_timesteps
 lstm_intr_learning_setting['seed'] = None
 lstm_intr_learning_setting['policy'] = "MlpLstmPolicy"
 lstm_intr_learning_setting['save'] = False
-lstm_intr_learning_setting['device'] = 'cuda:3'
+lstm_intr_learning_setting['device'] = 'cuda:0'
 lstm_intr_learning_setting['train_func'] = train_ppo_lstm_agent
