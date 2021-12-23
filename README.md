@@ -34,12 +34,10 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 <https://pytorch.org/get-started/locally/>
 
 ### Installing the additional dependencies
-
-`pip3 install gym sklearn profilehooks progressbar matplotlib stable-baselines3 tensorboard tensorboard-reducer`
-
-`pip3 install git+https://github.com/DLR-RM/stable-baselines3`
-
-`pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm`
+`conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas flake8 -y`
+`pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org`
+`pip install git+https://github.com/DLR-RM/stable-baselines3 --trusted-host pypi.org --trusted-host files.pythonhosted.org`
+`pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm --trusted-host pypi.org --trusted-host files.pythonhosted.org`
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
