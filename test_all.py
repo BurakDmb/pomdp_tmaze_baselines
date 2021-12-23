@@ -147,7 +147,8 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['batch_size'] = 64
         ppoLSTM_learning_setting['memory_type'] = 0
         ppoLSTM_learning_setting['memory_length'] = 1
-        ppoLSTM_learning_setting['intrinsic_enabled'] = 1
+        ppoLSTM_learning_setting['intrinsic_enabled'] = 0
+        ppoLSTM_learning_setting['intrinsic_beta'] = 0.5
         ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
         ppoLSTM_learning_setting['tb_log_dir'] = \
             "./logs/test_t_maze_tensorboard/"

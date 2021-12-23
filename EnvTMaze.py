@@ -704,6 +704,11 @@ class TMazeEnvV9(TMazeEnvV1):
         super(TMazeEnvV9, self).__init__(**kwargs)
         self.memory_type = kwargs.get('memory_type', 0)
         self.memory_length = kwargs.get('memory_length', 1)
+        self.intrinsic_enabled = kwargs.get('intrinsic_enabled', 0)
+        self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.5)
+
+        self.intrinsic_dict = {}
+        self.intrinsic_total_count = 0
 
         # Memory type 0 = None
         if self.memory_type == 0:
@@ -871,9 +876,18 @@ class TMazeEnvV9(TMazeEnvV1):
 
         new_state, reward, done, success = self._one_agent_step(
                 self.current_state, movementAction)
+
+        intrinsic_obs = self._get_observation()[0:self.obs_single_size]
+        obs_freq = self.intrinsic_dict.get(intrinsic_obs, 0)
+        self.intrinsic_dict[intrinsic_obs] = obs_freq + 1
+        self.intrinsic_total_count += 1
+
+        r_int_m = self.calculateIntrinsicMotivationReward()
+        total_reward = reward + r_int_m
+
         self.current_state = new_state
 
-        self.episode_reward += reward
+        self.episode_reward += total_reward
         return self._get_observation(), reward, done, {'success': success}
 
     def reset(self):
@@ -899,6 +913,10 @@ class TMazeEnvV9(TMazeEnvV1):
         self.current_state = random.choice(
                 self.li_initial_states)
         self.episode_reward = 0
+
+        self.intrinsic_dict = {}
+        self.intrinsic_total_count = 0
+
         return self._get_observation()
 
     def add_observation_to_memory(self, memoryAction, action):
@@ -931,3 +949,18 @@ class TMazeEnvV9(TMazeEnvV1):
                 np.append(self._get_observation()[:self.obs_single_size],
                           [action])
         pass
+
+    def calculateIntrinsicMotivationReward(self):
+        # beta is between [0,1]
+        # c is the memory capacity.
+        # p_obs is the probability of gathering observation obs
+        # r_int_m is bounded to [-c, 0]
+        total_frequencies = 0
+        for i in range(self.memory_length):
+            obs_i = self.external_memory[
+                i*self.mem_single_size:(i+1)*self.mem_single_size]
+            p_obs = self.intrinsic_dict[obs_i] / self.intrinsic_total_count
+            total_frequencies += 1-p_obs
+        total_frequencies -= self.memory_length
+        r_int_m = self.intrinsic_beta * total_frequencies
+        return r_int_m
