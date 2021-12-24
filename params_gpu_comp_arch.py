@@ -6,18 +6,18 @@ total_timesteps = 1_000_000
 maze_length = 10
 envClass = TMazeEnvV9
 
-number_of_parallel_experiments = 4
+number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
 
 # Change the flags to True/False for only running specific agents
-start_no_memory = False
-start_no_memory_intr = False
+start_no_memory = True
+start_no_memory_intr = True
 start_o_k_memory = True
-start_o_k_intr_memory = False
-start_oa_k_memory = False
-start_oa_k_intr_memory = False
-start_lstm = False
-start_lstm_intr = False
+start_o_k_intr_memory = True
+start_oa_k_memory = True
+start_oa_k_intr_memory = True
+start_lstm = True
+start_lstm_intr = True
 
 learning_rate = 1e-3
 discount_rate = 0.99
