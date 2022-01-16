@@ -22,9 +22,9 @@ start_lstm_intr = False
 learning_rate = 1e-3
 discount_rate = 0.99
 nn_num_layers = 3
-nn_layer_size = 8
-n_steps = 32
-batch_size = 32
+nn_layer_size = 16
+n_steps = 2048
+batch_size = 64
 
 no_memory_learning_setting = {}
 no_memory_learning_setting['envClass'] = envClass

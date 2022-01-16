@@ -1,5 +1,6 @@
 {
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
-    "http.proxyStrictSSL": false
+    "http.proxyStrictSSL": false,
+    "python.pythonPath": "/home/bhdemirbilek/miniconda3/envs/pomdp/bin/python"
 }

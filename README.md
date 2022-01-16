@@ -24,6 +24,8 @@ After that you you can clone the code and run.
 
 ### Local Installation
 
+`conda create -n pomdp python=3.8`
+
 Install Pytorch with your own configuration
 
 #### Example configuration for Cuda 10.2, pip, linux build
@@ -42,12 +44,16 @@ Note: If you are planning to use Cuda 11, then please follow the instructions on
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
 ### Running the code with cpu configuration
-
-`python3 start_main.py`
+`conda activate pomdp`
+`python start_main.py`
+`python train_compare_architectures.py`
 
 ### Running the code with multi-gpu configuration
 
-`python3 start_main.py multigpu`
+`screen -R pomdp # optional - recommended when starting training from ssh.`
+`conda activate pomdp`
+`python train_compare_algorithms.py multigpu`
+`python train_compare_architectures.py multigpu`
 
 ### Running the tensorboard to observe the learning
 
@@ -60,12 +66,27 @@ Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to yo
 For these algorithms, run these commands below:
 
 ```bash
-tb-reducer -i 'logs/t_maze_tensorboard/q-t*' -o logs/t_maze_tensorboard/q/ -r mean --lax-steps --lax-tags
-tb-reducer -i 'logs/t_maze_tensorboard/sarsa*' -o logs/t_maze_tensorboard/sarsa/ -r mean --lax-steps --lax-tags
-tb-reducer -i 'logs/t_maze_tensorboard/qlstm*' -o logs/t_maze_tensorboard/qlstm/ -r mean --lax-steps --lax-tags
-tb-reducer -i 'logs/t_maze_tensorboard/ppo-*' -o logs/t_maze_tensorboard/ppo/ -r mean --lax-steps --lax-tags
-tb-reducer -i 'logs/t_maze_tensorboard/a2c-*' -o logs/t_maze_tensorboard/a2c/ -r mean --lax-steps --lax-tags
-tb-reducer -i 'logs/t_maze_tensorboard/ppoLSTM-*' -o logs/t_maze_tensorboard/ppoLSTM/ -r mean --lax-steps --lax-tags
+# For Comparing Algorithms
+tb-reducer -o logs/t_maze_tensorboard/q/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/q-t*
+tb-reducer -o logs/t_maze_tensorboard/sarsa/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/sarsa*
+tb-reducer -o logs/t_maze_tensorboard/qlstm/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/qlstm*
+tb-reducer -o logs/t_maze_tensorboard/ppo/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/ppo-*
+tb-reducer -o logs/t_maze_tensorboard/a2c/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/a2c-*
+tb-reducer -o logs/t_maze_tensorboard/ppoLSTM/ -r mean --lax-steps --lax-tags logs/t_maze_tensorboard/ppoLSTM-*
+
+# For Comparing Architectures
+
+logdir='results_comp_architectures/c_architectures_tb'
+tb-reducer -o $logdir/no_memory -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/no_memory-* 
+tb-reducer -o $logdir/o_k -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/o_k-* 
+tb-reducer -o $logdir/oa_k -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/oa_k-* 
+tb-reducer -o $logdir/lstm -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/lstm-* 
+logdir='results_comp_architectures/intr_c_architectures_tb'
+tb-reducer -o $logdir/no_memory_intr -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/no_memory_intr-* 
+tb-reducer -o $logdir/o_k_intr -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/o_k_intr-* 
+tb-reducer -o $logdir/oa_k_intr -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/oa_k_intr-* 
+tb-reducer -o $logdir/lstm_intr -r mean --lax-steps --lax-tags --min-runs-per-step 4 -f $logdir/lstm_intr-* 
+
 ```
 
 ## Detailed Information About The Project Structure
