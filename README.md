@@ -23,23 +23,14 @@ docker run --privileged --gpus all --env http_proxy=$http_proxy --env https_prox
 After that you you can clone the code and run.
 
 ### Local Installation
+You can install required dependencies(including pytorch gpu cuda 11.* version) by simply running these lines:
 
-`conda create -n pomdp python=3.8`
+For this configuration, it assumed that the user is in a linux(pref. Ubuntu) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in requirements.txt and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
 
-Install Pytorch with your own configuration
+`conda create -n pomdp python=3.8 -y`
+`conda activate pomdp`
+`pip install -r requirements.txt`
 
-#### Example configuration for Cuda 10.2, pip, linux build
-
-`pip3 install torch torchvision torchaudio`
-
-Note: If you are planning to use Cuda 11, then please follow the instructions on the link below:
-<https://pytorch.org/get-started/locally/>
-
-### Installing the additional dependencies
-`conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas flake8 -y`
-`pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org`
-`pip install git+https://github.com/DLR-RM/stable-baselines3 --trusted-host pypi.org --trusted-host files.pythonhosted.org`
-`pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm --trusted-host pypi.org --trusted-host files.pythonhosted.org`
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
