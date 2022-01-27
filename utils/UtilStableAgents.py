@@ -2,8 +2,8 @@ from stable_baselines3 import PPO, DQN, A2C
 from sb3_contrib import RecurrentPPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
-from ClassQAgent import QAgent
-from ClassSarsaLambdaAgent import SarsaLambdaAgent
+from agents.ClassQAgent import QAgent
+from agents.ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
 
 

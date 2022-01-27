@@ -4,7 +4,7 @@ import unittest
 class TestCode(unittest.TestCase):
 
     def test_custom_agent(self):
-        from UtilStableAgents import train_q_agent
+        from utils.UtilStableAgents import train_q_agent
         from EnvTMaze import TMazeEnv
 
         learning_setting = {}
@@ -52,8 +52,8 @@ class TestCode(unittest.TestCase):
 
     def test_custom_ppo_policy(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_ppo_agent
-        from UtilPolicies import MlpACPolicy
+        from utils.UtilStableAgents import train_ppo_agent
+        from utils.UtilPolicies import MlpACPolicy
 
         ppo_learning_setting = {}
         ppo_learning_setting['envClass'] = TMazeEnv
@@ -76,8 +76,8 @@ class TestCode(unittest.TestCase):
 
     def test_custom_dqn_policy(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_dqn_agent
-        from UtilPolicies import MlpDQNPolicy
+        from utils.UtilStableAgents import train_dqn_agent
+        from utils.UtilPolicies import MlpDQNPolicy
 
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = TMazeEnv
@@ -107,8 +107,8 @@ class TestCode(unittest.TestCase):
 
     def test_qlstm_policy(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_dqn_agent
-        from UtilPolicies import QLSTMPolicy
+        from utils.UtilStableAgents import train_dqn_agent
+        from utils.UtilPolicies import QLSTMPolicy
 
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = TMazeEnv
@@ -135,7 +135,7 @@ class TestCode(unittest.TestCase):
 
     def test_lstm_ppo_policy(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_ppo_lstm_agent
+        from utils.UtilStableAgents import train_ppo_lstm_agent
 
         ppoLSTM_learning_setting = {}
         ppoLSTM_learning_setting['envClass'] = TMazeEnv
@@ -164,7 +164,7 @@ class TestCode(unittest.TestCase):
 
     def test_a2c_agent(self):
         from EnvTMaze import TMazeEnv
-        from UtilStableAgents import train_a2c_agent
+        from utils.UtilStableAgents import train_a2c_agent
 
         a2c_learning_setting = {}
         a2c_learning_setting['envClass'] = TMazeEnv

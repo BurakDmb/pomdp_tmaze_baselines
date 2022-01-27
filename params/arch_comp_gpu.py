@@ -1,6 +1,6 @@
 from EnvTMaze import TMazeEnvV9
-from UtilPolicies import MlpACPolicy
-from UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
+from utils.UtilPolicies import MlpACPolicy
+from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
 
 total_timesteps = 1_000_000
 maze_length = 10

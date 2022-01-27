@@ -1,8 +1,8 @@
 from EnvTMaze import TMazeEnvV9
-from UtilPolicies import MlpACPolicy
-from UtilPolicies import MlpDQNPolicy
-from UtilPolicies import QLSTMPolicy
-from UtilPolicies import LSTMACPolicy
+from utils.UtilPolicies import MlpACPolicy
+from utils.UtilPolicies import MlpDQNPolicy
+from utils.UtilPolicies import QLSTMPolicy
+from utils.UtilPolicies import LSTMACPolicy
 
 total_timesteps = 1_000_000
 maze_length = 6
