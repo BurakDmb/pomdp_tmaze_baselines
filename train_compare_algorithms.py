@@ -10,26 +10,26 @@ if __name__ == '__main__':
     if params == 2 and sys.argv[1] == 'multigpu':
         pass
     else:
-        from params_gpu_comp_alg import number_of_parallel_experiments
-        from params_gpu_comp_alg import start_q, start_sarsa_low
-        from params_gpu_comp_alg import start_sarsa_middle
-        from params_gpu_comp_alg import start_sarsa_high, start_dqn
-        from params_gpu_comp_alg import start_qlstm, start_ppo
-        from params_gpu_comp_alg import start_ppoLSTM, start_a2c
-        from params_gpu_comp_alg import q_learning_setting
-        from params_gpu_comp_alg import sarsa_low_l_learning_setting
-        from params_gpu_comp_alg import sarsa_middle_l_learning_setting
-        from params_gpu_comp_alg import sarsa_high_l_learning_setting
-        from params_gpu_comp_alg import dqn_learning_setting
-        from params_gpu_comp_alg import qlstm_learning_setting
-        from params_gpu_comp_alg import ppo_learning_setting
-        from params_gpu_comp_alg import ppoLSTM_learning_setting
-        from params_gpu_comp_alg import a2c_learning_setting
+        from params.alg_comp_gpu import number_of_parallel_experiments
+        from params.alg_comp_gpu import start_q, start_sarsa_low
+        from params.alg_comp_gpu import start_sarsa_middle
+        from params.alg_comp_gpu import start_sarsa_high, start_dqn
+        from params.alg_comp_gpu import start_qlstm, start_ppo
+        from params.alg_comp_gpu import start_ppoLSTM, start_a2c
+        from params.alg_comp_gpu import q_learning_setting
+        from params.alg_comp_gpu import sarsa_low_l_learning_setting
+        from params.alg_comp_gpu import sarsa_middle_l_learning_setting
+        from params.alg_comp_gpu import sarsa_high_l_learning_setting
+        from params.alg_comp_gpu import dqn_learning_setting
+        from params.alg_comp_gpu import qlstm_learning_setting
+        from params.alg_comp_gpu import ppo_learning_setting
+        from params.alg_comp_gpu import ppoLSTM_learning_setting
+        from params.alg_comp_gpu import a2c_learning_setting
 
     mp.set_start_method('spawn')
     processes = []
 
-    for rank in range(number_of_parallel_experiments):
+    for _ in range(number_of_parallel_experiments):
 
         if start_q:
             p = mp.Process(target=q_learning_setting['train_func'],
