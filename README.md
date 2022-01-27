@@ -26,25 +26,30 @@ After that you you can clone the code and run.
 You can install required dependencies(including pytorch gpu cuda 11.* version) by simply running these lines:
 
 For this configuration, it assumed that the user is in a linux(pref. Ubuntu) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in requirements.txt and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
-
-`conda create -n pomdp python=3.8 -y`
-`conda activate pomdp`
-`pip install -r requirements.txt`
-
+```
+conda create -n pomdp python=3.8 -y
+conda activate pomdp
+pip install -r requirements.txt
+```
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
 
 ### Running the code with cpu configuration
-`conda activate pomdp`
-`python start_main.py`
-`python train_compare_architectures.py`
+```
+screen -R pomdp # optional - recommended when starting training from ssh.
+conda activate pomdp
+python start_main.py
+python train_compare_architectures.py
+```
+
 
 ### Running the code with multi-gpu configuration
-
-`screen -R pomdp # optional - recommended when starting training from ssh.`
-`conda activate pomdp`
-`python train_compare_algorithms.py multigpu`
-`python train_compare_architectures.py multigpu`
+```
+screen -R pomdp # optional - recommended when starting training from ssh.
+conda activate pomdp
+python train_compare_algorithms.py multigpu
+python train_compare_architectures.py multigpu
+```
 
 ### Running the tensorboard to observe the learning
 
