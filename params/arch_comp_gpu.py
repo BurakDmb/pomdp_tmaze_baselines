@@ -1,10 +1,10 @@
-from EnvTMaze import TMazeEnvV9
+from EnvTMaze import TMazeEnvMemoryWrapped
 from utils.UtilPolicies import MlpACPolicy
 from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
 
 total_timesteps = 1_000_000
 maze_length = 10
-envClass = TMazeEnvV9
+envClass = TMazeEnvMemoryWrapped
 
 number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk

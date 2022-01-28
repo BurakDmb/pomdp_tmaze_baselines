@@ -26,10 +26,24 @@ After that you you can clone the code and run.
 You can install required dependencies(including pytorch gpu cuda 11.* version) by simply running these lines:
 
 For this configuration, it assumed that the user is in a linux(pref. Ubuntu) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in requirements.txt and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
+
+
 ```
 conda create -n pomdp python=3.8 -y
 conda activate pomdp
 pip install -r requirements.txt
+pip install mysqlclient mysql-connector
+
+
+
+```
+
+Hyperparameter optimization with Optuna:
+```
+#Change IP adress according to your configuration
+docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d mysql:8
+mysql -u root -h IP -p -e "CREATE DATABASE IF NOT EXISTS example"
+optuna create-study --study-name "distributed-example" --storage "mysql://root:1234@IP/example"
 ```
 
 Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
@@ -125,19 +139,8 @@ In this file, the T-Maze Environment is implemented with many different versions
 
 ```text
 TMazeEnv - T-Maze Environment with full observation
-TMazeEnvV1 - T-Maze Environment with partial observation
-TMazeEnvV2 - T-Maze Environment with partial observation(with the state implementation from the original paper)
-TMazeEnvV3 - T-Maze Environment with full observation with one hot vectors as states
-TMazeEnvV4 - T-Maze Environment with partial observation with one hot vectors as states
-TMazeEnvV5 - T-Maze Environment with partial observation with external memory wrapper
-    (adding new memory actions as new actions, example actions: (north), (south), (east), (east), (set bit))
-TMazeEnvV6 - T-Maze Environment with partial observation with external memory wrapper (cross product of two action sets)
-    (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
-TMazeEnvV7 - T-Maze Environment - partial observation with external memory of fixed size sequence with observations
-    (adding new memory actions as new actions, example actions: (north), (south), (east), (east), (add obs to memory)
-TMazeEnvV8 - T-Maze Environment - partial observation with external memory of fixed size sequence with observations
-    (embedding the memory actions with standard actions, example actions: (north+set bit), (east+nop), (east+nop), (south+clear bit), ... etc.
-TMazeEnvV9 - T-Maze Environment - partial observation with external memory - Generic Memory Implementation(None, Kk, Bk, Ok, OAk Memory Types) (Possible actions are the cross product of movement and memory action sets)
+TMazeEnvPOMDP - T-Maze Environment with partial observation
+TMazeEnvMemoryWrapped - T-Maze Environment - partial observation with external memory - Generic Memory Implementation(None, Kk, Bk, Ok, OAk Memory Types) (Possible actions are the cross product of movement and memory action sets)
     Ref: Icarte, Rodrigo Toro, et al. "The act of remembering: a study in
     partially observable reinforcement learning."
     arXiv preprint arXiv:2010.01753 (2020).
@@ -210,13 +213,13 @@ Note that this n, e, s, w notation is encoded as integers 0, 1, 2, 3 respectivel
 
 ![Agents Learning in Fully Observable T Maze Environment](./screenshots/image_1.png)
 
-- Agents Learning in Partially Observable T Maze Environment(TmazeEnvV1)
+- Agents Learning in Partially Observable T Maze Environment(TMazeEnvPOMDP)
 
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_2.png)
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Intr_Architectures_Result_1M.pdf)
 
 - Agents Learning in Partially Observable T Maze Environment With External Memory Wrapper(TmazeEnvV5)
 
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/image_3.png)
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Architectures_Result_1M.pdf)
 
 ## License
 

@@ -72,10 +72,10 @@ def getSRperEpisodeFromDirectory(dpath):
     return indexes, values, keys
 
 
-def savePlotSRWithCI(indexes, values, keys):
+def savePlotSRWithCI(indexes, values, keys, save_name):
     fig, ax = plt.subplots()
     color = iter(cm.brg(np.linspace(0, 1, len(keys))))
-    ax.set_xlabel("Timestep")
+    ax.set_xlabel("Episode")
     ax.set_ylabel("Success Ratio Per Episode")
     lines = []
 
@@ -103,12 +103,23 @@ def savePlotSRWithCI(indexes, values, keys):
         ax.fill_between(x, (mean_y-ci), (mean_y+ci), color=c, alpha=.1)
 
     ax.legend(lines, keys)
-    fig.savefig("results.pdf", format="pdf", bbox_inches="tight")
+    fig.savefig(save_name, format="pdf", bbox_inches="tight")
 
 
 path = 'results/results_comp_arch/c_architectures_tb/'
+save_name = 'Comp_Architectures_Result_1M.pdf'
 
 indexes, values, keys = getSRperEpisodeFromDirectory(path)
-print("Read from file has been completed.")
-savePlotSRWithCI(indexes, values, keys)
-print("Plots have been generated.")
+print("Read from file has been completed:", path)
+savePlotSRWithCI(indexes, values, keys, save_name)
+print(save_name, " has been generated.")
+
+path = 'results/results_comp_arch/intr_c_architectures_tb/'
+save_name = 'Comp_Intr_Architectures_Result_1M.pdf'
+
+indexes, values, keys = getSRperEpisodeFromDirectory(path)
+print("Read from file has been completed:", path)
+savePlotSRWithCI(indexes, values, keys, save_name)
+print(save_name, " has been generated.")
+
+print("Completed all plots.")

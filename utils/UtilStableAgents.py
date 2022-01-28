@@ -311,9 +311,11 @@ class TensorboardCallback(BaseCallback):
         # Save reference to tensorboard formatter object
         # note: the failure case (not formatter found) is
         # not handled here, should be done with try/except.
-        self.tb_formatter = next(formatter for formatter in output_formats
-                                 if isinstance(formatter,
-                                               TensorBoardOutputFormat))
+        self.tb_formatter = None
+        if output_formats:
+            self.tb_formatter = next(formatter for formatter in output_formats
+                                     if isinstance(formatter,
+                                                   TensorBoardOutputFormat))
 
     def _on_step(self) -> bool:
         if(self.locals['self'].env.buf_dones[-1]):
@@ -324,31 +326,21 @@ class TensorboardCallback(BaseCallback):
                              success_count /
                              self.locals['self'].env.unwrapped.envs[0].
                              episode_count) * 100
-            self.tb_formatter.writer.add_scalar("_tmaze/Reward per episode",
-                                                epi_reward, epi_number)
-
-            if (self.locals['self'].env.unwrapped.envs[0].unwrapped.__class__.
-                __name__ == "TMazeEnvV7" or
-                self.locals['self'].env.unwrapped.envs[0].unwrapped.__class__.
-                    __name__ == "TMazeEnvV8"):
-
+            if self.tb_formatter:
                 self.tb_formatter.writer.\
-                    add_scalar("_tmaze/Absolute Difference of " +
-                               "Saved Memory From True Goal",
-                               (abs(self.locals['self'].env.unwrapped.
-                                envs[0].unwrapped.external_memory[4] -
-                                self.locals['self'].env.unwrapped.envs[0].
-                                unwrapped.current_state[2])), epi_number)
+                    add_scalar("_tmaze/Reward per episode",
+                               epi_reward, epi_number)
 
-            self.tb_formatter.writer.flush()
-            self.tb_formatter.writer.\
-                add_scalar("_tmaze/Episode length per episode",
-                           self.locals['self'].env.
-                           unwrapped.envs[0].
-                           episode_lengths[-1],
-                           epi_number)
-            self.tb_formatter.writer.\
-                add_scalar("_tmaze/Success Ratio per episode",
-                           success_ratio, epi_number)
-            self.tb_formatter.writer.flush()
+            if self.tb_formatter:
+                self.tb_formatter.writer.flush()
+                self.tb_formatter.writer.\
+                    add_scalar("_tmaze/Episode length per episode",
+                               self.locals['self'].env.
+                               unwrapped.envs[0].
+                               episode_lengths[-1],
+                               epi_number)
+                self.tb_formatter.writer.\
+                    add_scalar("_tmaze/Success Ratio per episode",
+                               success_ratio, epi_number)
+                self.tb_formatter.writer.flush()
         return True

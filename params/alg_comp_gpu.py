@@ -1,4 +1,4 @@
-from EnvTMaze import TMazeEnvV9
+from EnvTMaze import TMazeEnvMemoryWrapped
 from utils.UtilPolicies import MlpACPolicy
 from utils.UtilPolicies import MlpDQNPolicy
 from utils.UtilPolicies import QLSTMPolicy
@@ -10,7 +10,7 @@ from utils.UtilStableAgents import train_a2c_agent
 
 total_timesteps = 1_000_000
 maze_length = 10
-envClass = TMazeEnvV9
+envClass = TMazeEnvMemoryWrapped
 
 number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk

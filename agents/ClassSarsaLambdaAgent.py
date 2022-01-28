@@ -29,7 +29,9 @@ class SarsaLambdaAgent:
         self.e_table = {}
 
     def learn(self, total_timesteps, tb_log_name):
-        self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name)
+        self.writer = None
+        if self.log_dir:
+            self.writer = SummaryWriter(log_dir=self.log_dir+tb_log_name)
         self.time_step = 0
         self.episode = 0
         self.timeStepLimit = False
@@ -84,7 +86,7 @@ class SarsaLambdaAgent:
 
         self.set_e_value(observation, action, 1)
 
-        for obs, e_values in self.e_table.items():
+        for obs, _ in self.e_table.items():
             for a in range(self.action_size):
                 q_val = (self.get_q_values(obs)[a] +
                          self.learning_rate * delta *
@@ -139,16 +141,11 @@ class SarsaLambdaAgent:
                         self.time_step / self.total_timestep
         self.success_ratio = (self.env.success_count /
                               self.env.episode_count) * 100
-        self.writer.add_scalar("_tmaze/Reward per episode",
-                               self.episode_reward, self.episode)
-        self.writer.add_scalar("_tmaze/Episode length per episode",
-                               self.episode_step, self.episode)
-        self.writer.add_scalar("_tmaze/Success Ratio per episode",
-                               self.success_ratio,
-                               self.episode)
-        if self.env.__class__.__name__ == "TMazeEnvV7" or \
-                self.env.__class__.__name__ == "TMazeEnvV8":
-            self.writer.add_scalar("_tmaze/Absolute Difference of " +
-                                   "Saved Memory From True Goal",
-                                   (abs(self.env.external_memory[4] -
-                                    self.env.current_state[2])), self.episode)
+        if self.writer is not None:
+            self.writer.add_scalar("_tmaze/Reward per episode",
+                                   self.episode_reward, self.episode)
+            self.writer.add_scalar("_tmaze/Episode length per episode",
+                                   self.episode_step, self.episode)
+            self.writer.add_scalar("_tmaze/Success Ratio per episode",
+                                   self.success_ratio,
+                                   self.episode)
