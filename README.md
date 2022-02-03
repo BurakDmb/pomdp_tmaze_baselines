@@ -273,11 +273,11 @@ Note that this n, e, s, w notation is encoded as integers 0, 1, 2, 3 respectivel
 
 - Agents Learning in Partially Observable T Maze Environment(TMazeEnvPOMDP)
 
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Intr_Architectures_Result_1M.pdf)
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Intr_Architectures_Result_1M.png)
 
 - Agents Learning in Partially Observable T Maze Environment With External Memory Wrapper(TmazeEnvV5)
 
-![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Architectures_Result_1M.pdf)
+![Agents Learning in Partially Observable T Maze Environment](./screenshots/Comp_Architectures_Result_1M.png)
 
 ## License
 
