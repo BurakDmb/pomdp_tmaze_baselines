@@ -43,6 +43,22 @@
             "args": ["multigpu"]
         },
         {
+            "name": "Single GPU - Hyperparameter Search Architecture Parameters ",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/hp_search_start.py",
+            "console": "integratedTerminal",
+            "args": ["singlegpu"]
+        },
+        {
+            "name": "Multi GPU - Hyperparameter Search Architecture Parameters ",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/hp_search_start.py",
+            "console": "integratedTerminal",
+            "args": ["multigpu", "4"]
+        },
+        {
             "name": "Test All",
             "type": "python",
             "request": "launch",
