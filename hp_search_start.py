@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import torch.multiprocessing as mp
+import torch
 import optuna
 from EnvTMaze import TMazeEnvMemoryWrapped
 from utils.UtilPolicies import MlpACPolicy
@@ -35,14 +36,20 @@ def start_optimization(cuda_device_id=0, n_trials=100):
     # process uses only that gpu device.
     os.environ["CUDA_VISIBLE_DEVICES"] = cuda_device_id
 
-    study = optuna.create_study(
-        storage="mysql://root:1234@10.1.46.229/example",
-        study_name="distributed-example",
-        direction="maximize",
-        load_if_exists=True
-        )
+    # Debug line, remove later:
+    print(os.getenv('CUDA_VISIBLE_DEVICES', '0'))
+    print(torch.cuda.current_device())
 
-    study.optimize(objective, n_trials=n_trials, callbacks=[logging_callback])
+    # Uncomment after debug:
+    
+    # study = optuna.create_study(
+    #     storage="mysql://root:1234@10.1.46.229/example",
+    #     study_name="distributed-example",
+    #     direction="maximize",
+    #     load_if_exists=True
+    #     )
+
+    # study.optimize(objective, n_trials=n_trials, callbacks=[logging_callback])
     pass
 
 
@@ -118,24 +125,33 @@ def objective(trial):
 
 
 # Usage:
-# Arg1: multigpu or cpu
+# Arg1: multigpu or singlegpu
 # Arg2: GPU count, used if multigpu exists.
-# python hp_search_start.py multigpu 4
+# python hp_search_start.py multigpu 4  # Parallelizes the job with 4 gpu.
+# python hp_search_start.py  # No parallelization.
 def main():
+    total_number_of_trials = 1024
     number_of_parallel_experiments = 1
-    n_trials = 100
+
+    gpu_count = 1
     params = len(sys.argv)
     if params == 3 and sys.argv[1] == 'multigpu':
-        # multi gpu and its count is converted into an arange array
+        # Multi gpu and its count is converted into an arange array
         # ex: [0, 1, 2, 3]
-        cuda_device = np.arange(sys.argv[2]).tolist()
-    else:
-        # single gpu
-        cuda_device = [0]
+        # For single gpu this list is only [0]
+        gpu_count = int(sys.argv[2])
+
+    cuda_devices = np.arange(gpu_count).toList()
+
+    # Number of parallel experiments denote that how many parallel instances
+    # in the same gpu will be allowed to run at the same time.
+    # It should be determined by dividing GPU VRAM to VRAM per execution.
+    n_trials = total_number_of_trials // \
+        (gpu_count * number_of_parallel_experiments)
 
     mp.set_start_method('spawn')
     processes = []
-    for device_id in cuda_device:
+    for device_id in cuda_devices:
         for _ in range(number_of_parallel_experiments):
             p = mp.Process(
                     target=start_optimization,
