@@ -8,14 +8,14 @@ You can install required dependencies(including pytorch gpu cuda 11.x version) b
 
 For this configuration, it assumed that the user is in a linux(pref. Ubuntu 20.04) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in environment.yml and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
 
-Easy Installation from environment.yml and requirements.yml:
+Easy Installation with environment.yml and requirements.yml(used automatically in environment.yml):
 
 ```
 conda env create -f environment.yml 
 conda activate pomdp
 ```
 
-### Manuel Installation
+### Manual Installation
 
 Installing Torch and Cudatoolkit from https://pytorch.org/get-started/locally/
 
@@ -54,23 +54,56 @@ Stable Baselines3, SB3-Contrib packages are taken from the git repository for la
 Please note that below is the syntax for pip requirements file, to access the links, links are shared below:
 
 - stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3@54bcfa4544315fc920be0944fc380fd75e2f7c4a
+
 Link: https://github.com/DLR-RM/stable-baselines3/tree/54bcfa4544315fc920be0944fc380fd75e2f7c4a
 
 - sb3-contrib @ git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@c11332460e3ae7473e34cf91c12c8a0030fd5d70
+
 Link: https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/tree/c11332460e3ae7473e34cf91c12c8a0030fd5d70
 
-Tensorboard Reducer does not exists in conda, therefore it needs to installed from pip (https://github.com/janosh/tensorboard-reducer)
+Tensorboard Reducer does not exists in conda, therefore it needs to installed from pip (https://github.com/janosh/tensorboard-reducer):
 - tensorboard-reducer
 
 
 ## Hyperparameter Optimization With Optuna:
+
 For hyperparameter optimization, a persistent database is required for hyperparameter optimization. With a persistent database, multiple servers/workstations can be used to optimize hyperparameters paralelly. For this reason, installation of a mysql server is required. This mysql server doesnt need to be in the same computer, one can install mysql server and codes in different devices. Optuna will connect this db server by using the connection url provided and it will save the necessary hp-search information in this database.
 
 For the easiest configuration, an example of creating mysql server with docker is provided. The default password is set to "1234". After creating the mysql server, a database named "pomdp" is created. Please change the ip adress of "127.0.0.1" according to your mysql server installation(remote or local)
+
 ```
 #Change IP adress according to your configuration
 docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d mysql:8
 mysql -u root -h 127.0.0.1 -p -e "CREATE DATABASE IF NOT EXISTS pomdp"
+```
+
+After then, you can modify and use `hp_search_architecture.py` python script to hyperparameter search with multi gpu(also multi gpus in many computers are automatically supported by optuna) or single gpu. 
+
+To start searching hyperparameters with multi gpu:
+`python hp_search_architecture.py multigpu 4`
+
+No parallelization, single gpu:
+`python hp_search_architecture.py`
+
+Deleting existing study in the database (this does not delete the "logs/" directory):
+`python hp_search_architecture.py delete`
+
+To use multi computers which are in the same network, you only need to modify the `storage` variable on the other computers. You can simply replace the IP address to the mysql server and optuna(and our code) will automatically distribute the jobs regarding the number of gpus and `number_of_parallel_jobs` variable. Below, an example scenario has been shared:
+
+```
+Modified hp_search_architecture.py to have X possible hyperparameter combination. 
+We want to distribute X 
+
+# Computer 1, Local network IP Adress: IP_1, Mysql server is installed, 2 GPU is available
+1- Modify storage variable to 127.0.0.1 (as own local adress)
+2- python hp_search_architecture.py multigpu 2
+
+
+# Computer 2, Local network IP Adress: IP_2, 8 GPU is available
+1- Modify storage variable to IP-1 (For the first computers IP adress)
+2- python hp_search_architecture.py multigpu 8
+
+# With these commands, the hyperparameter space will we paralelly searched by two computers and they will not re-scan/search already scanned parameters because of the joint database.
 ```
 
 ## Running the code with cpu configuration

@@ -9,7 +9,7 @@ from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 
 # Static parameters
-number_of_parallel_experiments = 8
+number_of_parallel_jobs = 8
 study_name = "architecture_search"
 storage = "mysql://root:1234@127.0.0.1/pomdp"
 
@@ -37,19 +37,6 @@ total_number_of_trials = np.prod(np.array(list_of_dict_lengths))
 def stop_callback(study, frozen_trial):
     if len(study.trials) >= total_number_of_trials:
         study.stop()
-
-    # previous_best_value = study.user_attrs.get("previous_best_value", None)
-    # if previous_best_value != study.best_value:
-    #     study.set_user_attr("previous_best_value", study.best_value)
-    #     print(
-    #         "Trial {} finished with best value: {} and parameters: {}. "
-    #         .format(
-    #             frozen_trial.number,
-    #             frozen_trial.value,
-    #             frozen_trial.params,
-    #         )
-    #     )
-    pass
 
 
 def start_optimization(cuda_device_id: str = "0",
@@ -211,7 +198,7 @@ def main():
     mp.set_start_method('spawn')
     processes = []
     for device_id in cuda_devices:
-        for _ in range(number_of_parallel_experiments):
+        for _ in range(number_of_parallel_jobs):
             p = mp.Process(
                     target=start_optimization,
                     kwargs={'cuda_device_id': str(device_id),
