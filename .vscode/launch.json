@@ -46,7 +46,7 @@
             "name": "Single GPU - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/hp_search_start.py",
+            "program": "${workspaceFolder}/hp_search_architecture.py",
             "console": "integratedTerminal",
             "args": ["singlegpu"]
         },
@@ -54,9 +54,17 @@
             "name": "Multi GPU - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/hp_search_start.py",
+            "program": "${workspaceFolder}/hp_search_architecture.py",
             "console": "integratedTerminal",
             "args": ["multigpu", "4"]
+        },
+        {
+            "name": "Delete Study - Hyperparameter Search Architecture Parameters ",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/hp_search_architecture.py",
+            "console": "integratedTerminal",
+            "args": ["delete"]
         },
         {
             "name": "Test All",
