@@ -3,52 +3,77 @@
 
 ## Installation
 
-### Opening with vscode dev containers(Recommended)
+### Easy Installation
+You can install required dependencies(including pytorch gpu cuda 11.x version) by simply running these lines:
 
-To run with vscode, please install the extention "Remote - Containers" and after that open the project folder normally.
+For this configuration, it assumed that the user is in a linux(pref. Ubuntu 20.04) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in environment.yml and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
 
-By default it asks that this project contains a Dev Container configuration file and you can open this folder by clicking the button "Reopen in Container".
+Easy Installation from environment.yml and requirements.yml:
 
-If it does not show up, you can press F1 and search for "Remote Containers: Reopen in Container"
-
-### Install with docker
-
-```bash
-cd .devcontainer
-docker build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t pomdp:v0 .
-
-docker run --privileged --gpus all --env http_proxy=$http_proxy --env https_proxy=$https_proxy -d --net=host --restart always --name $(whoami)-pomdp -v $(pwd)/../:/home/$(whoami)/workspace pomdp:v0
+```
+conda env create -f environment.yml 
+conda activate pomdp
 ```
 
-After that you you can clone the code and run.
+### Manuel Installation
 
-### Local Installation
-You can install required dependencies(including pytorch gpu cuda 11.* version) by simply running these lines:
+Installing Torch and Cudatoolkit from https://pytorch.org/get-started/locally/
 
-For this configuration, it assumed that the user is in a linux(pref. Ubuntu) OS and a Nvidia GPU is exist in this PC. This configuration affects the pytorch version installation, if you want to use cpu or older cuda version, please remove the lines of torch, torchvision and torchaudio packages in requirements.txt and install by yourself. Remaining other requirements are compatible with all versions of OS and gpu/cpu configurations.
+- pytorch
+- torchvision
+- torchaudio
+- cudatoolkit=11.3
 
+Installing Other Required Packages
+
+- gym
+- scikit-learn
+- profilehooks
+- progressbar
+- matplotlib
+- tensorboard
+- numpy
+- pandas
+- cloudpickle
+- optuna
+- mysqlclient
+- flake8
 
 ```
 conda create -n pomdp python=3.8 -y
 conda activate pomdp
-pip install -r requirements.txt
-pip install mysqlclient mysql-connector
-
-
-
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
+conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas cloudpickle optuna mysqlclient mysql-client flake8 -y
+conda install pip -y
+pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install git+https://github.com/DLR-RM/stable-baselines3 --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 ```
 
-Hyperparameter optimization with Optuna:
+Stable Baselines3, SB3-Contrib packages are taken from the git repository for latest updates (especially sb3-contrib.)
+Please note that below is the syntax for pip requirements file, to access the links, links are shared below:
+
+- stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3@54bcfa4544315fc920be0944fc380fd75e2f7c4a
+Link: https://github.com/DLR-RM/stable-baselines3/tree/54bcfa4544315fc920be0944fc380fd75e2f7c4a
+
+- sb3-contrib @ git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@c11332460e3ae7473e34cf91c12c8a0030fd5d70
+Link: https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/tree/c11332460e3ae7473e34cf91c12c8a0030fd5d70
+
+Tensorboard Reducer does not exists in conda, therefore it needs to installed from pip (https://github.com/janosh/tensorboard-reducer)
+- tensorboard-reducer
+
+
+## Hyperparameter Optimization With Optuna:
+For hyperparameter optimization, a persistent database is required for hyperparameter optimization. With a persistent database, multiple servers/workstations can be used to optimize hyperparameters paralelly. For this reason, installation of a mysql server is required. This mysql server doesnt need to be in the same computer, one can install mysql server and codes in different devices. Optuna will connect this db server by using the connection url provided and it will save the necessary hp-search information in this database.
+
+For the easiest configuration, an example of creating mysql server with docker is provided. The default password is set to "1234". After creating the mysql server, a database named "pomdp" is created. Please change the ip adress of "127.0.0.1" according to your mysql server installation(remote or local)
 ```
 #Change IP adress according to your configuration
 docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d mysql:8
-mysql -u root -h IP -p -e "CREATE DATABASE IF NOT EXISTS example"
-optuna create-study --study-name "distributed-example" --storage "mysql://root:1234@IP/example"
+mysql -u root -h 127.0.0.1 -p -e "CREATE DATABASE IF NOT EXISTS pomdp"
 ```
 
-Note: Please visit <https://stable-baselines3.readthedocs.io/en/master/index.html> for stable baselines 3 detailed documentation.
-
-### Running the code with cpu configuration
+## Running the code with cpu configuration
 ```
 screen -R pomdp # optional - recommended when starting training from ssh.
 conda activate pomdp
@@ -57,7 +82,7 @@ python train_compare_architectures.py
 ```
 
 
-### Running the code with multi-gpu configuration
+## Running the code with multi-gpu configuration
 ```
 screen -R pomdp # optional - recommended when starting training from ssh.
 conda activate pomdp
@@ -65,13 +90,13 @@ python train_compare_algorithms.py multigpu
 python train_compare_architectures.py multigpu
 ```
 
-### Running the tensorboard to observe the learning
+## Running the tensorboard to observe the learning
 
 `tensorboard --logdir ./logs/t_maze_tensorboard/`
 
 Note: Please change the directory `./logs/t_maze_tensorboard/` accordingly to your configuration.
 
-### Calculating the averages of parallel runs
+## Calculating the averages of parallel runs
 
 For these algorithms, run these commands below:
 
