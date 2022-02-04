@@ -69,13 +69,21 @@ Tensorboard Reducer does not exists in conda, therefore it needs to installed fr
 
 For hyperparameter optimization, a persistent database is required for hyperparameter optimization. With a persistent database, multiple servers/workstations can be used to optimize hyperparameters paralelly. For this reason, installation of a mysql server is required. This mysql server doesnt need to be in the same computer, one can install mysql server and codes in different devices. Optuna will connect this db server by using the connection url provided and it will save the necessary hp-search information in this database.
 
-For the easiest configuration, an example of creating mysql server with docker is provided. The default password is set to "1234". After creating the mysql server, a database named "pomdp" is created. Please change the ip adress of "127.0.0.1" according to your mysql server installation(remote or local)
+For the database configuration, there exists two ways:
+1- Mysql
+
+You can create a mysql database in order to use hyperparameter search in multiple devices. An example of creating mysql server with docker is provided. The default password is set to "1234". After creating the mysql server, a database named "pomdp" is created. Please change the ip adress of "127.0.0.1" according to your mysql server installation(remote or local)
 
 ```
 #Change IP adress according to your configuration
 docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d --restart always mysql:8
 mysql -u root -h 127.0.0.1 -p -e "CREATE DATABASE IF NOT EXISTS pomdp"
 ```
+
+2- SQLite
+
+You can create a local .db file if you planning to only use this in single pc. Code for selecting sqlite db is given in `hp_search_architecture.py` file.
+
 
 After then, you can modify and use `hp_search_architecture.py` python script to hyperparameter search with multi gpu(also multi gpus in many computers are automatically supported by optuna) or single gpu. 
 
