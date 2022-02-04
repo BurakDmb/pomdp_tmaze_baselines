@@ -24,14 +24,6 @@ storage = optuna.storages.RDBStorage(
 #     grace_period=120)
 
 
-def signal_handler(sig, frame):
-    print(
-        "Keyboard interrupt detected, sending stop signal " +
-        "to the study and waiting to existing methods finish.")
-    study = optuna.load_study(study_name=study_name, storage=storage)
-    study.set_user_attr('stop_signal', True)
-
-
 total_timesteps = 1_000_000
 maze_length = 10
 envClass = TMazeEnvMemoryWrapped
@@ -51,6 +43,14 @@ hyper_parameters['intrinsic_enabled'] = [0, 1]
 # possible hyperparameter combination.
 list_of_dict_lengths = [len(v) for k, v in hyper_parameters.items()]
 total_number_of_trials = np.prod(np.array(list_of_dict_lengths))
+
+
+def signal_handler(sig, frame):
+    print(
+        "Keyboard interrupt detected, sending stop signal " +
+        "to the study and waiting to existing methods finish.")
+    study = optuna.load_study(study_name=study_name, storage=storage)
+    study.set_user_attr('stop_signal', True)
 
 
 def stop_callback(study, frozen_trial):
@@ -148,11 +148,9 @@ def objective(trial):
     learning_setting['save'] = False
     learning_setting['device'] = device
     learning_setting['train_func'] = train_func
-    try:
-        model = learning_setting['train_func'](
-            learning_setting=learning_setting)
-    except KeyboardInterrupt:
-        trial.study.stop()
+
+    model = learning_setting['train_func'](learning_setting=learning_setting)
+
     # For evaluation metric, success ratio of this model is calculated by
     # dividing total success count to the total episode count.
     # Range of this metric is 0-100 and higher is better.
@@ -161,13 +159,26 @@ def objective(trial):
         if model.env.envs[0].episode_count == 0:
             success_ratio = 0.0
         else:
-            success_ratio = (
-                model.env.envs[0].success_count
-                / model.env.envs[0].episode_count
-                ) * 100
+            if model.env.envs[0].episode_count >= (
+                    total_timesteps / maze_length)*0.25:
+                success_ratio = (
+                    model.env.envs[0].success_count
+                    / model.env.envs[0].episode_count
+                    ) * 100
+            else:
+                success_ratio = 0.0
     else:
-        success_ratio = (
-            model.env.success_count / model.env.episode_count) * 100
+        if model.env.envs[0].episode_count == 0:
+            success_ratio = 0.0
+        else:
+            if model.env.envs[0].episode_count >= (
+                    total_timesteps / maze_length)*0.25:
+                success_ratio = (
+                    model.env.success_count / model.env.episode_count) * 100
+            else:
+                success_ratio = 0.0
+            success_ratio = (
+                model.env.success_count / model.env.episode_count) * 100
     print("Trial: ", trial.number, ", Score: ", success_ratio)
     return success_ratio
 
