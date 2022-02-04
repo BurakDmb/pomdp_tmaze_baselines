@@ -1,5 +1,6 @@
 import os
 import sys
+import signal
 import numpy as np
 import torch.multiprocessing as mp
 import optuna
@@ -11,7 +12,25 @@ from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 # Static parameters
 number_of_parallel_jobs = 8
 study_name = "architecture_search"
-storage = "mysql://root:1234@127.0.0.1/pomdp"
+storage_url = "mysql://root:1234@127.0.0.1/pomdp"
+
+# 1- Mysql RDB, used by default.
+storage = optuna.storages.RDBStorage(
+    url=storage_url, heartbeat_interval=300, grace_period=600)
+
+# 2- Sqlite file RDB
+# storage = optuna.storages.RDBStorage(
+#     url="sqlite:///pomdp.db", heartbeat_interval=60,
+#     grace_period=120)
+
+
+def signal_handler(sig, frame):
+    print(
+        "Keyboard interrupt detected, sending stop signal " +
+        "to the study and waiting to existing methods finish.")
+    study = optuna.load_study(study_name=study_name, storage=storage)
+    study.set_user_attr('stop_signal', True)
+
 
 total_timesteps = 1_000_000
 maze_length = 10
@@ -37,11 +56,14 @@ total_number_of_trials = np.prod(np.array(list_of_dict_lengths))
 def stop_callback(study, frozen_trial):
     if len(study.trials) >= total_number_of_trials:
         study.stop()
+    if "stop_signal" in study.user_attrs:
+        if study.user_attrs["stop_signal"]:
+            study.stop()
 
 
-def start_optimization(cuda_device_id: str = "0",
-                       study_name="architecture_search",
-                       storage="mysql://root:1234@127.0.0.1/pomdp"):
+def start_optimization(
+        storage, cuda_device_id: str = "0",
+        study_name="architecture_search"):
 
     # Turn off optuna logging.
     optuna.logging.set_verbosity(optuna.logging.WARN)
@@ -59,8 +81,7 @@ def start_optimization(cuda_device_id: str = "0",
     # print("Torch Current Device: ", torch.cuda.current_device())
 
     study = optuna.load_study(study_name=study_name, storage=storage)
-
-    study.optimize(objective, callbacks=[stop_callback])
+    study.optimize(objective, callbacks=[stop_callback], gc_after_trial=True)
 
 
 def objective(trial):
@@ -127,9 +148,11 @@ def objective(trial):
     learning_setting['save'] = False
     learning_setting['device'] = device
     learning_setting['train_func'] = train_func
-
-    model = learning_setting['train_func'](learning_setting=learning_setting)
-
+    try:
+        model = learning_setting['train_func'](
+            learning_setting=learning_setting)
+    except KeyboardInterrupt:
+        trial.study.stop()
     # For evaluation metric, success ratio of this model is calculated by
     # dividing total success count to the total episode count.
     # Range of this metric is 0-100 and higher is better.
@@ -165,6 +188,7 @@ def objective(trial):
 def main():
     # Turn off optuna logging.
     optuna.logging.set_verbosity(optuna.logging.WARN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     gpu_count = 1
     params = len(sys.argv)
@@ -201,15 +225,18 @@ def main():
         for _ in range(number_of_parallel_jobs):
             p = mp.Process(
                     target=start_optimization,
-                    kwargs={'cuda_device_id': str(device_id),
-                            'study_name': study_name,
-                            'storage': storage})
+                    kwargs={'storage': storage,
+                            'cuda_device_id': str(device_id),
+                            'study_name': study_name
+                            })
             p.start()
             processes.append(p)
 
+    signal.signal(signal.SIGINT, signal_handler)
+
     for p in processes:
         p.join()
-
+    print("Execution has been completed.")
     study = optuna.load_study(study_name=study_name, storage=storage)
     print("Best params: ", study.best_params)
     print("Best value: ", study.best_value)

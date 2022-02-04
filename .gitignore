@@ -3,3 +3,4 @@ logs/**
 saves/**
 logs**
 **.pyc
+**.db

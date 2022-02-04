@@ -73,7 +73,7 @@ For the easiest configuration, an example of creating mysql server with docker i
 
 ```
 #Change IP adress according to your configuration
-docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d mysql:8
+docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d --restart always mysql:8
 mysql -u root -h 127.0.0.1 -p -e "CREATE DATABASE IF NOT EXISTS pomdp"
 ```
 
@@ -88,19 +88,19 @@ No parallelization, single gpu:
 Deleting existing study in the database (this does not delete the "logs/" directory):
 `python hp_search_architecture.py delete`
 
-To use multi computers which are in the same network, you only need to modify the `storage` variable on the other computers. You can simply replace the IP address to the mysql server and optuna(and our code) will automatically distribute the jobs regarding the number of gpus and `number_of_parallel_jobs` variable. Below, an example scenario has been shared:
+To use multi computers which are in the same network, you only need to modify the `storage_url` variable on the other computers. You can simply replace the IP address to the mysql server and optuna(and our code) will automatically distribute the jobs regarding the number of gpus and `number_of_parallel_jobs` variable. Below, an example scenario has been shared:
 
 ```
 Modified hp_search_architecture.py to have X possible hyperparameter combination. 
 We want to distribute X 
 
 # Computer 1, Local network IP Adress: IP_1, Mysql server is installed, 2 GPU is available
-1- Modify storage variable to 127.0.0.1 (as own local adress)
+1- Modify storage_url variable IP adress to 127.0.0.1 (as own local adress)
 2- python hp_search_architecture.py multigpu 2
 
 
 # Computer 2, Local network IP Adress: IP_2, 8 GPU is available
-1- Modify storage variable to IP-1 (For the first computers IP adress)
+1- Modify storage_url variable IP adress to IP-1 (For the first computers IP adress)
 2- python hp_search_architecture.py multigpu 8
 
 # With these commands, the hyperparameter space will we paralelly searched by two computers and they will not re-scan/search already scanned parameters because of the joint database.
