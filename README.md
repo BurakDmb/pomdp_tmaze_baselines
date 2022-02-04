@@ -77,7 +77,7 @@ You can create a mysql database in order to use hyperparameter search in multipl
 
 ```
 #Change IP adress according to your configuration
-docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d --restart always mysql:8
+docker run --name pomdp-mysql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 -d --restart always mysql:8 --max_connections=10000
 mysql -u root -h 127.0.0.1 -p -e "CREATE DATABASE IF NOT EXISTS pomdp"
 ```
 
