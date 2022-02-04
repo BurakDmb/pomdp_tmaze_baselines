@@ -24,7 +24,7 @@ storage = optuna.storages.RDBStorage(
 #     grace_period=120)
 
 
-total_timesteps = 1_000_000
+total_timesteps = 250_000
 maze_length = 10
 envClass = TMazeEnvMemoryWrapped
 log_dir = "./logs/hyper_param_search/"
