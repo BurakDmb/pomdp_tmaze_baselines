@@ -376,6 +376,7 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         new_state, reward, done, success = self._one_agent_step(
                 self.current_state, movementAction)
 
+        intrinsic_reward = 0
         if self.memory_type != 0 and self.memory_type != 2:
             # Memory type 1 = Kk
             if self.memory_type == 1:
@@ -394,9 +395,9 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
             self.intrinsic_dict[intrinsic_obs] = obs_freq + 1
             self.intrinsic_total_count += 1
 
-            r_int_m = self.calculateIntrinsicMotivationReward()
-            reward = reward + r_int_m
+            intrinsic_reward = self.calculateIntrinsicMotivationReward()
 
+        reward = reward + intrinsic_reward
         self.current_state = new_state
 
         self.episode_reward += reward
@@ -425,17 +426,6 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         self.current_state = random.choice(
                 self.li_initial_states)
         self.episode_reward = 0
-
-        # Intrinsic memory initialization
-        if self.memory_type != 0 and self.memory_type != 2:
-            self.intrinsic_dict = {}
-            self.intrinsic_total_count = 0
-            for i in range(self.memory_length):
-                obs_i = np.array_str(self.external_memory[
-                    i*self.mem_single_size:(i+1)*self.mem_single_size])
-                obs_freq = self.intrinsic_dict.get(obs_i, 0)
-                self.intrinsic_dict[obs_i] = obs_freq + 1
-                self.intrinsic_total_count += 1
 
         return self._get_observation()
 
