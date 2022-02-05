@@ -339,8 +339,17 @@ class TensorboardCallback(BaseCallback):
                                unwrapped.envs[0].
                                episode_lengths[-1],
                                epi_number)
+
                 self.tb_formatter.writer.\
                     add_scalar("_tmaze/Success Ratio per episode",
                                success_ratio, epi_number)
+
+                self.tb_formatter.writer.\
+                    add_text(
+                        "_tmaze/Frequency Dictionary String per episode",
+                        str(self.locals['self'].env.
+                            unwrapped.envs[0].
+                            intrinsic_dict), epi_number)
+
                 self.tb_formatter.writer.flush()
         return True
