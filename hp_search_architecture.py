@@ -44,6 +44,8 @@ hyper_parameters['intrinsic_enabled'] = [0, 1]
 list_of_dict_lengths = [len(v) for k, v in hyper_parameters.items()]
 total_number_of_trials = np.prod(np.array(list_of_dict_lengths))
 
+interrupt_max_count = 3
+
 
 def signal_handler(sig, frame):
     print(
@@ -51,6 +53,25 @@ def signal_handler(sig, frame):
         "to the study and waiting to existing methods finish.")
     study = optuna.load_study(study_name=study_name, storage=storage)
     study.set_user_attr('stop_signal', True)
+
+    if "stop_signal_count" in study.user_attrs:
+        count = 1 + study.user_attrs['stop_signal_count']
+        study.set_user_attr(
+            'stop_signal_count', count)
+        if count == interrupt_max_count:
+            print(
+                str(interrupt_max_count) +
+                " consequtive Ctrl-C detected, exiting now.")
+            sys.exit(0)
+        else:
+            print(
+                "Please Ctrl-C "+str(interrupt_max_count-count) +
+                " more times to exit the execution immediately.")
+    else:
+        study.set_user_attr('stop_signal_count', 1)
+        print(
+            "Please Ctrl-C "+str(interrupt_max_count-1) +
+            " more times to exit the execution immediately.")
 
 
 def stop_callback(study, frozen_trial):
