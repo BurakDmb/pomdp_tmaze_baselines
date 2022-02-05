@@ -15,6 +15,7 @@ envClass = TMazeEnvMemoryWrapped
 number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
 memory_type = 3
+lstm_memory_type = 0
 
 # Change the flags to True/False for only running specific agents
 start_q = True
@@ -135,7 +136,7 @@ qlstm_learning_setting['learning_rate'] = 1e-5
 qlstm_learning_setting['discount_rate'] = 0.99
 qlstm_learning_setting['epsilon_start'] = 0.3
 qlstm_learning_setting['epsilon_end'] = 0.1
-qlstm_learning_setting['memory_type'] = memory_type
+qlstm_learning_setting['memory_type'] = lstm_memory_type
 qlstm_learning_setting['memory_length'] = 1
 qlstm_learning_setting['intrinsic_enabled'] = 0
 qlstm_learning_setting['intrinsic_beta'] = 0.5
@@ -184,7 +185,7 @@ ppoLSTM_learning_setting['discount_rate'] = 0.99
 ppoLSTM_learning_setting['nn_num_layers'] = 4
 ppoLSTM_learning_setting['nn_layer_size'] = 32
 ppoLSTM_learning_setting['n_steps'] = 128
-ppoLSTM_learning_setting['memory_type'] = memory_type
+ppoLSTM_learning_setting['memory_type'] = lstm_memory_type
 ppoLSTM_learning_setting['memory_length'] = 1
 ppoLSTM_learning_setting['intrinsic_enabled'] = 0
 ppoLSTM_learning_setting['intrinsic_beta'] = 0.5
