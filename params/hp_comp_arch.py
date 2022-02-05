@@ -13,6 +13,3 @@ hyper_parameters['experiment_no'] = [
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 hyper_parameters['total_timesteps'] = [1_000_000]
 hyper_parameters['maze_length'] = [10]
-
-# Total combination of 1*1*1*1*4*1*2*16*1*1 = 128
-# possible hyperparameter combination.
