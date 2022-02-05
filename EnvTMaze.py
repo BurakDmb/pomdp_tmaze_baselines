@@ -292,12 +292,23 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
                 self.mem_single_size)] = self.action_space.n
             self.observation_space = spaces.MultiDiscrete(self.high+1)
 
+        # Memory type 5 = None (For LSTM)
+        elif self.memory_type == 5:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal)
+            self.obs_number_of_dimension = 5
+            self.high = np.full(5, 1.0, dtype=int)
+            self.high[-1] = 2
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+            self.action_space = self.action_space
+
         # Intrinsic memory initialization
         # Intrinsic memory is only limited to the memory types 1, 3 and 4
         # since observation frequency is only meaningful if the
         # memory includes observations, otherwise there is no way
         # to calculate intrinsic reward.
-        if self.memory_type != 0 and self.memory_type != 2:
+        if self.memory_type != 0 and self.memory_type != 2\
+                and self.memory_type != 5:
             self.intrinsic_dict = {}
             self.intrinsic_total_count = 0
             for i in range(self.memory_length):
@@ -338,8 +349,8 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
             # otherwise, it gets a neutral direction for the true goal
             observation[4] = 1
 
-        # Memory type 0 = None
-        if self.memory_type != 0:
+        # Memory type 0 = None or = 5 None(For LSTM)
+        if self.memory_type != 0 and self.memory_type != 5:
             observation[5:] = self.external_memory
 
         return observation
@@ -368,6 +379,10 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         elif self.memory_type == 4:
             movementAction = action // 2
             memoryAction = action % 2
+        # Memory type 5 = None (For LSTM)
+        elif self.memory_type == 5:
+            movementAction = action
+            memoryAction = 0
 
         # Check if add observation to memory action or not
         if memoryAction != 0:
@@ -377,7 +392,10 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
                 self.current_state, movementAction)
 
         intrinsic_reward = 0
-        if self.memory_type != 0 and self.memory_type != 2:
+
+        if self.memory_type != 0 and self.memory_type != 2\
+                and self.memory_type != 5:
+
             # Memory type 1 = Kk
             if self.memory_type == 1:
                 intrinsic_obs = np.array_str(self._get_observation()[
@@ -465,12 +483,15 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         # c is the memory capacity.
         # p_obs is the probability of gathering observation obs
         # r_int_m is bounded to [-c, 0]
-        total_frequencies = 0
-        for i in range(self.memory_length):
-            obs_i = np.array_str(self.external_memory[
-                i*self.mem_single_size:(i+1)*self.mem_single_size])
-            p_obs = self.intrinsic_dict[obs_i] / self.intrinsic_total_count
-            total_frequencies += 1-p_obs
-        total_frequencies -= self.memory_length
-        r_int_m = self.intrinsic_beta * total_frequencies
-        return r_int_m
+        if self.intrinsic_enabled == 1:
+            total_frequencies = 0
+            for i in range(self.memory_length):
+                obs_i = np.array_str(self.external_memory[
+                    i*self.mem_single_size:(i+1)*self.mem_single_size])
+                p_obs = self.intrinsic_dict[obs_i] / self.intrinsic_total_count
+                total_frequencies += 1-p_obs
+            total_frequencies -= self.memory_length
+            r_int_m = self.intrinsic_beta * total_frequencies
+            return r_int_m
+        else:
+            return 0

@@ -9,6 +9,11 @@ from utils.UtilPolicies import MlpACPolicy
 from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 
+# Select the hyperparameter search script:
+# from params.hp_ppo_params import hyper_parameters
+from params.hp_comp_arch import hyper_parameters
+
+
 # Static parameters
 number_of_parallel_jobs = 8
 study_name = "architecture_search"
@@ -23,24 +28,9 @@ storage = optuna.storages.RDBStorage(
 #     url="sqlite:///pomdp.db", heartbeat_interval=60,
 #     grace_period=120)
 
-
-total_timesteps = 250_000
-maze_length = 10
 envClass = TMazeEnvMemoryWrapped
 log_dir = "./logs/hyper_param_search/"
 
-# Number of each hyperparameter is required to be in 2's power. (Ex: 2,4,8,...)
-hyper_parameters = {}
-hyper_parameters['learning_rate'] = [1e-7, 1e-5, 1e-4, 1e-3]
-hyper_parameters['nn_num_layers'] = [4, 8]
-hyper_parameters['nn_layer_size'] = [4, 8, 32, 128]
-hyper_parameters['batch_size'] = [32, 128, 256, 512]
-hyper_parameters['memory_type'] = [0, 3, 4, 5]
-hyper_parameters['memory_length'] = [1, 3, 10, 20]
-hyper_parameters['intrinsic_enabled'] = [0, 1]
-
-# Total combination of 4*2*4*4*4*4*2 = 4096
-# possible hyperparameter combination.
 list_of_dict_lengths = [len(v) for k, v in hyper_parameters.items()]
 total_number_of_trials = np.prod(np.array(list_of_dict_lengths))
 
@@ -112,6 +102,34 @@ def objective(trial):
     # the default device can be used with the name "cuda"
     device = "cuda"
 
+    trial.suggest_categorical(
+        "experiment_no", hyper_parameters['experiment_no'])
+
+    memory_type = trial.suggest_categorical(
+        "memory_type", hyper_parameters['memory_type'])
+
+    if memory_type == 5:
+        train_func = train_ppo_lstm_agent
+        policy = "MlpLstmPolicy"
+    else:
+        train_func = train_ppo_agent
+        policy = MlpACPolicy
+
+    if memory_type != 0 and memory_type != 2 and memory_type != 5:
+        intrinsic_enabled = trial.suggest_categorical(
+            "intrinsic_enabled", hyper_parameters['intrinsic_enabled'])
+    else:
+        intrinsic_enabled = 0
+
+    memory_length = trial.suggest_categorical(
+        "memory_length", hyper_parameters['memory_length'])
+
+    total_timesteps = trial.suggest_categorical(
+        "total_timesteps", hyper_parameters['total_timesteps'])
+
+    maze_length = trial.suggest_categorical(
+        "maze_length", hyper_parameters['maze_length'])
+
     learning_rate = trial.suggest_categorical(
         "learning_rate", hyper_parameters['learning_rate'])
 
@@ -126,24 +144,6 @@ def objective(trial):
     batch_size = trial.suggest_categorical(
         "batch_size", hyper_parameters['batch_size'])
 
-    memory_type = trial.suggest_categorical(
-        "memory_type", hyper_parameters['memory_type'])
-
-    memory_length = trial.suggest_categorical(
-        "memory_length", hyper_parameters['memory_length'])
-
-    intrinsic_enabled = trial.suggest_categorical(
-        "intrinsic_enabled", hyper_parameters['intrinsic_enabled'])
-
-    if memory_type == 5:
-        train_func = train_ppo_lstm_agent
-        policy = "MlpLstmPolicy"
-        memory_type_category = 0
-    else:
-        train_func = train_ppo_agent
-        policy = MlpACPolicy
-        memory_type_category = memory_type
-
     log_name = str(trial.number)+"."+str(trial.params).replace(" ", "")\
         .replace("'", "").replace(":", "_").replace(",", ".")\
         .replace("{", "").replace("}", "")
@@ -156,7 +156,7 @@ def objective(trial):
     learning_setting['nn_layer_size'] = nn_layer_size
     learning_setting['n_steps'] = batch_size  # assumed equal with n_steps
     learning_setting['batch_size'] = batch_size
-    learning_setting['memory_type'] = memory_type_category
+    learning_setting['memory_type'] = memory_type
     learning_setting['memory_length'] = memory_length
     learning_setting['intrinsic_enabled'] = intrinsic_enabled
     learning_setting['intrinsic_beta'] = 0.5
