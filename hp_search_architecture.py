@@ -11,25 +11,34 @@ from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 
 # Select the hyperparameter search script:
 # from params.hp_ppo_params import hyper_parameters
-from params.hp_comp_arch import hyper_parameters
+from params.hp_comp_arch import hyper_parameters, study_name
+# from params.hp_ppo_params import hyper_parameters, study_name
 
 
 # Static parameters
 number_of_parallel_jobs = 8
-study_name = "architecture_search"
 storage_url = "mysql://root:1234@127.0.0.1/pomdp"
 
 # 1- Mysql RDB, used by default.
 storage = optuna.storages.RDBStorage(
-    url=storage_url, heartbeat_interval=300, grace_period=600)
+    url=storage_url, heartbeat_interval=300, grace_period=600,
+    engine_kwargs={
+        'pool_size': 128,
+        'max_overflow': 0
+    })
+
 
 # 2- Sqlite file RDB
 # storage = optuna.storages.RDBStorage(
 #     url="sqlite:///pomdp.db", heartbeat_interval=60,
-#     grace_period=120)
+#     grace_period=120,
+#     engine_kwargs={
+#         'pool_size': 128,
+#         'max_overflow': 0
+#     })
 
 envClass = TMazeEnvMemoryWrapped
-log_dir = "./logs/hyper_param_search/"
+log_dir = "./logs/" + study_name + "/"
 
 list_of_dict_lengths = [len(v) for k, v in hyper_parameters.items()]
 total_number_of_trials = np.prod(np.array(list_of_dict_lengths))

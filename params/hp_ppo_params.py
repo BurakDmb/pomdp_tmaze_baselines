@@ -12,3 +12,5 @@ hyper_parameters['intrinsic_enabled'] = [0, 1]
 hyper_parameters['experiment_no'] = [1]
 hyper_parameters['total_timesteps'] = [250_000]
 hyper_parameters['maze_length'] = [10]
+
+study_name = "hp_parameter_search"
