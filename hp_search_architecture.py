@@ -21,7 +21,7 @@ storage_url = "mysql://root:1234@127.0.0.1/pomdp"
 
 # 1- Mysql RDB, used by default.
 storage = optuna.storages.RDBStorage(
-    url=storage_url, heartbeat_interval=300, grace_period=600,
+    url=storage_url,
     engine_kwargs={
         'pool_size': 128,
         'max_overflow': 0
@@ -30,8 +30,7 @@ storage = optuna.storages.RDBStorage(
 
 # 2- Sqlite file RDB
 # storage = optuna.storages.RDBStorage(
-#     url="sqlite:///pomdp.db", heartbeat_interval=60,
-#     grace_period=120,
+#     url="sqlite:///pomdp.db",
 #     engine_kwargs={
 #         'pool_size': 128,
 #         'max_overflow': 0
@@ -278,9 +277,9 @@ def main():
     for p in processes:
         p.join()
     print("Execution has been completed.")
-    study = optuna.load_study(study_name=study_name, storage=storage)
-    print("Best params: ", study.best_params)
-    print("Best value: ", study.best_value)
+    # study = optuna.load_study(study_name=study_name, storage=storage)
+    # print("Best params: ", study.best_params)
+    # print("Best value: ", study.best_value)
 
 
 if __name__ == "__main__":
