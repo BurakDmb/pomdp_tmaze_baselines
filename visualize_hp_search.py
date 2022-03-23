@@ -34,7 +34,7 @@ study = optuna.load_study(study_name=study_name, storage=storage)
 plotContourLogic = True
 plotImportanceLogic = True
 plotParallelCoordinateLogic = True
-plotContourPartiallyLogic = True
+plotContourLogic = True
 plotSliceLogic = True
 plotEDFLogic = True
 
@@ -60,13 +60,22 @@ if plotParallelCoordinateLogic:
     fig.write_html(
         "results/visualization/parallel_coordinate_m_type_lr.html")
 
-if plotContourPartiallyLogic:
+if plotContourLogic:
     fig = optuna.visualization.plot_contour(
         study, params=["memory_type", "learning_rate"])
     fig.write_html("results/visualization/contour_memtype_lr.html")
     fig = optuna.visualization.plot_contour(
         study, params=["learning_rate", "memory_type"])
     fig.write_html("results/visualization/contour_lr_memtype.html")
+    fig = optuna.visualization.plot_contour(
+        study, params=["learning_rate", "batch_size"])
+    fig.write_html("results/visualization/contour_lr_batchsize.html")
+    fig = optuna.visualization.plot_contour(
+        study, params=["learning_rate", "nn_layer_size"])
+    fig.write_html("results/visualization/contour_lr_nnlayersize.html")
+    fig = optuna.visualization.plot_contour(
+        study, params=["learning_rate", "nn_num_layers"])
+    fig.write_html("results/visualization/contour_lr_nnnumlayers.html")
 
 if plotSliceLogic:
     fig = optuna.visualization.plot_slice(
