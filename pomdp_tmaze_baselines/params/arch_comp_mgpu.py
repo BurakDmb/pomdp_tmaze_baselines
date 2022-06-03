@@ -1,30 +1,31 @@
-from EnvTMaze import TMazeEnvMemoryWrapped
-from utils.UtilPolicies import MlpACPolicy
-from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
+from pomdp_tmaze_baselines.EnvTMaze import TMazeEnvMemoryWrapped
+from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
+from pomdp_tmaze_baselines.utils.UtilStableAgents import train_ppo_lstm_agent,\
+    train_ppo_agent
 
 total_timesteps = 1_000_000
 maze_length = 10
 envClass = TMazeEnvMemoryWrapped
 
-number_of_parallel_experiments = 1
+number_of_parallel_experiments = 8
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
 
 # Change the flags to True/False for only running specific agents
 start_no_memory = True
-start_no_memory_intr = True
+start_no_memory_intr = False
 start_o_k_memory = True
-start_o_k_intr_memory = True
+start_o_k_intr_memory = False
 start_oa_k_memory = True
-start_oa_k_intr_memory = True
+start_oa_k_intr_memory = False
 start_lstm = True
-start_lstm_intr = True
+start_lstm_intr = False
 
 learning_rate = 1e-3
 discount_rate = 0.99
 nn_num_layers = 3
-nn_layer_size = 8
-n_steps = 32
-batch_size = 32
+nn_layer_size = 16
+n_steps = 2048
+batch_size = 64
 
 no_memory_learning_setting = {}
 no_memory_learning_setting['envClass'] = envClass
@@ -45,7 +46,7 @@ no_memory_learning_setting['total_timesteps'] = total_timesteps
 no_memory_learning_setting['seed'] = None
 no_memory_learning_setting['policy'] = MlpACPolicy
 no_memory_learning_setting['save'] = False
-no_memory_learning_setting['device'] = 'cuda:0'
+no_memory_learning_setting['device'] = 'cuda:3'
 no_memory_learning_setting['train_func'] = train_ppo_agent
 
 no_memory_intr_learning_setting = {}
@@ -67,7 +68,7 @@ no_memory_intr_learning_setting['total_timesteps'] = total_timesteps
 no_memory_intr_learning_setting['seed'] = None
 no_memory_intr_learning_setting['policy'] = MlpACPolicy
 no_memory_intr_learning_setting['save'] = False
-no_memory_intr_learning_setting['device'] = 'cuda:0'
+no_memory_intr_learning_setting['device'] = 'cuda:3'
 no_memory_intr_learning_setting['train_func'] = train_ppo_agent
 
 o_k_memory_learning_setting = {}
@@ -89,7 +90,7 @@ o_k_memory_learning_setting['total_timesteps'] = total_timesteps
 o_k_memory_learning_setting['seed'] = None
 o_k_memory_learning_setting['policy'] = MlpACPolicy
 o_k_memory_learning_setting['save'] = False
-o_k_memory_learning_setting['device'] = 'cuda:0'
+o_k_memory_learning_setting['device'] = 'cuda:2'
 o_k_memory_learning_setting['train_func'] = train_ppo_agent
 
 o_k_intr_memory_learning_setting = {}
@@ -111,7 +112,7 @@ o_k_intr_memory_learning_setting['total_timesteps'] = total_timesteps
 o_k_intr_memory_learning_setting['seed'] = None
 o_k_intr_memory_learning_setting['policy'] = MlpACPolicy
 o_k_intr_memory_learning_setting['save'] = False
-o_k_intr_memory_learning_setting['device'] = 'cuda:0'
+o_k_intr_memory_learning_setting['device'] = 'cuda:2'
 o_k_intr_memory_learning_setting['train_func'] = train_ppo_agent
 
 
@@ -134,7 +135,7 @@ oa_k_memory_learning_setting['total_timesteps'] = total_timesteps
 oa_k_memory_learning_setting['seed'] = None
 oa_k_memory_learning_setting['policy'] = MlpACPolicy
 oa_k_memory_learning_setting['save'] = False
-oa_k_memory_learning_setting['device'] = 'cuda:0'
+oa_k_memory_learning_setting['device'] = 'cuda:1'
 oa_k_memory_learning_setting['train_func'] = train_ppo_agent
 
 oa_k_intr_memory_learning_setting = {}
@@ -156,7 +157,7 @@ oa_k_intr_memory_learning_setting['total_timesteps'] = total_timesteps
 oa_k_intr_memory_learning_setting['seed'] = None
 oa_k_intr_memory_learning_setting['policy'] = MlpACPolicy
 oa_k_intr_memory_learning_setting['save'] = False
-oa_k_intr_memory_learning_setting['device'] = 'cuda:0'
+oa_k_intr_memory_learning_setting['device'] = 'cuda:1'
 oa_k_intr_memory_learning_setting['train_func'] = train_ppo_agent
 
 lstm_learning_setting = {}

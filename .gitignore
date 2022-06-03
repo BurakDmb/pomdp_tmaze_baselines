@@ -4,3 +4,4 @@ saves/**
 logs**
 **.pyc
 **.db
+**.egg-info/**

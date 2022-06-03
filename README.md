@@ -13,6 +13,7 @@ Easy Installation with environment.yml and requirements.yml(used automatically i
 ```
 conda env create -f environment.yml 
 conda activate pomdp
+python setup.py develop
 ```
 
 ### Manual Installation
@@ -47,19 +48,16 @@ conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotli
 conda install pip -y
 pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install git+https://github.com/DLR-RM/stable-baselines3 --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
-pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/ppo-lstm --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+python setup.py develop
 ```
 
-Stable Baselines3, SB3-Contrib packages are taken from the git repository for latest updates (especially sb3-contrib.)
-Please note that below is the syntax for pip requirements file, to access the links, links are shared below:
+Stable Baselines3, SB3-Contrib packages are taken from the git repository for latest updates (especially sb3-contrib. for recurrent ppo algorithm)
+For pip requirements file, please add these lines shared below:
 
-- stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3@54bcfa4544315fc920be0944fc380fd75e2f7c4a
+- stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3
+- sb3-contrib @ git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib
 
-Link: https://github.com/DLR-RM/stable-baselines3/tree/54bcfa4544315fc920be0944fc380fd75e2f7c4a
-
-- sb3-contrib @ git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@c11332460e3ae7473e34cf91c12c8a0030fd5d70
-
-Link: https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/tree/c11332460e3ae7473e34cf91c12c8a0030fd5d70
 
 Tensorboard Reducer does not exists in conda, therefore it needs to installed from pip (https://github.com/janosh/tensorboard-reducer):
 - tensorboard-reducer

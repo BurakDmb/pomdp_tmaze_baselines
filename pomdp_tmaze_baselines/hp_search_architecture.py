@@ -4,15 +4,18 @@ import signal
 import numpy as np
 import torch.multiprocessing as mp
 import optuna
-from EnvTMaze import TMazeEnvMemoryWrapped
-from utils.UtilPolicies import MlpACPolicy
-from utils.UtilStableAgents import train_ppo_lstm_agent, train_ppo_agent
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 
+from pomdp_tmaze_baselines.EnvTMaze import TMazeEnvMemoryWrapped
+from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
+from pomdp_tmaze_baselines.utils.UtilStableAgents import train_ppo_lstm_agent,\
+    train_ppo_agent
+
+
 # Select the hyperparameter search script:
-# from params.hp_ppo_params import hyper_parameters
-from params.hp_comp_arch import hyper_parameters, study_name
-# from params.hp_ppo_params import hyper_parameters, study_name
+# from pomdp_tmaze_baselines.params.hp_ppo_params import hyper_parameters
+from pomdp_tmaze_baselines.params.hp_comp_arch import hyper_parameters
+from pomdp_tmaze_baselines.params.hp_comp_arch import study_name
 
 
 # Static parameters

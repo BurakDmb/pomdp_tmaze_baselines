@@ -5,7 +5,7 @@ class TestCode(unittest.TestCase):
 
     def test_custom_agent(self):
         from utils.UtilStableAgents import train_q_agent
-        from EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
 
         learning_setting = {}
         learning_setting['envClass'] = TMazeEnv
@@ -31,7 +31,8 @@ class TestCode(unittest.TestCase):
                          learning_setting['maze_length'])
 
     def test_custom_env(self):
-        from EnvTMaze import TMazeEnv, TMazeEnvPOMDP, TMazeEnvMemoryWrapped
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv, TMazeEnvPOMDP,\
+            TMazeEnvMemoryWrapped
 
         env = TMazeEnv(maze_length=6)
         env1 = TMazeEnvPOMDP(maze_length=6)
@@ -42,9 +43,10 @@ class TestCode(unittest.TestCase):
         self.assertIsNotNone(env9.reset())
 
     def test_custom_ppo_policy(self):
-        from EnvTMaze import TMazeEnv
-        from utils.UtilStableAgents import train_ppo_agent
-        from utils.UtilPolicies import MlpACPolicy
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
 
         ppo_learning_setting = {}
         ppo_learning_setting['envClass'] = TMazeEnv
@@ -66,9 +68,10 @@ class TestCode(unittest.TestCase):
         train_ppo_agent(learning_setting=ppo_learning_setting)
 
     def test_custom_dqn_policy(self):
-        from EnvTMaze import TMazeEnv
-        from utils.UtilStableAgents import train_dqn_agent
-        from utils.UtilPolicies import MlpDQNPolicy
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_dqn_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import MlpDQNPolicy
 
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = TMazeEnv
@@ -97,9 +100,10 @@ class TestCode(unittest.TestCase):
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
     def test_qlstm_policy(self):
-        from EnvTMaze import TMazeEnv
-        from utils.UtilStableAgents import train_dqn_agent
-        from utils.UtilPolicies import QLSTMPolicy
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_dqn_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import QLSTMPolicy
 
         dqn_learning_setting = {}
         dqn_learning_setting['envClass'] = TMazeEnv
@@ -125,8 +129,9 @@ class TestCode(unittest.TestCase):
         train_dqn_agent(learning_setting=dqn_learning_setting)
 
     def test_lstm_ppo_policy(self):
-        from EnvTMaze import TMazeEnv
-        from utils.UtilStableAgents import train_ppo_lstm_agent
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_lstm_agent
 
         ppoLSTM_learning_setting = {}
         ppoLSTM_learning_setting['envClass'] = TMazeEnv
@@ -153,8 +158,9 @@ class TestCode(unittest.TestCase):
         train_ppo_lstm_agent(learning_setting=ppoLSTM_learning_setting)
 
     def test_a2c_agent(self):
-        from EnvTMaze import TMazeEnv
-        from utils.UtilStableAgents import train_a2c_agent
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_a2c_agent
 
         a2c_learning_setting = {}
         a2c_learning_setting['envClass'] = TMazeEnv
@@ -176,9 +182,10 @@ class TestCode(unittest.TestCase):
 
     def test_env_v9(self):
 
-        from EnvTMaze import TMazeEnvMemoryWrapped
-        from utils.UtilStableAgents import train_ppo_agent
-        from utils.UtilPolicies import MlpACPolicy
+        from pomdp_tmaze_baselines.EnvTMaze import TMazeEnvMemoryWrapped
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
 
         env_v9_learning_setting = {}
         env_v9_learning_setting['envClass'] = TMazeEnvMemoryWrapped

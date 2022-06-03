@@ -10,22 +10,16 @@ if __name__ == '__main__':
     if params == 2 and sys.argv[1] == 'multigpu':
         pass
     else:
-        from params.alg_comp_gpu import number_of_parallel_experiments
-        from params.alg_comp_gpu import start_q, start_sarsa_low
-        from params.alg_comp_gpu import start_sarsa_middle
-        from params.alg_comp_gpu import start_sarsa_high, start_dqn
-        from params.alg_comp_gpu import start_qlstm, start_ppo
-        from params.alg_comp_gpu import start_ppoLSTM, start_a2c
-        from params.alg_comp_gpu import q_learning_setting
-        from params.alg_comp_gpu import sarsa_low_l_learning_setting
-        from params.alg_comp_gpu import sarsa_middle_l_learning_setting
-        from params.alg_comp_gpu import sarsa_high_l_learning_setting
-        from params.alg_comp_gpu import dqn_learning_setting
-        from params.alg_comp_gpu import qlstm_learning_setting
-        from params.alg_comp_gpu import ppo_learning_setting
-        from params.alg_comp_gpu import ppoLSTM_learning_setting
-        from params.alg_comp_gpu import a2c_learning_setting
-
+        from pomdp_tmaze_baselines.params.alg_comp_gpu import (
+            number_of_parallel_experiments,
+            start_q, start_sarsa_low, start_sarsa_middle, start_sarsa_high,
+            start_dqn, start_qlstm, start_ppo, start_ppoLSTM, start_a2c,
+            q_learning_setting, sarsa_low_l_learning_setting,
+            sarsa_middle_l_learning_setting,
+            sarsa_high_l_learning_setting, dqn_learning_setting,
+            qlstm_learning_setting, ppo_learning_setting,
+            ppoLSTM_learning_setting, a2c_learning_setting
+        )
     mp.set_start_method('spawn')
     processes = []
 

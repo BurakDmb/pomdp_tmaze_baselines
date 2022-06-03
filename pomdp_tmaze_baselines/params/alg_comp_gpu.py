@@ -1,11 +1,13 @@
-from EnvTMaze import TMazeEnvMemoryWrapped
-from utils.UtilPolicies import MlpACPolicy
-from utils.UtilPolicies import MlpDQNPolicy
-from utils.UtilPolicies import QLSTMPolicy
-from utils.UtilPolicies import LSTMACPolicy
-from utils.UtilStableAgents import train_ppo_agent, train_q_agent
-from utils.UtilStableAgents import train_dqn_agent, train_sarsa_lambda_agent
-from utils.UtilStableAgents import train_a2c_agent
+from pomdp_tmaze_baselines.EnvTMaze import TMazeEnvMemoryWrapped
+from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
+from pomdp_tmaze_baselines.utils.UtilPolicies import MlpDQNPolicy
+from pomdp_tmaze_baselines.utils.UtilPolicies import QLSTMPolicy
+from pomdp_tmaze_baselines.utils.UtilPolicies import LSTMACPolicy
+from pomdp_tmaze_baselines.utils.UtilStableAgents import train_ppo_agent,\
+    train_q_agent
+from pomdp_tmaze_baselines.utils.UtilStableAgents import train_dqn_agent,\
+    train_sarsa_lambda_agent
+from pomdp_tmaze_baselines.utils.UtilStableAgents import train_a2c_agent
 
 
 total_timesteps = 1_000_000

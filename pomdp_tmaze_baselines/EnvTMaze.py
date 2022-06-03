@@ -17,8 +17,8 @@ class TMazeEnv(gym.Env):
 
         # Rewards
         self.fl_default_reward = -0.1
-        self.fl_false_goal_reward = -4.0
-        self.fl_true_goal_reward = 4.0
+        self.fl_false_goal_reward = -40.0
+        self.fl_true_goal_reward = 40.0
         # print("default_tmaze: ", kwargs.get('arg1'))
         self.fl_intended_direction_prob = 1.0
 

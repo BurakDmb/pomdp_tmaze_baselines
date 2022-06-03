@@ -7,41 +7,28 @@ if __name__ == '__main__':
 
     params = len(sys.argv)
     if params == 2 and sys.argv[1] == 'multigpu':
-        from params.arch_comp_mgpu import number_of_parallel_experiments
-        from params.arch_comp_mgpu import start_no_memory
-        from params.arch_comp_mgpu import start_no_memory_intr
-        from params.arch_comp_mgpu import start_o_k_memory
-        from params.arch_comp_mgpu import start_o_k_intr_memory
-        from params.arch_comp_mgpu import start_oa_k_memory
-        from params.arch_comp_mgpu import start_oa_k_intr_memory
-        from params.arch_comp_mgpu import start_lstm
-        from params.arch_comp_mgpu import start_lstm_intr
-        from params.arch_comp_mgpu import no_memory_learning_setting
-        from params.arch_comp_mgpu import no_memory_intr_learning_setting
-        from params.arch_comp_mgpu import o_k_memory_learning_setting
-        from params.arch_comp_mgpu import o_k_intr_memory_learning_setting
-        from params.arch_comp_mgpu import oa_k_memory_learning_setting
-        from params.arch_comp_mgpu import oa_k_intr_memory_learning_setting
-        from params.arch_comp_mgpu import lstm_learning_setting
-        from params.arch_comp_mgpu import lstm_intr_learning_setting
+
+        from pomdp_tmaze_baselines.params.arch_comp_mgpu import (
+            number_of_parallel_experiments,
+            start_no_memory, start_no_memory_intr, start_o_k_memory,
+            start_o_k_intr_memory, start_oa_k_memory, start_oa_k_intr_memory,
+            start_lstm, start_lstm_intr, no_memory_learning_setting,
+            no_memory_intr_learning_setting, o_k_memory_learning_setting,
+            o_k_intr_memory_learning_setting, oa_k_memory_learning_setting,
+            oa_k_intr_memory_learning_setting, lstm_learning_setting,
+            lstm_intr_learning_setting
+        )
     else:
-        from params.arch_comp_gpu import number_of_parallel_experiments
-        from params.arch_comp_gpu import start_no_memory
-        from params.arch_comp_gpu import start_no_memory_intr
-        from params.arch_comp_gpu import start_o_k_memory
-        from params.arch_comp_gpu import start_o_k_intr_memory
-        from params.arch_comp_gpu import start_oa_k_memory
-        from params.arch_comp_gpu import start_oa_k_intr_memory
-        from params.arch_comp_gpu import start_lstm
-        from params.arch_comp_gpu import start_lstm_intr
-        from params.arch_comp_gpu import no_memory_learning_setting
-        from params.arch_comp_gpu import no_memory_intr_learning_setting
-        from params.arch_comp_gpu import o_k_memory_learning_setting
-        from params.arch_comp_gpu import o_k_intr_memory_learning_setting
-        from params.arch_comp_gpu import oa_k_memory_learning_setting
-        from params.arch_comp_gpu import oa_k_intr_memory_learning_setting
-        from params.arch_comp_gpu import lstm_learning_setting
-        from params.arch_comp_gpu import lstm_intr_learning_setting
+        from pomdp_tmaze_baselines.params.arch_comp_gpu import (
+            number_of_parallel_experiments,
+            start_no_memory, start_no_memory_intr, start_o_k_memory,
+            start_o_k_intr_memory, start_oa_k_memory, start_oa_k_intr_memory,
+            start_lstm, start_lstm_intr, no_memory_learning_setting,
+            no_memory_intr_learning_setting, o_k_memory_learning_setting,
+            o_k_intr_memory_learning_setting, oa_k_memory_learning_setting,
+            oa_k_intr_memory_learning_setting, lstm_learning_setting,
+            lstm_intr_learning_setting
+        )
 
     mp.set_start_method('spawn')
     processes = []
