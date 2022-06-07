@@ -39,6 +39,7 @@ Installing Other Required Packages
 - optuna
 - mysqlclient
 - flake8
+- gym-minigrid
 
 ```
 conda create -n pomdp python=3.8 -y
@@ -49,6 +50,7 @@ conda install pip -y
 pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install git+https://github.com/DLR-RM/stable-baselines3 --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install gym-minigrid --no-dependencies  --trusted-host pypi.org --trusted-host files.pythonhosted.org
 python setup.py develop
 ```
 
