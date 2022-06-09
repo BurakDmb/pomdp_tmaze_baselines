@@ -4,17 +4,21 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-kernel_size = 3
-padding = 3
-dilation = 1
-conv_hidden_size = 16
-conv1_stride = 4
-maxpool_stride = 1
-
 
 class Autoencoder(nn.Module):
-    def __init__(self, input_dims, latent_dims, hidden_size, in_channels):
+    def __init__(
+            self, input_dims, latent_dims, hidden_size, in_channels,
+            kernel_size=3, padding=3, dilation=1,
+            conv_hidden_size=16, conv1_stride=4, maxpool_stride=1):
         super(Autoencoder, self).__init__()
+
+        self.kernel_size = kernel_size
+        self.padding = padding
+        self.dilation = dilation
+        self.conv_hidden_size = conv_hidden_size
+        self.conv1_stride = conv1_stride
+        self.maxpool_stride = maxpool_stride
+
         self.encoder = Encoder(
             input_dims, latent_dims, hidden_size, in_channels)
         self.decoder = Decoder(
@@ -28,7 +32,10 @@ class Autoencoder(nn.Module):
 
 # Source: https://avandekleut.github.io/vae/
 class Encoder(nn.Module):
-    def __init__(self, input_dims, latent_dims, hidden_size, in_channels):
+    def __init__(
+            self, input_dims, latent_dims, hidden_size, in_channels,
+            kernel_size, padding, dilation,
+            conv_hidden_size, conv1_stride, maxpool_stride):
         super(Encoder, self).__init__()
         self.input_dims = input_dims
 
@@ -66,10 +73,15 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, input_dims, latent_dims, hidden_size, in_channels):
+    def __init__(
+            self, input_dims, latent_dims, hidden_size, in_channels,
+            kernel_size, padding, dilation,
+            conv_hidden_size, conv1_stride, maxpool_stride):
         super(Decoder, self).__init__()
         self.input_dims = input_dims
         self.hidden_size = hidden_size
+
+        self.conv_hidden_size = conv_hidden_size
 
         self.decoder_h_in = (
             conv1_stride*(input_dims-1) + 1 - 2*padding
@@ -91,6 +103,6 @@ class Decoder(nn.Module):
         z = F.relu(self.linear1(z))
         z = torch.sigmoid(self.linear2(z))
         z = z.reshape((
-            -1, conv_hidden_size,
+            -1, self.conv_hidden_size,
             self.decoder_h_in, self.decoder_h_in))
         return self.conv1(z)

@@ -2,7 +2,7 @@ import unittest
 
 
 class TestCode(unittest.TestCase):
-
+    """
     def test_custom_agent(self):
         from utils.UtilStableAgents import train_q_agent
         from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
@@ -210,7 +210,7 @@ class TestCode(unittest.TestCase):
         env_v9_learning_setting['train_func'] = train_ppo_agent
 
         train_ppo_agent(learning_setting=env_v9_learning_setting)
-
+"""
     def test_env_Minigrid(self):
 
         from pomdp_tmaze_baselines.EnvMinigrid import MinigridEnv
@@ -230,6 +230,8 @@ class TestCode(unittest.TestCase):
         learning_setting['memory_length'] = 1
         learning_setting['intrinsic_enabled'] = 0
         learning_setting['intrinsic_beta'] = 0.5
+        learning_setting['autoencoder_enabled'] = False
+        learning_setting['autoencoder_path'] = "models/ae.torch"
         learning_setting['tb_log_name'] = "o_k"
         learning_setting['tb_log_dir'] = None
         learning_setting['maze_length'] = 10
@@ -246,6 +248,7 @@ class TestCode(unittest.TestCase):
         env.reset()
         for i in range(10):
             obs, reward, done, _ = env.step(0)
+            pass
 
 
 def unittest_main(exit=False):
