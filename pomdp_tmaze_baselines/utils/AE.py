@@ -127,9 +127,13 @@ class VariationalAutoencoder(nn.Module):
         self.maxpool_stride = maxpool_stride
 
         self.encoder = VariationalEncoder(
-            input_dims, latent_dims, hidden_size, in_channels)
+            input_dims, latent_dims, hidden_size, in_channels,
+            kernel_size, padding, dilation,
+            conv_hidden_size, conv1_stride, maxpool_stride)
         self.decoder = Decoder(
-            input_dims, latent_dims, hidden_size, in_channels)
+            input_dims, latent_dims, hidden_size, in_channels,
+            kernel_size, padding, dilation,
+            conv_hidden_size, conv1_stride, maxpool_stride)
         # self.z = torch.empty((batch_size, latent_dims))
 
     def forward(self, x):
