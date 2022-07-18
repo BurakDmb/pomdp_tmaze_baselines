@@ -170,7 +170,7 @@ def objective(trial):
     learning_setting['memory_type'] = memory_type
     learning_setting['memory_length'] = memory_length
     learning_setting['intrinsic_enabled'] = intrinsic_enabled
-    learning_setting['intrinsic_beta'] = 0.5
+    learning_setting['intrinsic_beta'] = 0.1
     learning_setting['tb_log_name'] = log_name
     learning_setting['tb_log_dir'] = log_dir
     learning_setting['maze_length'] = maze_length
