@@ -144,7 +144,7 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['memory_type'] = 0
         ppoLSTM_learning_setting['memory_length'] = 1
         ppoLSTM_learning_setting['intrinsic_enabled'] = 0
-        ppoLSTM_learning_setting['intrinsic_beta'] = 0.5
+        ppoLSTM_learning_setting['intrinsic_beta'] = 0.1
         ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
         ppoLSTM_learning_setting['tb_log_dir'] = None
         ppoLSTM_learning_setting['maze_length'] = 6
@@ -198,7 +198,7 @@ class TestCode(unittest.TestCase):
         env_v9_learning_setting['memory_type'] = 3
         env_v9_learning_setting['memory_length'] = 1
         env_v9_learning_setting['intrinsic_enabled'] = 0
-        env_v9_learning_setting['intrinsic_beta'] = 0.5
+        env_v9_learning_setting['intrinsic_beta'] = 0.1
         env_v9_learning_setting['tb_log_name'] = "o_k"
         env_v9_learning_setting['tb_log_dir'] = None
         env_v9_learning_setting['maze_length'] = 10
@@ -228,10 +228,11 @@ class TestCode(unittest.TestCase):
         learning_setting['batch_size'] = 32
         learning_setting['memory_type'] = 3
         learning_setting['memory_length'] = 1
-        learning_setting['intrinsic_enabled'] = 0
-        learning_setting['intrinsic_beta'] = 0.5
-        learning_setting['autoencoder_enabled'] = False
-        learning_setting['autoencoder_path'] = "models/ae.torch"
+        learning_setting['intrinsic_enabled'] = 1
+        learning_setting['intrinsic_beta'] = 0.1
+        learning_setting['ae_enabled'] = True
+        learning_setting['ae_path'] = "models/ae.torch"
+        learning_setting['ae_rcons_err_type'] = "MSE"
         learning_setting['tb_log_name'] = "o_k"
         learning_setting['tb_log_dir'] = None
         learning_setting['maze_length'] = 10

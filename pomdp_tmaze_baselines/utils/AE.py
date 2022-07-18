@@ -33,13 +33,13 @@ class ConvAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride)
-        # self.z = torch.empty((batch_size, latent_dims))
+        # z = torch.empty((batch_size, latent_dims))
         summary(self.to("cuda"), (3, 48, 48))
 
     def forward(self, x):
-        self.z = self.encoder(x)
-        result = self.decoder(self.z)
-        return result
+        z = self.encoder(x)
+        result = self.decoder(z)
+        return result, z
 
 
 # Source: https://avandekleut.github.io/vae/
@@ -154,11 +154,12 @@ class Autoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride)
-        # self.z = torch.empty((batch_size, latent_dims))
+        # z = torch.empty((batch_size, latent_dims))
 
     def forward(self, x):
-        self.z = self.encoder(x)
-        return self.decoder(self.z)
+        z = self.encoder(x)
+        result = self.decoder(z)
+        return result, z
 
 
 # Source: https://avandekleut.github.io/vae/
@@ -260,11 +261,12 @@ class VariationalAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride)
-        # self.z = torch.empty((batch_size, latent_dims))
+        # z = torch.empty((batch_size, latent_dims))
 
     def forward(self, x):
-        self.z = self.encoder(x)
-        return self.decoder(self.z)
+        z = self.encoder(x)
+        result = self.decoder(z)
+        return result, z
 
 
 class VariationalEncoder(nn.Module):

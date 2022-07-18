@@ -192,7 +192,7 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         self.memory_type = kwargs.get('memory_type', 0)
         self.memory_length = kwargs.get('memory_length', 1)
         self.intrinsic_enabled = kwargs.get('intrinsic_enabled', 0)
-        self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.5)
+        self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.1)
 
         # Memory type 0 = None
         if self.memory_type == 0:
