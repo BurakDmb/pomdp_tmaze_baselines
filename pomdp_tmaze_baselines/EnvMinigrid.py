@@ -30,7 +30,7 @@ class MinigridEnv(gym.Env):
         super(MinigridEnv, self).__init__()
         self.memory_type = kwargs.get('memory_type', 0)
         self.memory_length = kwargs.get('memory_length', 1)
-        self.intrinsic_enabled = kwargs.get('intrinsic_enabled', 0)
+        self.intrinsic_enabled = kwargs.get('intrinsic_enabled', False)
         self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.1)
 
         self.ae_enabled = kwargs.get('ae_enabled', False)

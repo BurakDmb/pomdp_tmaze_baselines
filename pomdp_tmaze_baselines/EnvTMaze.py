@@ -191,7 +191,7 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         super(TMazeEnvMemoryWrapped, self).__init__(**kwargs)
         self.memory_type = kwargs.get('memory_type', 0)
         self.memory_length = kwargs.get('memory_length', 1)
-        self.intrinsic_enabled = kwargs.get('intrinsic_enabled', 0)
+        self.intrinsic_enabled = kwargs.get('intrinsic_enabled', False)
         self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.1)
 
         # Memory type 0 = None
@@ -483,7 +483,7 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         # c is the memory capacity.
         # p_obs is the probability of gathering observation obs
         # r_int_m is bounded to [-c, 0]
-        if self.intrinsic_enabled == 1:
+        if self.intrinsic_enabled:
             total_frequencies = 0
             for i in range(self.memory_length):
                 obs_i = np.array_str(self.external_memory[

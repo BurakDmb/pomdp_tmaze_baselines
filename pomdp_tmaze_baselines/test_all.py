@@ -143,7 +143,7 @@ class TestCode(unittest.TestCase):
         ppoLSTM_learning_setting['batch_size'] = 64
         ppoLSTM_learning_setting['memory_type'] = 0
         ppoLSTM_learning_setting['memory_length'] = 1
-        ppoLSTM_learning_setting['intrinsic_enabled'] = 0
+        ppoLSTM_learning_setting['intrinsic_enabled'] = False
         ppoLSTM_learning_setting['intrinsic_beta'] = 0.1
         ppoLSTM_learning_setting['tb_log_name'] = "ppolstm-tmazev0"
         ppoLSTM_learning_setting['tb_log_dir'] = None
@@ -197,7 +197,7 @@ class TestCode(unittest.TestCase):
         env_v9_learning_setting['batch_size'] = 32
         env_v9_learning_setting['memory_type'] = 3
         env_v9_learning_setting['memory_length'] = 1
-        env_v9_learning_setting['intrinsic_enabled'] = 0
+        env_v9_learning_setting['intrinsic_enabled'] = False
         env_v9_learning_setting['intrinsic_beta'] = 0.1
         env_v9_learning_setting['tb_log_name'] = "o_k"
         env_v9_learning_setting['tb_log_dir'] = None
@@ -228,7 +228,7 @@ class TestCode(unittest.TestCase):
         learning_setting['batch_size'] = 32
         learning_setting['memory_type'] = 3
         learning_setting['memory_length'] = 1
-        learning_setting['intrinsic_enabled'] = 1
+        learning_setting['intrinsic_enabled'] = True
         learning_setting['intrinsic_beta'] = 0.1
         learning_setting['ae_enabled'] = True
         learning_setting['ae_path'] = "models/ae.torch"
