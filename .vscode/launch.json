@@ -43,6 +43,22 @@
             "args": ["multigpu"]
         },
         {
+            "name": "Train Compare Minigrid",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_minigrid.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Multi GPU-Train Compare Minigrid ",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_minigrid.py",
+            "console": "integratedTerminal",
+            "args": ["multigpu"]
+        },
+        {
             "name": "Single GPU - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",

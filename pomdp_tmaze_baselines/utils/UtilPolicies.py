@@ -9,8 +9,64 @@ from stable_baselines3.dqn.policies import QNetwork, DQNPolicy
 from stable_baselines3.common.type_aliases import Schedule
 from stable_baselines3.common.torch_layers import (
     BaseFeaturesExtractor,
-    FlattenExtractor
+    FlattenExtractor,
+    NatureCNN
 )
+
+
+# We assume CxHxW images (channels first)
+class CNNACPolicy(ActorCriticPolicy):
+    def __init__(
+        self,
+        observation_space: gym.spaces.Space,
+        action_space: gym.spaces.Space,
+        lr_schedule: Callable[[float], float],
+        net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
+        activation_fn: Type[nn.Module] = nn.Tanh,
+        ortho_init: bool = True,
+        use_sde: bool = False,
+        log_std_init: float = 0.0,
+        full_std: bool = True,
+        sde_net_arch: Optional[List[int]] = None,
+        use_expln: bool = False,
+        squash_output: bool = False,
+        features_extractor_class: Type[BaseFeaturesExtractor] = NatureCNN,
+        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+        normalize_images: bool = True,
+        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
+        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        *args,
+        **kwargs,
+    ):
+
+        super(CNNACPolicy, self).__init__(
+            observation_space,
+            action_space,
+            lr_schedule,
+            net_arch,
+            activation_fn,
+            #
+            ortho_init,
+            use_sde,
+            log_std_init,
+            full_std,
+            sde_net_arch,
+            use_expln,
+            squash_output,
+            features_extractor_class,
+            features_extractor_kwargs,
+            normalize_images,
+            optimizer_class,
+            optimizer_kwargs,
+            # Pass remaining arguments to base class
+            *args,
+            **kwargs,
+        )
+        # Disable orthogonal initialization
+        self.ortho_init = False
+
+    def _build_mlp_extractor(self) -> None:
+        self.mlp_extractor = MlpACNetwork(self.features_dim, self.net_arch)
 
 
 class MlpACPolicy(ActorCriticPolicy):

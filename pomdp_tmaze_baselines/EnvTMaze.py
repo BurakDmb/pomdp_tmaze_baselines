@@ -9,7 +9,7 @@ class TMazeEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, **kwargs):
-
+        self.env_type = "TMazeEnv"
         self.grid_size = (kwargs.get('maze_length'), 3)
         self.grid = ['X' * (self.grid_size[0] - 1) + '_',
                      '_' * (self.grid_size[0]),

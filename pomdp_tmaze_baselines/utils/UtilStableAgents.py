@@ -269,8 +269,8 @@ def train_ppo_lstm_agent(learning_setting):
 
     policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
                                         * learning_setting['nn_num_layers'])],
-                         shared_lstm=False,
-                         enable_critic_lstm=True,
+                         #  shared_lstm=False,
+                         #  enable_critic_lstm=True,
                          ortho_init=False)
 
     model = RecurrentPPO(
@@ -347,12 +347,15 @@ class TensorboardCallback(BaseCallback):
 
                 if self.locals['self'].env.unwrapped.\
                         envs[0].intrinsic_enabled == 1:
-                    self.tb_formatter.writer.\
-                        add_text(
-                            "_tmaze/Frequency Dictionary String per episode",
-                            str(self.locals['self'].env.
-                                unwrapped.envs[0].
-                                intrinsic_dict), epi_number)
+                    if self.locals['self'].env.unwrapped.\
+                            envs[0].env_type == "TmazeEnv":
+                        self.tb_formatter.writer.\
+                            add_text(
+                                "_tmaze/Frequency Dictionary String " +
+                                "per episode",
+                                str(self.locals['self'].env.
+                                    unwrapped.envs[0].
+                                    intrinsic_dict), epi_number)
 
                 self.tb_formatter.writer.flush()
         return True

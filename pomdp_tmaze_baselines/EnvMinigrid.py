@@ -28,6 +28,7 @@ hidden_size = 128
 class MinigridEnv(gym.Env):
     def __init__(self, **kwargs):
         super(MinigridEnv, self).__init__()
+        self.env_type = "MinigridEnv"
         self.memory_type = kwargs.get('memory_type', 0)
         self.memory_length = kwargs.get('memory_length', 1)
         self.intrinsic_enabled = kwargs.get('intrinsic_enabled', False)
@@ -42,8 +43,13 @@ class MinigridEnv(gym.Env):
         env = RGBImgPartialObsWrapper(env)
         self.env = ImgObsWrapper(env)
 
-        original_space = self.env.observation_space
         self.action_space = self.env.action_space
+        self.success_count = 0
+        self.episode_count = 0
+
+        self.transforms = torchvision.transforms.Compose([
+                torchvision.transforms.Resize(input_dims),
+                torchvision.transforms.PILToTensor(), ])
 
         if self.ae_enabled:
             if self.ae_path is not None:
@@ -56,37 +62,33 @@ class MinigridEnv(gym.Env):
                     "stopping the execution.***")
                 exit(1)
 
-            self.transforms = torchvision.transforms.Compose([
-                torchvision.transforms.Resize(input_dims),
-                torchvision.transforms.ToTensor(), ])
-
             self.observation_space = gym.spaces.Box(
                 low=-np.inf,
                 high=np.inf,
-                shape=(latent_dims, 1), dtype=original_space.dtype)
+                shape=(latent_dims, 1), dtype=np.float32)
         else:
-            low = np.moveaxis(original_space.low, -1, 0)
-            high = np.moveaxis(original_space.high, -1, 0)
             self.observation_space = gym.spaces.Box(
-                low=low,
-                high=high,
+                low=0,
+                high=255,
                 shape=(
-                    original_space.shape[-1],
-                    original_space.shape[0],
-                    original_space.shape[1]), dtype=original_space.dtype)
+                    in_channels,
+                    input_dims,
+                    input_dims), dtype=np.uint8)
 
     def _get_observation(self, obs):
+        observation_ae_img = Image.fromarray(obs)
+        if self.transforms is not None:
+            observation_ae = self.transforms(
+                observation_ae_img)
+        # CxHxW with [0, 255] uint8
+        observation = observation_ae.cpu().numpy()
+
         if self.ae_enabled:
-            observation_ae_img = Image.fromarray(obs)
-            if self.transforms is not None:
-                observation_ae = self.transforms(
-                    observation_ae_img).to(self.device)
-            observation_ae = observation_ae[None, :]
+            observation_ae = observation_ae[None, :].to(self.device)
             with torch.no_grad():
                 _, observation = self.ae(observation_ae)
-            observation = observation.cpu().numpy()
-        else:
-            observation = obs
+            observation = observation.cpu().numpy().transpose()
+
         return observation
 
     def step(self, action):
@@ -100,8 +102,7 @@ class MinigridEnv(gym.Env):
                 # observations are transformed into tensors with torchvision,
                 # which automatically converts
                 # PIL images in shape of (H x W x C), range [0, 255] to a
-                # torch.FloatTensor of shape (C x H x W) in the range
-                # [0.0, 1.0]
+                # uint8 tensor of shape (C x H x W) in the range [0, 255]
                 with torch.no_grad():
                     observation_ae_img = Image.fromarray(new_state)
                     observation_ae = self.transforms(
@@ -126,8 +127,8 @@ class MinigridEnv(gym.Env):
 
                     # Normalizing the loss with the maximum loss(each rgb pixel
                     # density is totally different, error is 1,
-                    # and total of 1*input_dims*input_dims*in_channels)
-                    loss = loss / (input_dims*input_dims*in_channels)
+                    # and total of 255*input_dims*input_dims*in_channels
+                    loss = loss / (255*input_dims*input_dims*in_channels)
 
                     # TODO: Since the difference of the reconstruction loss
                     # between common and uncommon observations is small,
@@ -144,6 +145,12 @@ class MinigridEnv(gym.Env):
                       " is not supported in visual environments, " +
                       "stopping the execution.***")
                 exit(1)
+
+        if done:
+            self.episode_count += 1
+            if tuple(self.env.agent_pos) == self.env.success_pos:
+                success = 1
+                self.success_count += 1
 
         self.current_state = new_state
 
