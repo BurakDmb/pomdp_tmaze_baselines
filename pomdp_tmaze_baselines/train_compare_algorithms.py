@@ -1,5 +1,6 @@
 import sys
 import torch.multiprocessing as mp
+from tqdm.auto import tqdm
 
 
 if __name__ == '__main__':
@@ -90,5 +91,9 @@ if __name__ == '__main__':
             p.start()
             processes.append(p)
 
-    for p in processes:
+    print("Training started with selected algorithms " +
+          "(each algorithm experiment will run with " +
+          str(number_of_parallel_experiments) + " parallel run/runs).")
+
+    for p in tqdm(processes):
         p.join()

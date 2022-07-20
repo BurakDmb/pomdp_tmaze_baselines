@@ -269,7 +269,8 @@ def train_ppo_lstm_agent(learning_setting):
 
     policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
                                         * learning_setting['nn_num_layers'])],
-                         shared_lstm=True,
+                         shared_lstm=False,
+                         enable_critic_lstm=True,
                          ortho_init=False)
 
     model = RecurrentPPO(

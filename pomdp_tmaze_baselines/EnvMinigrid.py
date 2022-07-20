@@ -36,6 +36,7 @@ class MinigridEnv(gym.Env):
         self.ae_enabled = kwargs.get('ae_enabled', False)
         self.ae_path = kwargs.get('ae_path', None)
         self.ae_rcons_err_type = kwargs.get('ae_rcons_err_type', "MSE")
+        self.device = kwargs.get('device', "cpu")
 
         env = gym.make('MiniGrid-MemoryS13-v0')
         env = RGBImgPartialObsWrapper(env)
@@ -46,7 +47,7 @@ class MinigridEnv(gym.Env):
 
         if self.ae_enabled:
             if self.ae_path is not None:
-                self.ae = torch.load(self.ae_path).to("cuda")
+                self.ae = torch.load(self.ae_path).to(self.device)
                 self.ae = self.ae.module
                 self.ae.eval()
             else:
@@ -59,10 +60,6 @@ class MinigridEnv(gym.Env):
                 torchvision.transforms.Resize(input_dims),
                 torchvision.transforms.ToTensor(), ])
 
-            self.inverse_transforms = torchvision.transforms.Compose([
-                torchvision.transforms.ToPILImage(),
-                torchvision.transforms.Resize(
-                    self.env.observation_space.shape[0]), ])
             self.observation_space = gym.spaces.Box(
                 low=-np.inf,
                 high=np.inf,
@@ -80,9 +77,10 @@ class MinigridEnv(gym.Env):
 
     def _get_observation(self, obs):
         if self.ae_enabled:
-            observation_ae = Image.fromarray(obs)
+            observation_ae_img = Image.fromarray(obs)
             if self.transforms is not None:
-                observation_ae = self.transforms(observation_ae).to("cuda")
+                observation_ae = self.transforms(
+                    observation_ae_img).to(self.device)
             observation_ae = observation_ae[None, :]
             with torch.no_grad():
                 _, observation = self.ae(observation_ae)
@@ -107,7 +105,7 @@ class MinigridEnv(gym.Env):
                 with torch.no_grad():
                     observation_ae_img = Image.fromarray(new_state)
                     observation_ae = self.transforms(
-                        observation_ae_img).to("cuda")
+                        observation_ae_img).to(self.device)
                     observation_ae = observation_ae[None, :]
                     new_state_gen_tmp, _ = self.ae(observation_ae)
                     new_state_gen_tmp = torch.squeeze(
@@ -131,13 +129,16 @@ class MinigridEnv(gym.Env):
                     # and total of 1*input_dims*input_dims*in_channels)
                     loss = loss / (input_dims*input_dims*in_channels)
 
+                    # TODO: Since the difference of the reconstruction loss
+                    # between common and uncommon observations is small,
+                    # a scaling operation could be useful to get more
+                    # distinct and useful intrinsic rewards.
+
                     # Higher loss leads to higher positive reward.
                     # Intrinsic motivation is multiplied with intrinsic beta
                     # to tune the density of the intrinsic reward
                     intrinsic_reward = loss
-                    reward = (
-                        (1-self.intrinsic_beta)*reward
-                        ) + (self.intrinsic_beta * intrinsic_reward)
+                    reward += self.intrinsic_beta * intrinsic_reward
             else:
                 print("***Intrinsic reward calculation without autoencoders" +
                       " is not supported in visual environments, " +

@@ -15,14 +15,14 @@
             "name": "Train Compare Algorithms",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_compare_algorithms.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_algorithms.py",
             "console": "integratedTerminal"
         },
         {
             "name": "Multi GPU-Train Compare Algorithms ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_compare_algorithms.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_algorithms.py",
             "console": "integratedTerminal",
             "args": ["multigpu"]
         },
@@ -30,7 +30,7 @@
             "name": "Train Compare Architectures",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_compare_architectures.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_architectures.py",
             "console": "integratedTerminal",
             "justMyCode": false
         },
@@ -38,7 +38,7 @@
             "name": "Multi GPU-Train Compare Architectures ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_compare_architectures.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/train_compare_architectures.py",
             "console": "integratedTerminal",
             "args": ["multigpu"]
         },
@@ -46,7 +46,7 @@
             "name": "Single GPU - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/hp_search_architecture.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/hp_search_architecture.py",
             "console": "integratedTerminal",
             "args": ["singlegpu"]
         },
@@ -54,7 +54,7 @@
             "name": "Multi GPU - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/hp_search_architecture.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/hp_search_architecture.py",
             "console": "integratedTerminal",
             "args": ["multigpu", "4"]
         },
@@ -62,7 +62,7 @@
             "name": "Delete Study - Hyperparameter Search Architecture Parameters ",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/hp_search_architecture.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/hp_search_architecture.py",
             "console": "integratedTerminal",
             "args": ["delete"]
         },
@@ -70,7 +70,7 @@
             "name": "Test All",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/test_all.py",
+            "program": "${workspaceFolder}/pomdp_tmaze_baselines/test_all.py",
             "console": "integratedTerminal"
         },
     ]
