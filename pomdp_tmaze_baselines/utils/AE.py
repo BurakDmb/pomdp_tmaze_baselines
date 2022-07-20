@@ -11,6 +11,8 @@ def conv_shape(x, k=1, p=0, s=1, d=1):
     return int((x + 2*p - d*(k - 1) - 1)/s + 1)
 
 
+# TODO: There exists a bug possibly in the layer sizes, which training/test
+# losses always returns the same.
 class ConvAutoencoder(nn.Module):
     def __init__(
             self, input_dims, latent_dims, hidden_size, in_channels,
@@ -33,8 +35,7 @@ class ConvAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride)
-        # z = torch.empty((batch_size, latent_dims))
-        summary(self.to("cuda"), (3, 48, 48))
+        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
         z = self.encoder(x)

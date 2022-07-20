@@ -12,21 +12,21 @@ number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
 
 # Change the flags to True/False for only running specific agents
-start_ae_ppo = False
+start_ae_ppo = True
 start_cnn_ppo = True
-start_ae_smm = False
+start_ae_smm = True
 start_cnn_smm = True
-start_ae_smm_intr = False
-start_ae_lstm = False
+start_ae_smm_intr = True
+start_ae_lstm = True
 start_cnn_lstm = True
 
 
-learning_rate = 1e-0
+learning_rate = 1e-3
 discount_rate = 0.99
 nn_num_layers = 4
 nn_layer_size = 4
-n_steps = 32
-batch_size = 32
+n_steps = 256
+batch_size = 256
 
 
 mgrid_ae_ppo_setting = {}

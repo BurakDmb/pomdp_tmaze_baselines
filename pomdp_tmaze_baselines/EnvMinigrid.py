@@ -50,6 +50,9 @@ class MinigridEnv(gym.Env):
         self.transforms = torchvision.transforms.Compose([
                 torchvision.transforms.Resize(input_dims),
                 torchvision.transforms.PILToTensor(), ])
+        self.transforms_ae = torchvision.transforms.Compose([
+                torchvision.transforms.Resize(input_dims),
+                torchvision.transforms.ToTensor(), ])
 
         if self.ae_enabled:
             if self.ae_path is not None:
@@ -76,18 +79,24 @@ class MinigridEnv(gym.Env):
                     input_dims), dtype=np.uint8)
 
     def _get_observation(self, obs):
-        observation_ae_img = Image.fromarray(obs)
-        if self.transforms is not None:
-            observation_ae = self.transforms(
-                observation_ae_img)
-        # CxHxW with [0, 255] uint8
-        observation = observation_ae.cpu().numpy()
-
         if self.ae_enabled:
+            observation_ae_img = Image.fromarray(obs)
+            if self.transforms is not None:
+                observation_ae = self.transforms_ae(
+                    observation_ae_img)
+
             observation_ae = observation_ae[None, :].to(self.device)
             with torch.no_grad():
                 _, observation = self.ae(observation_ae)
             observation = observation.cpu().numpy().transpose()
+
+        else:
+            observation_ae_img = Image.fromarray(obs)
+            if self.transforms is not None:
+                observation_ae = self.transforms(
+                    observation_ae_img)
+            # CxHxW with [0, 255] uint8
+            observation = observation_ae.cpu().numpy()
 
         return observation
 
@@ -105,7 +114,7 @@ class MinigridEnv(gym.Env):
                 # uint8 tensor of shape (C x H x W) in the range [0, 255]
                 with torch.no_grad():
                     observation_ae_img = Image.fromarray(new_state)
-                    observation_ae = self.transforms(
+                    observation_ae = self.transforms_ae(
                         observation_ae_img).to(self.device)
                     observation_ae = observation_ae[None, :]
                     new_state_gen_tmp, _ = self.ae(observation_ae)
@@ -113,7 +122,7 @@ class MinigridEnv(gym.Env):
                         new_state_gen_tmp, 0).cpu().numpy()
 
                     new_state_img = Image.fromarray(new_state)
-                    new_state_orig_tmp = self.transforms(
+                    new_state_orig_tmp = self.transforms_ae(
                         new_state_img).cpu().numpy()
 
                     # Calculate reconstruction loss (MAE or MSE)
@@ -128,7 +137,7 @@ class MinigridEnv(gym.Env):
                     # Normalizing the loss with the maximum loss(each rgb pixel
                     # density is totally different, error is 1,
                     # and total of 255*input_dims*input_dims*in_channels
-                    loss = loss / (255*input_dims*input_dims*in_channels)
+                    loss = loss / (1*input_dims*input_dims*in_channels)
 
                     # TODO: Since the difference of the reconstruction loss
                     # between common and uncommon observations is small,
