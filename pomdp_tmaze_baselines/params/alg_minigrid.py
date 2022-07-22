@@ -50,7 +50,7 @@ mgrid_ae_ppo_setting['maze_length'] = maze_length
 mgrid_ae_ppo_setting['total_timesteps'] = total_timesteps
 mgrid_ae_ppo_setting['seed'] = None
 mgrid_ae_ppo_setting['policy'] = MlpACPolicy
-mgrid_ae_ppo_setting['save'] = False
+mgrid_ae_ppo_setting['save'] = True
 mgrid_ae_ppo_setting['device'] = 'cuda:0'
 mgrid_ae_ppo_setting['train_func'] = train_ppo_agent
 
@@ -76,7 +76,7 @@ mgrid_cnn_ppo_setting['maze_length'] = maze_length
 mgrid_cnn_ppo_setting['total_timesteps'] = total_timesteps
 mgrid_cnn_ppo_setting['seed'] = None
 mgrid_cnn_ppo_setting['policy'] = CNNACPolicy
-mgrid_cnn_ppo_setting['save'] = False
+mgrid_cnn_ppo_setting['save'] = True
 mgrid_cnn_ppo_setting['device'] = 'cuda:0'
 mgrid_cnn_ppo_setting['train_func'] = train_ppo_agent
 
@@ -102,7 +102,7 @@ mgrid_ae_smm_setting['maze_length'] = maze_length
 mgrid_ae_smm_setting['total_timesteps'] = total_timesteps
 mgrid_ae_smm_setting['seed'] = None
 mgrid_ae_smm_setting['policy'] = MlpACPolicy
-mgrid_ae_smm_setting['save'] = False
+mgrid_ae_smm_setting['save'] = True
 mgrid_ae_smm_setting['device'] = 'cuda:0'
 mgrid_ae_smm_setting['train_func'] = train_ppo_agent
 
@@ -128,7 +128,7 @@ mgrid_cnn_smm_setting['maze_length'] = maze_length
 mgrid_cnn_smm_setting['total_timesteps'] = total_timesteps
 mgrid_cnn_smm_setting['seed'] = None
 mgrid_cnn_smm_setting['policy'] = CNNACPolicy
-mgrid_cnn_smm_setting['save'] = False
+mgrid_cnn_smm_setting['save'] = True
 mgrid_cnn_smm_setting['device'] = 'cuda:0'
 mgrid_cnn_smm_setting['train_func'] = train_ppo_agent
 
@@ -154,7 +154,7 @@ mgrid_ae_smm_intr_setting['maze_length'] = maze_length
 mgrid_ae_smm_intr_setting['total_timesteps'] = total_timesteps
 mgrid_ae_smm_intr_setting['seed'] = None
 mgrid_ae_smm_intr_setting['policy'] = MlpACPolicy
-mgrid_ae_smm_intr_setting['save'] = False
+mgrid_ae_smm_intr_setting['save'] = True
 mgrid_ae_smm_intr_setting['device'] = 'cuda:0'
 mgrid_ae_smm_intr_setting['train_func'] = train_ppo_agent
 
@@ -180,7 +180,7 @@ mgrid_ae_lstm_setting['maze_length'] = maze_length
 mgrid_ae_lstm_setting['total_timesteps'] = total_timesteps
 mgrid_ae_lstm_setting['seed'] = None
 mgrid_ae_lstm_setting['policy'] = "MlpLstmPolicy"
-mgrid_ae_lstm_setting['save'] = False
+mgrid_ae_lstm_setting['save'] = True
 mgrid_ae_lstm_setting['device'] = 'cuda:0'
 mgrid_ae_lstm_setting['train_func'] = train_ppo_lstm_agent
 
@@ -206,6 +206,6 @@ mgrid_cnn_lstm_setting['maze_length'] = maze_length
 mgrid_cnn_lstm_setting['total_timesteps'] = total_timesteps
 mgrid_cnn_lstm_setting['seed'] = None
 mgrid_cnn_lstm_setting['policy'] = "CnnLstmPolicy"
-mgrid_cnn_lstm_setting['save'] = False
+mgrid_cnn_lstm_setting['save'] = True
 mgrid_cnn_lstm_setting['device'] = 'cuda:0'
 mgrid_cnn_lstm_setting['train_func'] = train_ppo_lstm_agent

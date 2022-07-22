@@ -1,5 +1,5 @@
 import gym
-# from gym import spaces
+from gym import spaces
 from gym_minigrid.wrappers import RGBImgPartialObsWrapper, ImgObsWrapper
 
 # from pomdp_tmaze_baselines.utils.AE import Autoencoder
@@ -43,7 +43,10 @@ class MinigridEnv(gym.Env):
         env = RGBImgPartialObsWrapper(env)
         self.env = ImgObsWrapper(env)
 
-        self.action_space = self.env.action_space
+        # self.action_space = self.env.action_space
+
+        self.action_space = spaces.Discrete(3)
+
         self.success_count = 0
         self.episode_count = 0
 

@@ -42,6 +42,46 @@ class TestCode(unittest.TestCase):
             obs, reward, done, _ = env.step(0)
             pass
 
+    def test_env_Minigrid_check_latent(self):
+
+        from pomdp_tmaze_baselines.EnvMinigrid import MinigridEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import CNNACPolicy
+
+        learning_setting = {}
+        learning_setting['envClass'] = MinigridEnv
+        learning_setting['learning_rate'] = 1e-3
+        learning_setting['discount_rate'] = 0.99
+        learning_setting['nn_num_layers'] = 4
+        learning_setting['nn_layer_size'] = 4
+        learning_setting['n_steps'] = 256
+        learning_setting['batch_size'] = 256
+        learning_setting['memory_type'] = 0
+        learning_setting['memory_length'] = 1
+        learning_setting['intrinsic_enabled'] = False
+        learning_setting['intrinsic_beta'] = 0.01
+        learning_setting['ae_enabled'] = False
+        learning_setting['ae_path'] = "models/ae.torch"
+        learning_setting['ae_rcons_err_type'] = "MSE"
+        learning_setting['tb_log_name'] = "ae_ppo"
+        learning_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
+        learning_setting['maze_length'] = 10
+        learning_setting['total_timesteps'] = 100
+        learning_setting['seed'] = None
+        learning_setting['policy'] = CNNACPolicy
+        learning_setting['save'] = False
+        learning_setting['device'] = 'cuda:0'
+        learning_setting['train_func'] = train_ppo_agent
+
+        # train_ppo_agent(learning_setting=learning_setting)
+
+        env = MinigridEnv(**learning_setting)
+        env.reset()
+        for i in range(10):
+            obs, reward, done, _ = env.step(0)
+            pass
+
     def test_custom_agent(self):
         from utils.UtilStableAgents import train_q_agent
         from pomdp_tmaze_baselines.EnvTMaze import TMazeEnv
