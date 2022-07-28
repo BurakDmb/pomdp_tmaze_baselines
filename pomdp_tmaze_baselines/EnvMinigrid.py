@@ -57,29 +57,139 @@ class MinigridEnv(gym.Env):
                 torchvision.transforms.Resize(input_dims),
                 torchvision.transforms.ToTensor(), ])
 
-        if self.ae_enabled:
-            if self.ae_path is not None:
-                self.ae = torch.load(self.ae_path).to(self.device)
-                self.ae = self.ae.module
-                self.ae.eval()
-            else:
-                print(
-                    "***Autoencoder path is not defined, " +
-                    "stopping the execution.***")
-                exit(1)
+        # Memory type 0 = None
+        if self.memory_type == 0:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal)
+            self.obs_number_of_dimension = 5
+            # self.high = np.full(5, 1.0, dtype=int)
+            # self.high[-1] = 2
+            # self.observation_space = spaces.MultiDiscrete(self.high+1)
+            # self.action_space = self.action_space
 
-            self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
-                shape=(latent_dims, 1), dtype=np.float32)
-        else:
-            self.observation_space = gym.spaces.Box(
-                low=0,
-                high=255,
-                shape=(
-                    in_channels,
-                    input_dims,
-                    input_dims), dtype=np.uint8)
+            self.action_space = spaces.Discrete(3)
+            if self.ae_enabled:
+                if self.ae_path is not None:
+                    self.ae = torch.load(self.ae_path).to(self.device)
+                    self.ae = self.ae.module
+                    self.ae.eval()
+                else:
+                    print(
+                        "***Autoencoder path is not defined, " +
+                        "stopping the execution.***")
+                    exit(1)
+
+                self.observation_space = gym.spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(latent_dims, 1), dtype=np.float32)
+            else:
+                self.observation_space = gym.spaces.Box(
+                    low=0,
+                    high=255,
+                    shape=(
+                        in_channels,
+                        input_dims,
+                        input_dims), dtype=np.uint8)
+
+        # Memory type 1 = Kk
+        elif self.memory_type == 1:
+            # Partial observability: (wall_north, wall_east,
+            # wall_south, wall_west, y of the true goal
+            # and additional dimensions with size
+            # (memory_seq_length*observation_size)
+            # Note that max. number of dimensions for a np array is 32.
+            # So the maximum fixed sequence size could be 5.
+
+            self.obs_single_size = len(self.high)
+            self.mem_single_size = self.obs_single_size
+            # Actions are defined n e s w, add observation to the memory.
+            self.obs_number_of_dimension = (self.obs_single_size +
+                                            self.mem_single_size *
+                                            self.memory_length)
+            self.external_memory = np.zeros(self.obs_number_of_dimension -
+                                            self.obs_single_size, dtype=int)
+            self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+            self.high[4::self.obs_single_size] = 2
+            self.observation_space = spaces.MultiDiscrete(self.high+1)
+            self.action_space = self.action_space
+
+        # # Memory type 2 = Bk
+        # elif self.memory_type == 2:
+        #     # Partial observability: (wall_north, wall_east,
+        #     # wall_south, wall_west, external memory bit, y of the true goal)
+        #     self.obs_single_size = len(self.high)
+        #     self.mem_single_size = 1
+        #     # Actions are defined n e s w, add observation to the memory.
+        #     self.obs_number_of_dimension = (self.obs_single_size +
+        #                                     self.mem_single_size *
+        #                                     self.memory_length)
+        #     high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+        #     high[4] = 2
+        #     high[5:] = 2
+        #     self.observation_space = spaces.MultiDiscrete(high+1)
+        #     self.action_space = spaces.Discrete(self.action_space.n * 3)
+        #     self.external_memory = np.zeros(self.memory_length, dtype=int)
+
+        # # Memory type 3 = Ok
+        # elif self.memory_type == 3:
+        #     # Partial observability: (wall_north, wall_east,
+        #     # wall_south, wall_west, y of the true goal
+        #     # and additional dimensions of size
+        #     # memory_seq_length*observation_size)
+        #     # Note that max. number of dimensions for a np array is 32.
+        #     # So the maximum fixed sequence size could be 5.
+
+        #     self.obs_single_size = len(self.high)
+        #     self.mem_single_size = self.obs_single_size
+        #     # Actions are defined n e s w, add observation to the memory.
+        #     self.obs_number_of_dimension = (self.obs_single_size +
+        #                                     self.mem_single_size *
+        #                                     self.memory_length)
+        #     self.external_memory = np.zeros(self.obs_number_of_dimension -
+        #                                     self.obs_single_size, dtype=int)
+        #     self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+        #     self.high[4::self.obs_single_size] = 2
+        #     self.observation_space = spaces.MultiDiscrete(self.high+1)
+        #     self.action_space = spaces.Discrete(self.action_space.n * 2)
+
+        # # Memory type 4 = OAk
+        # elif self.memory_type == 4:
+        #     # Partial observability: (wall_north, wall_east,
+        #     # wall_south, wall_west, y of the true goal
+        #     # and additional dimensions of size
+        #     # memory_seq_length*observation_size)
+        #     # Note that max. number of dimensions for a np array is 32.
+        #     # So the maximum fixed sequence size could be 5.
+
+        #     self.action_space = spaces.Discrete(self.action_space.n * 2)
+        #     self.obs_single_size = len(self.high)
+        #     self.act_single_size = 1
+        #     self.mem_single_size = (
+        #         self.obs_single_size + self.act_single_size)
+
+        #     # Actions are defined n e s w, add observation to the memory.
+        #     self.obs_number_of_dimension = (self.obs_single_size +
+        #                                     self.mem_single_size *
+        #                                     self.memory_length)
+        #     self.external_memory = np.zeros(self.obs_number_of_dimension -
+        #                                     self.obs_single_size, dtype=int)
+        #     self.high = np.full(self.obs_number_of_dimension, 1.0, dtype=int)
+        #     self.high[4] = 2
+        #     self.high[(4+self.obs_single_size)::(self.mem_single_size)] = 2
+        #     self.high[(5+self.obs_single_size)::(
+        #         self.mem_single_size)] = self.action_space.n
+        #     self.observation_space = spaces.MultiDiscrete(self.high+1)
+
+        # # Memory type 5 = None (For LSTM)
+        # elif self.memory_type == 5:
+        #     # Partial observability: (wall_north, wall_east,
+        #     # wall_south, wall_west, y of the true goal)
+        #     self.obs_number_of_dimension = 5
+        #     self.high = np.full(5, 1.0, dtype=int)
+        #     self.high[-1] = 2
+        #     self.observation_space = spaces.MultiDiscrete(self.high+1)
+        #     self.action_space = self.action_space
 
     def _get_observation(self, obs):
         if self.ae_enabled:
@@ -176,3 +286,34 @@ class MinigridEnv(gym.Env):
         self.episode_reward = 0
 
         return self._get_observation(obs)
+
+    # def add_observation_to_memory(self, memoryAction, action):
+    #     # The memory update strategy could be changed, for now, it is set to
+    #     # First In First Out Strategy
+
+    #     # In each add step, shift memory by self.mem_single_size and
+    #     # add the new element into the starting of the array.
+
+    #     self.external_memory = np.roll(
+    #         self.external_memory, self.mem_single_size)
+
+    #     # Memory type 1 = Kk
+    #     if self.memory_type == 1:
+    #         self.external_memory[0:self.mem_single_size] = \
+    #             self._get_observation()[:self.obs_single_size]
+
+    #     # Memory type 2 = Bk
+    #     elif self.memory_type == 2:
+    #         binaryAction = 1 if memoryAction == 1 else 0
+    #         self.external_memory[0:self.mem_single_size] = binaryAction
+    #     # Memory type 3 = Ok
+    #     elif self.memory_type == 3:
+    #         self.external_memory[0:self.mem_single_size] = \
+    #             self._get_observation()[:self.obs_single_size]
+
+    #     # Memory type 4 = OAk
+    #     elif self.memory_type == 4:
+    #         self.external_memory[0:self.mem_single_size] = \
+    #             np.append(
+    #                 self._get_observation()[:self.obs_single_size],
+    #                 [action])
