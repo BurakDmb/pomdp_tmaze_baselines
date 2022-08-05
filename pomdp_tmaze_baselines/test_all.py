@@ -1,7 +1,223 @@
 import unittest
+import numpy as np
 
 
 class TestCode(unittest.TestCase):
+    # TODO: Implement TMaze Env unittest.
+
+    def test_memory_types_Minigrid(self):
+        import pomdp_tmaze_baselines.EnvMinigrid as EnvMinigrid
+        from pomdp_tmaze_baselines.EnvMinigrid import MinigridEnv
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
+
+        learning_setting = {}
+        learning_setting['envClass'] = MinigridEnv
+        learning_setting['learning_rate'] = 1e-3
+        learning_setting['discount_rate'] = 0.99
+        learning_setting['nn_num_layers'] = 3
+        learning_setting['nn_layer_size'] = 8
+        learning_setting['n_steps'] = 32
+        learning_setting['batch_size'] = 32
+        learning_setting['memory_type'] = 0
+        learning_setting['memory_length'] = 1
+        learning_setting['intrinsic_enabled'] = True
+        learning_setting['intrinsic_beta'] = 0.1
+        learning_setting['ae_enabled'] = True
+        learning_setting['ae_path'] = "models/ae.torch"
+        learning_setting['ae_rcons_err_type'] = "MSE"
+        learning_setting['tb_log_name'] = "o_k"
+        learning_setting['tb_log_dir'] = None
+        learning_setting['maze_length'] = 10
+        learning_setting['total_timesteps'] = 50
+        learning_setting['seed'] = None
+        learning_setting['policy'] = MlpACPolicy
+        learning_setting['save'] = False
+        learning_setting['device'] = 'cpu'
+        learning_setting['train_func'] = train_ppo_agent
+
+        # Testing observation and action space sizes with
+        # different memory lengths
+        for mem_len in [1, 3, 5]:
+            learning_setting['memory_length'] = mem_len
+
+            learning_setting['memory_type'] = 0
+            env_no_mem = MinigridEnv(**learning_setting)
+
+            learning_setting['memory_type'] = 1
+            env_lastk_mem = MinigridEnv(**learning_setting)
+
+            learning_setting['memory_type'] = 2
+            env_bin_mem = MinigridEnv(**learning_setting)
+
+            learning_setting['memory_type'] = 3
+            env_ok_mem = MinigridEnv(**learning_setting)
+
+            learning_setting['memory_type'] = 4
+            env_oak_mem = MinigridEnv(**learning_setting)
+
+            learning_setting['memory_type'] = 5
+            env_lstm_mem = MinigridEnv(**learning_setting)
+
+            # Checking memory type 0 = None
+            self.assertTrue(
+                env_no_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims, ))
+            self.assertTrue(
+                env_no_mem.action_space.n == EnvMinigrid.action_dim)
+
+            # Checking memory type 1 = Kk
+            self.assertTrue(
+                env_lastk_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims +
+                    EnvMinigrid.latent_dims *
+                    learning_setting['memory_length'],))
+            self.assertTrue(
+                env_lastk_mem.action_space.n == EnvMinigrid.action_dim * 1)
+
+            # Checking memory type 2 = Bk
+            self.assertTrue(
+                env_bin_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims +
+                    learning_setting['memory_length'], ))
+            self.assertTrue(
+                env_bin_mem.action_space.n == EnvMinigrid.action_dim * (
+                    2**learning_setting['memory_length']))
+
+            # Checking memory type 3 = Ok
+            self.assertTrue(
+                env_ok_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims +
+                    EnvMinigrid.latent_dims *
+                    learning_setting['memory_length'],))
+            self.assertTrue(
+                env_ok_mem.action_space.n == EnvMinigrid.action_dim * 2)
+
+            # Checking memory type 4 = OAk
+            self.assertTrue(
+                env_oak_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims +
+                    (EnvMinigrid.latent_dims + 1) *
+                    learning_setting['memory_length'], ))
+            self.assertTrue(
+                env_oak_mem.action_space.n == EnvMinigrid.action_dim * 2)
+
+            # Checking memory type 5 = None (For LSTM)
+            self.assertTrue(
+                env_lstm_mem.observation_space.shape == (
+                    EnvMinigrid.latent_dims, ))
+            self.assertTrue(
+                env_lstm_mem.action_space.n == EnvMinigrid.action_dim)
+
+        # Testing memory actions.
+        learning_setting['memory_length'] = 4
+
+        # No memory
+        # After turning 4 times, obs4 needs to be equal to the obs1.
+        learning_setting['memory_type'] = 0
+        env_no_mem = MinigridEnv(**learning_setting)
+        obs0 = env_no_mem.reset(seed=0)
+        obs1, reward, done, _ = env_no_mem.step(0)
+        obs2, reward, done, _ = env_no_mem.step(0)
+        obs3, reward, done, _ = env_no_mem.step(0)
+        obs4, reward, done, _ = env_no_mem.step(0)
+        self.assertTrue((obs0 == obs4).all())
+
+        # Lastk Memory
+        learning_setting['memory_type'] = 1
+        env_lastk_mem = MinigridEnv(**learning_setting)
+        obs0 = env_lastk_mem.reset(seed=0)
+        obs1, reward, done, _ = env_lastk_mem.step(0)
+        obs2, reward, done, _ = env_lastk_mem.step(0)
+        obs3, reward, done, _ = env_lastk_mem.step(0)
+        obs4, reward, done, _ = env_lastk_mem.step(0)
+        self.assertTrue((obs4[128*4:128*5] == obs0[0:128]).all())
+
+        # Bk Memory
+        # Checking for storing different binary values in the external memory.
+        learning_setting['memory_type'] = 2
+        env_bin_mem = MinigridEnv(**learning_setting)
+        obs0 = env_bin_mem.reset(seed=0)
+        obs1, reward, done, _ = env_bin_mem.step(10)
+        valList = list(map(int, obs1[128:]))
+        self.assertTrue(int(''.join(str(i) for i in valList), 2) == 10)
+
+        obs2, reward, done, _ = env_bin_mem.step(1)
+        valList = list(map(int, obs2[128:]))
+        self.assertTrue(int(''.join(str(i) for i in valList), 2) == 1)
+
+        obs3, reward, done, _ = env_bin_mem.step(5)
+        valList = list(map(int, obs3[128:]))
+        self.assertTrue(int(''.join(str(i) for i in valList), 2) == 5)
+
+        obs4, reward, done, _ = env_bin_mem.step(13)
+        valList = list(map(int, obs4[128:]))
+        self.assertTrue(int(''.join(str(i) for i in valList), 2) == 13)
+
+        # Ok Memory
+        # After turning 4 times, 5th action will save current observation,
+        # which is the initial observation.
+        learning_setting['memory_type'] = 3
+        env_ok_mem = MinigridEnv(**learning_setting)
+        obs0 = env_ok_mem.reset(seed=0)
+        obs1, reward, done, _ = env_ok_mem.step(0)
+        obs2, reward, done, _ = env_ok_mem.step(0)
+        obs3, reward, done, _ = env_ok_mem.step(0)
+        obs4, reward, done, _ = env_ok_mem.step(0)
+        obs5, reward, done, _ = env_ok_mem.step(1)
+        self.assertTrue((obs5[128:256] == obs0[0:128]).all())
+
+        # OAk Memory
+        # After turning 4 times, 5th action will save current
+        # observation+action, which is the initial observation and
+        # the movement action 1.
+        learning_setting['memory_type'] = 4
+        env_oak_mem = MinigridEnv(**learning_setting)
+        obs0 = env_oak_mem.reset(seed=0)
+        obs1, reward, done, _ = env_oak_mem.step(2)
+        obs2, reward, done, _ = env_oak_mem.step(2)
+        obs3, reward, done, _ = env_oak_mem.step(2)
+        obs4, reward, done, _ = env_oak_mem.step(2)
+        obs5, reward, done, _ = env_oak_mem.step(3)
+        self.assertTrue((obs5[128:257] == np.append(obs0[0:128], [1])).all())
+
+        # LSTM memory.
+        # After turning 4 times, obs4 needs to be equal to the obs1.
+        learning_setting['memory_type'] = 5
+        env_lstm_mem = MinigridEnv(**learning_setting)
+        obs0 = env_lstm_mem.reset(seed=0)
+        obs1, reward, done, _ = env_lstm_mem.step(0)
+        obs2, reward, done, _ = env_lstm_mem.step(0)
+        obs3, reward, done, _ = env_lstm_mem.step(0)
+        obs4, reward, done, _ = env_lstm_mem.step(0)
+        self.assertTrue((obs0 == obs4).all())
+
+        # Testing observation dimensions after resetting the environment.
+        obs_no_mem = env_no_mem.reset(seed=0)
+        self.assertTrue(
+            obs_no_mem.shape == env_no_mem.observation_space.shape)
+
+        obs_lastk_mem = env_lastk_mem.reset(seed=0)
+        self.assertTrue(
+            obs_lastk_mem.shape == env_lastk_mem.observation_space.shape)
+
+        obs_bin_mem = env_bin_mem.reset(seed=0)
+        self.assertTrue(
+            obs_bin_mem.shape == env_bin_mem.observation_space.shape)
+
+        obs_ok_mem = env_ok_mem.reset(seed=0)
+        self.assertTrue(
+            obs_ok_mem.shape == env_ok_mem.observation_space.shape)
+
+        obs_oak_mem = env_oak_mem.reset(seed=0)
+        self.assertTrue(
+            obs_oak_mem.shape == env_oak_mem.observation_space.shape)
+
+        obs_lstm_mem = env_lstm_mem.reset(seed=0)
+        self.assertTrue(
+            obs_lstm_mem.shape == env_lstm_mem.observation_space.shape)
+
     def test_env_Minigrid(self):
 
         from pomdp_tmaze_baselines.EnvMinigrid import MinigridEnv

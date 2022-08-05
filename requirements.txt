@@ -1,5 +1,6 @@
 sb3-contrib @ git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib
-stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3
+#stable-baselines3 @ git+https://github.com/DLR-RM/stable-baselines3
+stable-baselines3 @ git+https://github.com/carlosluis/stable-baselines3@fix_tests
 tensorboard-reducer==0.2.5
-gym-minigrid==1.0.3
+gym-minigrid @ git+https://github.com/Farama-Foundation/gym-minigrid
 torchsummary==1.5.1

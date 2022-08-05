@@ -386,7 +386,7 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
 
         # Check if add observation to memory action or not
         if memoryAction != 0:
-            self.add_observation_to_memory(memoryAction, action)
+            self.add_observation_to_memory(memoryAction, movementAction)
 
         new_state, reward, done, success = self._one_agent_step(
                 self.current_state, movementAction)

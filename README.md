@@ -51,6 +51,11 @@ pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trus
 pip install git+https://github.com/DLR-RM/stable-baselines3 --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install gym-minigrid torchsummary --no-dependencies  --trusted-host pypi.org --trusted-host files.pythonhosted.org
+# Installing latest version of gym.
+pip install git+https://github.com/Farama-Foundation/gym-minigrid
+pip install git+https://github.com/carlosluis/stable-baselines3@fix_tests
+pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+
 python setup.py develop
 ```
 
