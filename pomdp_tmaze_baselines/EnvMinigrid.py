@@ -297,7 +297,7 @@ class MinigridEnv(gym.Env):
         new_state, reward, done, _ = self.env.step(movementAction)
 
         # Check if add observation to memory action or not
-        if memoryAction != 0:
+        if self.ae_enabled and memoryAction != 0:
             self.add_observation_to_memory(memoryAction, movementAction)
 
         if self.intrinsic_enabled:
@@ -361,27 +361,28 @@ class MinigridEnv(gym.Env):
 
     def reset(self, seed=None):
         # Memory type 1 = Kk
-        if self.memory_type == 1:
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension -
-                self.obs_single_size, dtype=np.float32)
+        if self.ae_enabled:
+            if self.memory_type == 1:
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension -
+                    self.obs_single_size, dtype=np.float32)
 
-        # Memory type 2 = Bk
-        elif self.memory_type == 2:
-            self.external_memory = np.zeros(
-                self.memory_length, dtype=np.float32)
+            # Memory type 2 = Bk
+            elif self.memory_type == 2:
+                self.external_memory = np.zeros(
+                    self.memory_length, dtype=np.float32)
 
-        # Memory type 3 = Ok
-        elif self.memory_type == 3:
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension - self.obs_single_size,
-                dtype=np.float32)
+            # Memory type 3 = Ok
+            elif self.memory_type == 3:
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension - self.obs_single_size,
+                    dtype=np.float32)
 
-        # Memory type 4 = OAk
-        elif self.memory_type == 4:
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension -
-                self.obs_single_size, dtype=np.float32)
+            # Memory type 4 = OAk
+            elif self.memory_type == 4:
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension -
+                    self.obs_single_size, dtype=np.float32)
 
         obs = self.env.reset(seed=seed)
         self.current_state = obs
