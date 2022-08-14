@@ -22,20 +22,13 @@ if __name__ == '__main__':
         #     start_ae_smm_oak_intr,
         #     start_ae_lstm,
         #     start_cnn_no_mem,
-        #     start_cnn_smm_lastk,
-        #     start_cnn_smm_bk,
-        #     start_cnn_smm_ok,
-        #     start_cnn_smm_oak,
-        #     start_cnn_lstm,
 
         #     mgrid_ae_no_mem_setting, mgrid_ae_smm_lastk_setting,
         #     mgrid_ae_smm_bk_setting, mgrid_ae_smm_ok_setting,
         #     mgrid_ae_smm_ok_intr_setting, mgrid_ae_smm_oak_setting,
         #     mgrid_ae_smm_oak_intr_setting, mgrid_ae_lstm_setting,
 
-        #     mgrid_cnn_no_mem_setting, mgrid_cnn_smm_lastk_setting,
-        #     mgrid_cnn_smm_bk_setting, mgrid_cnn_smm_ok_setting,
-        #     mgrid_cnn_smm_oak_setting, mgrid_cnn_lstm_setting,
+        #     mgrid_cnn_no_mem_setting,
         # )
     else:
         from pomdp_tmaze_baselines.params.alg_minigrid import (
@@ -49,20 +42,13 @@ if __name__ == '__main__':
             start_ae_smm_oak_intr,
             start_ae_lstm,
             start_cnn_no_mem,
-            start_cnn_smm_lastk,
-            start_cnn_smm_bk,
-            start_cnn_smm_ok,
-            start_cnn_smm_oak,
-            start_cnn_lstm,
 
             mgrid_ae_no_mem_setting, mgrid_ae_smm_lastk_setting,
             mgrid_ae_smm_bk_setting, mgrid_ae_smm_ok_setting,
             mgrid_ae_smm_ok_intr_setting, mgrid_ae_smm_oak_setting,
             mgrid_ae_smm_oak_intr_setting, mgrid_ae_lstm_setting,
 
-            mgrid_cnn_no_mem_setting, mgrid_cnn_smm_lastk_setting,
-            mgrid_cnn_smm_bk_setting, mgrid_cnn_smm_ok_setting,
-            mgrid_cnn_smm_oak_setting, mgrid_cnn_lstm_setting,
+            mgrid_cnn_no_mem_setting,
         )
 
     mp.set_start_method('spawn')
@@ -130,41 +116,6 @@ if __name__ == '__main__':
             p = mp.Process(
                 target=mgrid_cnn_no_mem_setting['train_func'],
                 kwargs={'learning_setting': mgrid_cnn_no_mem_setting})
-            p.start()
-            processes.append(p)
-
-        if start_cnn_smm_lastk:
-            p = mp.Process(
-                target=mgrid_cnn_smm_lastk_setting['train_func'],
-                kwargs={'learning_setting': mgrid_cnn_smm_lastk_setting})
-            p.start()
-            processes.append(p)
-
-        if start_cnn_smm_bk:
-            p = mp.Process(
-                target=mgrid_cnn_smm_bk_setting['train_func'],
-                kwargs={'learning_setting': mgrid_cnn_smm_bk_setting})
-            p.start()
-            processes.append(p)
-
-        if start_cnn_smm_ok:
-            p = mp.Process(
-                target=mgrid_cnn_smm_ok_setting['train_func'],
-                kwargs={'learning_setting': mgrid_cnn_smm_ok_setting})
-            p.start()
-            processes.append(p)
-
-        if start_cnn_smm_oak:
-            p = mp.Process(
-                target=mgrid_cnn_smm_oak_setting['train_func'],
-                kwargs={'learning_setting': mgrid_cnn_smm_oak_setting})
-            p.start()
-            processes.append(p)
-
-        if start_cnn_lstm:
-            p = mp.Process(
-                target=mgrid_cnn_lstm_setting['train_func'],
-                kwargs={'learning_setting': mgrid_cnn_lstm_setting})
             p.start()
             processes.append(p)
 
