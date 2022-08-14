@@ -357,7 +357,8 @@ class MinigridEnv(gym.Env):
 
         self.current_state = new_state
         self.episode_reward += reward
-        return self._get_observation(), reward, done, {'success': success}
+        return self._get_observation(), reward, done, {
+            'success': success, 'is_success': bool(success)}
 
     def reset(self, seed=None):
         # Memory type 1 = Kk

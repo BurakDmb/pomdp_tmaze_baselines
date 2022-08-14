@@ -86,6 +86,15 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['epsilon_end'] = 0.1
         dqn_learning_setting['memory_type'] = memory_type
         dqn_learning_setting['memory_length'] = 3
+        dqn_learning_setting['intrinsic_enabled'] = False
+        dqn_learning_setting['intrinsic_beta'] = 0.01
+        dqn_learning_setting['ae_enabled'] = True
+        dqn_learning_setting['ae_path'] = "models/ae.torch"
+        dqn_learning_setting['ae_rcons_err_type'] = "MSE"
+        dqn_learning_setting['eval_enabled'] = False
+        dqn_learning_setting['eval_freq'] = 1000
+        dqn_learning_setting['eval_episodes'] = 0
+        dqn_learning_setting['eval_path'] = None
         dqn_learning_setting['exploration_fraction'] = 1.0
         dqn_learning_setting['update_interval'] = 128
         dqn_learning_setting['learning_starts'] = 512
@@ -103,6 +112,9 @@ def train_dqn_agent(learning_setting):
     """
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
+    eval_env = envClass(
+        **learning_setting
+        ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size']] *
                          learning_setting['nn_num_layers'])
@@ -124,7 +136,12 @@ def train_dqn_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback())
+                callback=TensorboardCallback(),
+                eval_env=eval_env,
+                eval_freq=learning_setting['eval_freq'],
+                n_eval_episodes=learning_setting['eval_episodes'],
+                eval_log_path=learning_setting['eval_path'],
+                )
 
     if learning_setting['save']:
         model.save("saves/" + learning_setting['tb_log_name'] +
@@ -147,17 +164,30 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['batch_size'] = 32
         ppo_learning_setting['memory_type'] = memory_type
         ppo_learning_setting['memory_length'] = 3
+        ppo_learning_setting['intrinsic_enabled'] = False
+        ppo_learning_setting['intrinsic_beta'] = 0.01
+        ppo_learning_setting['ae_enabled'] = True
+        ppo_learning_setting['ae_path'] = "models/ae.torch"
+        ppo_learning_setting['ae_rcons_err_type'] = "MSE"
+        ppo_learning_setting['eval_enabled'] = False
+        ppo_learning_setting['eval_freq'] = 1000
+        ppo_learning_setting['eval_episodes'] = 0
+        ppo_learning_setting['eval_path'] = None
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         ppo_learning_setting['maze_length'] = maze_length
         ppo_learning_setting['total_timesteps'] = total_timesteps
         ppo_learning_setting['seed'] = None
         ppo_learning_setting['policy'] = MlpACPolicy
-        ppo_learning_setting['save'] = False
+        ppo_learning_setting['save'] = True
         ppo_learning_setting['device'] = 'cuda:0'
+        ppo_learning_setting['train_func'] = train_ppo_agent
     """
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
+    eval_env = envClass(
+        **learning_setting
+        ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -178,7 +208,12 @@ def train_ppo_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback())
+                callback=TensorboardCallback(),
+                eval_env=eval_env,
+                eval_freq=learning_setting['eval_freq'],
+                n_eval_episodes=learning_setting['eval_episodes'],
+                eval_log_path=learning_setting['eval_path'],
+                )
 
     if learning_setting['save']:
         model.save("saves/" + learning_setting['tb_log_name'] +
@@ -200,6 +235,15 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['n_steps'] = 128
         a2c_learning_setting['memory_type'] = memory_type
         a2c_learning_setting['memory_length'] = 3
+        a2c_learning_setting['intrinsic_enabled'] = False
+        a2c_learning_setting['intrinsic_beta'] = 0.01
+        a2c_learning_setting['ae_enabled'] = True
+        a2c_learning_setting['ae_path'] = "models/ae.torch"
+        a2c_learning_setting['ae_rcons_err_type'] = "MSE"
+        a2c_learning_setting['eval_enabled'] = False
+        a2c_learning_setting['eval_freq'] = 1000
+        a2c_learning_setting['eval_episodes'] = 0
+        a2c_learning_setting['eval_path'] = None
         a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
         a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         a2c_learning_setting['maze_length'] = maze_length
@@ -212,6 +256,9 @@ def train_a2c_agent(learning_setting):
 
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
+    eval_env = envClass(
+        **learning_setting
+        ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -231,7 +278,12 @@ def train_a2c_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback())
+                callback=TensorboardCallback(),
+                eval_env=eval_env,
+                eval_freq=learning_setting['eval_freq'],
+                n_eval_episodes=learning_setting['eval_episodes'],
+                eval_log_path=learning_setting['eval_path'],
+                )
 
     if learning_setting['save']:
         model.save("saves/" + learning_setting['tb_log_name'] +
@@ -255,6 +307,15 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['batch_size'] = 32
         ppolstm_learning_setting['memory_type'] = memory_type
         ppolstm_learning_setting['memory_length'] = 3
+        ppolstm_learning_setting['intrinsic_enabled'] = False
+        ppolstm_learning_setting['intrinsic_beta'] = 0.01
+        ppolstm_learning_setting['ae_enabled'] = True
+        ppolstm_learning_setting['ae_path'] = "models/ae.torch"
+        ppolstm_learning_setting['ae_rcons_err_type'] = "MSE"
+        ppolstm_learning_setting['eval_enabled'] = False
+        ppolstm_learning_setting['eval_freq'] = 1000
+        ppolstm_learning_setting['eval_episodes'] = 0
+        ppolstm_learning_setting['eval_path'] = None
         ppolstm_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppolstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         ppolstm_learning_setting['maze_length'] = maze_length
@@ -266,6 +327,9 @@ def train_ppo_lstm_agent(learning_setting):
     """
     envClass = learning_setting['envClass']
     env = envClass(**learning_setting)
+    eval_env = envClass(
+        **learning_setting
+        ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
                                         * learning_setting['nn_num_layers'])],
@@ -290,7 +354,12 @@ def train_ppo_lstm_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback())
+                callback=TensorboardCallback(),
+                eval_env=eval_env,
+                eval_freq=learning_setting['eval_freq'],
+                n_eval_episodes=learning_setting['eval_episodes'],
+                eval_log_path=learning_setting['eval_path'],
+                )
 
     if learning_setting['save']:
         model.save("saves/" + learning_setting['tb_log_name'] +
@@ -319,7 +388,7 @@ class TensorboardCallback(BaseCallback):
                                                    TensorBoardOutputFormat))
 
     def _on_step(self) -> bool:
-        if(self.locals['self'].env.buf_dones[-1]):
+        if (self.locals['self'].env.buf_dones[-1]):
             epi_reward = self.model.env.unwrapped.envs[0].episode_returns[-1]
             epi_number = len(self.locals['self'].env.unwrapped.envs[0].
                              episode_lengths)

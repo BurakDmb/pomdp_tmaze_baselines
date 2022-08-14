@@ -80,7 +80,7 @@ class TMazeEnv(gym.Env):
             else:
                 possible_states[state] += probability
 
-        assert(sum(possible_states.values()) == 1.0)
+        assert (sum(possible_states.values()) == 1.0)
         next_state = random.choices(
             list(possible_states.keys()), list(possible_states.values()))[0]
         done = False
@@ -103,7 +103,8 @@ class TMazeEnv(gym.Env):
 
         self.current_state = new_state
         self.episode_reward += reward
-        return self._get_observation(), reward, done, {'success': success}
+        return self._get_observation(), reward, done, {
+            'success': success, 'is_success': bool(success)}
 
     def reset(self):
         self.current_state = random.choice(
@@ -419,7 +420,8 @@ class TMazeEnvMemoryWrapped(TMazeEnvPOMDP):
         self.current_state = new_state
 
         self.episode_reward += reward
-        return self._get_observation(), reward, done, {'success': success}
+        return self._get_observation(), reward, done, {
+            'success': success, 'is_success': bool(success)}
 
     def reset(self):
         # Memory type 1 = Kk

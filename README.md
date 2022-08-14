@@ -23,7 +23,7 @@ Installing Torch and Cudatoolkit from https://pytorch.org/get-started/locally/
 - pytorch
 - torchvision
 - torchaudio
-- cudatoolkit=11.3
+- cudatoolkit=11.6
 
 Installing Other Required Packages
 
@@ -44,17 +44,41 @@ Installing Other Required Packages
 ```
 conda create -n pomdp python=3.8 -y
 conda activate pomdp
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
+conda install pytorch torchvision torchaudio cudatoolkit=11.6 -c pytorch -c conda-forge -y
+
+pip install git+https://github.com/Farama-Foundation/gym-minigrid
+pip install git+https://github.com/carlosluis/stable-baselines3@fix_tests
+pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib
+pip install torchsummary --no-dependencies
+pip install scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas cloudpickle optuna mysqlclient mysql-client plotly flake8
+pip install tensorboard-reducer --no-dependencies
+
+python setup.py develop
+```
+
+Old install steps.
+```
+conda create -n pomdp python=3.8 -y
+conda activate pomdp
+conda install pytorch torchvision torchaudio cudatoolkit=11.6 -c pytorch -c conda-forge -y
+
 conda install -c conda-forge gym scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas cloudpickle optuna mysqlclient mysql-client plotly flake8 -y
-conda install pip -y
+
+pip install pip
 pip install tensorboard-reducer --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+
+# Old gym version(0.21)
 pip install git+https://github.com/DLR-RM/stable-baselines3 --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
 pip install gym-minigrid torchsummary --no-dependencies  --trusted-host pypi.org --trusted-host files.pythonhosted.org
-# Installing latest version of gym.
+
+# Installing latest version of gym.(0.25)
 pip install git+https://github.com/Farama-Foundation/gym-minigrid
 pip install git+https://github.com/carlosluis/stable-baselines3@fix_tests
-pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib --no-dependencies --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib
+pip install torchsummary --no-dependencies
+pip install scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas cloudpickle optuna mysqlclient mysql-client plotly flake8
+pip install tensorboard-reducer --no-dependencies
 
 python setup.py develop
 ```
