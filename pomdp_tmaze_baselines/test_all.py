@@ -86,7 +86,8 @@ class TestCode(unittest.TestCase):
                     EnvMinigrid.latent_dims +
                     learning_setting['memory_length'], ))
             self.assertTrue(
-                env_bin_mem.action_space.n == EnvMinigrid.action_dim * (
+                tuple(env_bin_mem.action_space.nvec) == (
+                    EnvMinigrid.action_dim,
                     2**learning_setting['memory_length']))
 
             # Checking memory type 3 = Ok
@@ -96,7 +97,8 @@ class TestCode(unittest.TestCase):
                     EnvMinigrid.latent_dims *
                     learning_setting['memory_length'],))
             self.assertTrue(
-                env_ok_mem.action_space.n == EnvMinigrid.action_dim * 2)
+                tuple(env_ok_mem.action_space.nvec) == (
+                    EnvMinigrid.action_dim, 2))
 
             # Checking memory type 4 = OAk
             self.assertTrue(
@@ -105,7 +107,8 @@ class TestCode(unittest.TestCase):
                     (EnvMinigrid.latent_dims + 1) *
                     learning_setting['memory_length'], ))
             self.assertTrue(
-                env_oak_mem.action_space.n == EnvMinigrid.action_dim * 2)
+                tuple(env_oak_mem.action_space.nvec) == (
+                    EnvMinigrid.action_dim, 2))
 
             # Checking memory type 5 = None (For LSTM)
             self.assertTrue(

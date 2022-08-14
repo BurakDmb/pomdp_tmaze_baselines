@@ -81,8 +81,8 @@ class MinigridEnv(gym.Env):
             self.obs_single_size = latent_dims
             self.action_space = spaces.Discrete(3)
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
         # Memory type 1 = Kk
@@ -99,10 +99,10 @@ class MinigridEnv(gym.Env):
                 self.obs_number_of_dimension -
                 self.obs_single_size, dtype=np.float32)
 
-            self.high = np.full(self.obs_number_of_dimension, np.inf)
+            self.high = np.full(self.obs_number_of_dimension, 1)
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
             self.action_space = self.action_space
 
@@ -120,14 +120,16 @@ class MinigridEnv(gym.Env):
                                             self.memory_length)
 
             self.high = np.full(
-                self.obs_number_of_dimension, np.inf, dtype=np.float32)
+                self.obs_number_of_dimension, 1, dtype=np.float32)
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
-            self.action_space = spaces.Discrete(
-                self.action_space.n * (2**self.memory_length))
+            self.action_space = spaces.MultiDiscrete(
+                [3, 2**self.memory_length])
+            # self.action_space = spaces.Discrete(
+            #     self.action_space.n * (2**self.memory_length))
             self.external_memory = np.zeros(
                 self.memory_length, dtype=np.float32)
 
@@ -150,11 +152,13 @@ class MinigridEnv(gym.Env):
                 dtype=np.float32)
 
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
-            self.action_space = spaces.Discrete(self.action_space.n * 2)
+            # self.action_space = spaces.Discrete(self.action_space.n * 2)
+            self.action_space = spaces.MultiDiscrete(
+                [3, 2])
 
         # Memory type 4 = OAk
         # ObservationAction-k memory, an external memory will hold
@@ -179,10 +183,12 @@ class MinigridEnv(gym.Env):
                 dtype=np.float32)
 
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
-            self.action_space = spaces.Discrete(self.action_space.n * 2)
+            # self.action_space = spaces.Discrete(self.action_space.n * 2)
+            self.action_space = spaces.MultiDiscrete(
+                [3, 2])
 
         # Memory type 5 = None (For LSTM)
         elif self.memory_type == 5 and self.ae_enabled:
@@ -190,8 +196,8 @@ class MinigridEnv(gym.Env):
             self.obs_single_size = latent_dims
             self.action_space = spaces.Discrete(3)
             self.observation_space = gym.spaces.Box(
-                low=-np.inf,
-                high=np.inf,
+                low=-1,
+                high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
     def _get_observation(self, ):
@@ -268,29 +274,31 @@ class MinigridEnv(gym.Env):
     def step(self, action):
         done = False
         success = 0
+        movementAction = action
+        memoryAction = 0
 
         # Memory type 0 = None
-        if self.memory_type == 0:
+        if self.ae_enabled and self.memory_type == 0:
             movementAction = action
             memoryAction = 0
         # Memory type 1 = Kk
-        elif self.memory_type == 1:
+        elif self.ae_enabled and self.memory_type == 1:
             movementAction = action
             memoryAction = 1
         # Memory type 2 = Bk
-        elif self.memory_type == 2:
-            movementAction = action // (2**self.memory_length)
-            memoryAction = action % (2**self.memory_length)
+        elif self.ae_enabled and self.memory_type == 2:
+            movementAction = action[0]
+            memoryAction = action[1]
         # Memory type 3 = Ok
-        elif self.memory_type == 3:
-            movementAction = action // 2
-            memoryAction = action % 2
+        elif self.ae_enabled and self.memory_type == 3:
+            movementAction = action[0]
+            memoryAction = action[1]
         # Memory type 4 = OAk
-        elif self.memory_type == 4:
-            movementAction = action // 2
-            memoryAction = action % 2
+        elif self.ae_enabled and self.memory_type == 4:
+            movementAction = action[0]
+            memoryAction = action[1]
         # Memory type 5 = None (For LSTM)
-        elif self.memory_type == 5:
+        elif self.ae_enabled and self.memory_type == 5:
             movementAction = action
             memoryAction = 0
 

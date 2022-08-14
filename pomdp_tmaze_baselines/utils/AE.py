@@ -201,7 +201,8 @@ class Encoder(nn.Module):
         x = self.maxpool1(x)
         x = torch.flatten(x, start_dim=1)
         x = F.relu(self.linear1(x))
-        return self.linear2(x)
+        x = self.linear2(x)
+        return F.tanh(x)
 
 
 class Decoder(nn.Module):
