@@ -26,6 +26,7 @@ action_dim = 3
 # Reward: 0 if not reached an end,
 # "1 - 0.9 * (self.step_count / self.max_steps)" if goal reached.
 # Maxstep limit is 4*size*size, episode ends if maxstep reached.
+# Movement Actions L-R-F -> 0, 1, 2
 class MinigridEnv(gym.Env):
     def __init__(self, **kwargs):
         super(MinigridEnv, self).__init__()

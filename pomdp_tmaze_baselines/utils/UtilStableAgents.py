@@ -2,6 +2,8 @@ from stable_baselines3 import PPO, DQN, A2C
 from sb3_contrib import RecurrentPPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.vec_env import DummyVecEnv
 from agents.ClassQAgent import QAgent
 from agents.ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
@@ -101,6 +103,8 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['buffer_size'] = 100000
         dqn_learning_setting['nn_num_layers'] = 4
         dqn_learning_setting['nn_layer_size'] = 512
+        dqn_learning_setting['env_n_proc'] = 1
+        dqn_learning_setting['vec_env_cls'] = DummyVecEnv
         dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
         dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         dqn_learning_setting['maze_length'] = maze_length
@@ -111,10 +115,29 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['device'] = 'cuda:0'
     """
     envClass = learning_setting['envClass']
-    env = envClass(**learning_setting)
-    eval_env = envClass(
-        **learning_setting
-        ) if learning_setting['eval_enabled'] else None
+    env_n_proc = learning_setting.get('env_n_proc', 1)
+    vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
+    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+        vec_env_cls, DummyVecEnv) else None
+    if env_n_proc > 1:
+        env = make_vec_env(
+            env_id=envClass,
+            n_envs=env_n_proc,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting))
+        eval_env = make_vec_env(
+                env_id=envClass,
+                n_envs=1,
+                vec_env_cls=vec_env_cls,
+                vec_env_kwargs=vec_env_kwargs,
+                env_kwargs=dict(**learning_setting)
+                ) if learning_setting['eval_enabled'] else None
+    else:
+        env = envClass(**learning_setting)
+        eval_env = envClass(
+            **learning_setting
+            ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size']] *
                          learning_setting['nn_num_layers'])
@@ -136,7 +159,7 @@ def train_dqn_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback(),
+                # callback=TensorboardCallback(),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -173,6 +196,8 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['eval_freq'] = 1000
         ppo_learning_setting['eval_episodes'] = 0
         ppo_learning_setting['eval_path'] = None
+        ppo_learning_setting['env_n_proc'] = 1
+        ppo_learning_setting['vec_env_cls'] = DummyVecEnv
         ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         ppo_learning_setting['maze_length'] = maze_length
@@ -184,10 +209,29 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['train_func'] = train_ppo_agent
     """
     envClass = learning_setting['envClass']
-    env = envClass(**learning_setting)
-    eval_env = envClass(
-        **learning_setting
-        ) if learning_setting['eval_enabled'] else None
+    env_n_proc = learning_setting.get('env_n_proc', 1)
+    vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
+    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+        vec_env_cls, DummyVecEnv) else None
+    if env_n_proc > 1:
+        env = make_vec_env(
+            env_id=envClass,
+            n_envs=env_n_proc,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting))
+        eval_env = make_vec_env(
+                env_id=envClass,
+                n_envs=1,
+                vec_env_cls=vec_env_cls,
+                vec_env_kwargs=vec_env_kwargs,
+                env_kwargs=dict(**learning_setting)
+                ) if learning_setting['eval_enabled'] else None
+    else:
+        env = envClass(**learning_setting)
+        eval_env = envClass(
+            **learning_setting
+            ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -208,7 +252,7 @@ def train_ppo_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback(),
+                # callback=TensorboardCallback(),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -244,6 +288,8 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['eval_freq'] = 1000
         a2c_learning_setting['eval_episodes'] = 0
         a2c_learning_setting['eval_path'] = None
+        a2c_learning_setting['env_n_proc'] = 1
+        a2c_learning_setting['vec_env_cls'] = DummyVecEnv
         a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
         a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         a2c_learning_setting['maze_length'] = maze_length
@@ -255,10 +301,29 @@ def train_a2c_agent(learning_setting):
     """
 
     envClass = learning_setting['envClass']
-    env = envClass(**learning_setting)
-    eval_env = envClass(
-        **learning_setting
-        ) if learning_setting['eval_enabled'] else None
+    env_n_proc = learning_setting.get('env_n_proc', 1)
+    vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
+    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+        vec_env_cls, DummyVecEnv) else None
+    if env_n_proc > 1:
+        env = make_vec_env(
+            env_id=envClass,
+            n_envs=env_n_proc,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting))
+        eval_env = make_vec_env(
+                env_id=envClass,
+                n_envs=1,
+                vec_env_cls=vec_env_cls,
+                vec_env_kwargs=vec_env_kwargs,
+                env_kwargs=dict(**learning_setting)
+                ) if learning_setting['eval_enabled'] else None
+    else:
+        env = envClass(**learning_setting)
+        eval_env = envClass(
+            **learning_setting
+            ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -278,7 +343,7 @@ def train_a2c_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback(),
+                # callback=TensorboardCallback(),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -316,6 +381,8 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['eval_freq'] = 1000
         ppolstm_learning_setting['eval_episodes'] = 0
         ppolstm_learning_setting['eval_path'] = None
+        ppolstm_learning_setting['env_n_proc'] = 1
+        ppolstm_learning_setting['vec_env_cls'] = DummyVecEnv
         ppolstm_learning_setting['tb_log_name'] = "ppo-tmazev0"
         ppolstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
         ppolstm_learning_setting['maze_length'] = maze_length
@@ -326,10 +393,29 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['device'] = 'cuda:0'
     """
     envClass = learning_setting['envClass']
-    env = envClass(**learning_setting)
-    eval_env = envClass(
-        **learning_setting
-        ) if learning_setting['eval_enabled'] else None
+    env_n_proc = learning_setting.get('env_n_proc', 1)
+    vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
+    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+        vec_env_cls, DummyVecEnv) else None
+    if env_n_proc > 1:
+        env = make_vec_env(
+            env_id=envClass,
+            n_envs=env_n_proc,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting))
+        eval_env = make_vec_env(
+                env_id=envClass,
+                n_envs=1,
+                vec_env_cls=vec_env_cls,
+                vec_env_kwargs=vec_env_kwargs,
+                env_kwargs=dict(**learning_setting)
+                ) if learning_setting['eval_enabled'] else None
+    else:
+        env = envClass(**learning_setting)
+        eval_env = envClass(
+            **learning_setting
+            ) if learning_setting['eval_enabled'] else None
 
     policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
                                         * learning_setting['nn_num_layers'])],
@@ -354,7 +440,7 @@ def train_ppo_lstm_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                callback=TensorboardCallback(),
+                # callback=TensorboardCallback(),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],

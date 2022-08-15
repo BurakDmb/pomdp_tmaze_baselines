@@ -8,6 +8,7 @@ from pomdp_tmaze_baselines.utils.UtilStableAgents import train_ppo_agent,\
 from pomdp_tmaze_baselines.utils.UtilStableAgents import train_dqn_agent,\
     train_sarsa_lambda_agent
 from pomdp_tmaze_baselines.utils.UtilStableAgents import train_a2c_agent
+from stable_baselines3.common.vec_env import DummyVecEnv
 
 
 total_timesteps = 1_000_000
@@ -126,6 +127,8 @@ dqn_learning_setting['eval_enabled'] = False
 dqn_learning_setting['eval_freq'] = 1000
 dqn_learning_setting['eval_episodes'] = 0
 dqn_learning_setting['eval_path'] = None
+dqn_learning_setting['env_n_proc'] = 1
+dqn_learning_setting['vec_env_cls'] = DummyVecEnv
 dqn_learning_setting['tb_log_name'] = "dqn-tmazev0"
 dqn_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
 dqn_learning_setting['maze_length'] = maze_length
@@ -156,6 +159,8 @@ qlstm_learning_setting['eval_enabled'] = False
 qlstm_learning_setting['eval_freq'] = 1000
 qlstm_learning_setting['eval_episodes'] = 0
 qlstm_learning_setting['eval_path'] = None
+qlstm_learning_setting['env_n_proc'] = 1
+qlstm_learning_setting['vec_env_cls'] = DummyVecEnv
 qlstm_learning_setting['tb_log_name'] = "qlstm-tmazev0"
 qlstm_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
 qlstm_learning_setting['maze_length'] = maze_length
@@ -182,6 +187,8 @@ ppo_learning_setting['eval_enabled'] = False
 ppo_learning_setting['eval_freq'] = 1000
 ppo_learning_setting['eval_episodes'] = 0
 ppo_learning_setting['eval_path'] = None
+ppo_learning_setting['env_n_proc'] = 1
+ppo_learning_setting['vec_env_cls'] = DummyVecEnv
 ppo_learning_setting['tb_log_name'] = "ppo-tmazev0"
 ppo_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
 ppo_learning_setting['maze_length'] = maze_length
@@ -207,6 +214,8 @@ ppoLSTM_learning_setting['eval_enabled'] = False
 ppoLSTM_learning_setting['eval_freq'] = 1000
 ppoLSTM_learning_setting['eval_episodes'] = 0
 ppoLSTM_learning_setting['eval_path'] = None
+ppoLSTM_learning_setting['env_n_proc'] = 1
+ppoLSTM_learning_setting['vec_env_cls'] = DummyVecEnv
 ppoLSTM_learning_setting['tb_log_name'] = "ppoLSTM-tmazev0"
 ppoLSTM_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
 ppoLSTM_learning_setting['maze_length'] = maze_length
@@ -232,6 +241,8 @@ a2c_learning_setting['eval_enabled'] = False
 a2c_learning_setting['eval_freq'] = 1000
 a2c_learning_setting['eval_episodes'] = 0
 a2c_learning_setting['eval_path'] = None
+a2c_learning_setting['env_n_proc'] = 1
+a2c_learning_setting['vec_env_cls'] = DummyVecEnv
 a2c_learning_setting['tb_log_name'] = "a2c-tmazev0"
 a2c_learning_setting['tb_log_dir'] = "./logs/t_maze_tensorboard_0/"
 a2c_learning_setting['maze_length'] = maze_length
