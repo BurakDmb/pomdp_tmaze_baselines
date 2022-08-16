@@ -82,7 +82,7 @@ class EncoderConv(nn.Module):
         x = F.relu(self.enc1d_3(x))
         x = x.flatten(start_dim=1, end_dim=2)
         x = F.relu(self.linear1(x))
-        x = F.sigmoid(self.linear2(x))
+        x = torch.sigmoid(self.linear2(x))
         return x
 
 
@@ -129,7 +129,7 @@ class DecoderConv(nn.Module):
         z = z.unflatten(1, (1, self.shape2d_3))
         z = F.relu(self.dec2d_1(z))
         z = F.relu(self.dec2d_2(z))
-        z = F.sigmoid(self.dec2d_3(z))
+        z = torch.sigmoid(self.dec2d_3(z))
         return z
 
 
@@ -202,7 +202,7 @@ class Encoder(nn.Module):
         x = torch.flatten(x, start_dim=1)
         x = F.relu(self.linear1(x))
         x = self.linear2(x)
-        x = F.sigmoid(x)
+        x = torch.sigmoid(x)
         return x
 
 
