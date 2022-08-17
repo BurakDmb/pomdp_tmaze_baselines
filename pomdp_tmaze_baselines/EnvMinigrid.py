@@ -40,6 +40,7 @@ class MinigridEnv(gym.Env):
         self.ae_path = kwargs.get('ae_path', None)
         self.ae_rcons_err_type = kwargs.get('ae_rcons_err_type', "MSE")
         self.device = kwargs.get('device', "cpu")
+        self.ae_device = "cuda:0"
 
         env = gym.make('MiniGrid-MemoryS13-v0')
         env = RGBImgPartialObsWrapper(env)
@@ -47,6 +48,8 @@ class MinigridEnv(gym.Env):
 
         self.success_count = 0
         self.episode_count = 0
+        self.intrinsic_avg_loss = 0
+        self.intrinsic_count = 0
 
         self.transforms = torchvision.transforms.Compose([
                 torchvision.transforms.Resize(input_dims),
@@ -65,15 +68,10 @@ class MinigridEnv(gym.Env):
                 input_dims,
                 input_dims), dtype=np.uint8)
 
-        if self.ae_path is not None:
+        if self.ae_enabled and self.ae_path is not None:
             self.ae = torch.load(self.ae_path).to(self.device)
             self.ae = self.ae.module
             self.ae.eval()
-        else:
-            print(
-                "***Autoencoder path is not defined, " +
-                "stopping the execution.***")
-            exit(1)
 
         # Memory type 0 = None
         if self.memory_type == 0 and self.ae_enabled:
@@ -211,13 +209,15 @@ class MinigridEnv(gym.Env):
                 observation_ae = self.transforms_ae(
                     observation_ae_img)
 
-            observation_ae = observation_ae[None, :].to(self.device)
+            observation_ae = observation_ae[None, :]
             with torch.no_grad():
-                _, observation_ = self.ae(observation_ae)
+                _, observation_ = self.ae(
+                    observation_ae.to(self.ae_device))
             observation_latent = observation_.cpu().numpy().transpose()
             observation[:self.obs_single_size] = observation_latent[:, 0]
             if self.memory_type != 0 and self.memory_type != 5:
                 observation[self.obs_single_size:] = self.external_memory
+            observation_ae_img.close()
 
         else:
             observation_ae_img = Image.fromarray(self.current_state)
@@ -226,6 +226,7 @@ class MinigridEnv(gym.Env):
                     observation_ae_img)
             # CxHxW with [0, 255] uint8
             observation = observation_ae.cpu().numpy()
+            observation_ae_img.close()
 
         return observation
 
@@ -318,16 +319,18 @@ class MinigridEnv(gym.Env):
                 with torch.no_grad():
                     observation_ae_img = Image.fromarray(new_state)
                     observation_ae = self.transforms_ae(
-                        observation_ae_img).to(self.device)
+                        observation_ae_img)
+                    observation_ae_img.close()
                     observation_ae = observation_ae[None, :]
-                    new_state_gen_tmp, _ = self.ae(observation_ae)
+                    new_state_gen_tmp, _ = self.ae(
+                        observation_ae.to(self.ae_device))
                     new_state_gen_tmp = torch.squeeze(
                         new_state_gen_tmp, 0).cpu().numpy()
 
                     new_state_img = Image.fromarray(new_state)
                     new_state_orig_tmp = self.transforms_ae(
                         new_state_img).cpu().numpy()
-
+                    new_state_img.close()
                     # Calculate reconstruction loss (MAE or MSE)
                     # with autoencoders. Default is MSE.
                     if self.ae_rcons_err_type == "MAE":
@@ -339,8 +342,21 @@ class MinigridEnv(gym.Env):
 
                     # Normalizing the loss with the maximum loss(each rgb pixel
                     # density is totally different, error is 1,
-                    # and total of 255*input_dims*input_dims*in_channels
+                    # and total of 1*input_dims*input_dims*in_channels
+                    # Loss is in range (0, 1)
                     loss = loss / (1*input_dims*input_dims*in_channels)
+
+                    if self.intrinsic_avg_loss > 0 and (
+                            loss / self.intrinsic_avg_loss) > 1.25:
+                        intrinsic_reward = loss
+                    else:
+                        intrinsic_reward = 0
+
+                    # Calculating cumulative average.
+                    self.intrinsic_count += 1
+                    self.intrinsic_avg_loss = self.intrinsic_avg_loss + (
+                        loss - self.intrinsic_avg_loss
+                        )/(self.intrinsic_count)
 
                     # TODO: Since the difference of the reconstruction loss
                     # between common and uncommon observations is small,
@@ -397,5 +413,7 @@ class MinigridEnv(gym.Env):
         obs = self.env.reset(seed=seed)
         self.current_state = obs
 
+        self.intrinsic_avg_loss = 0
+        self.intrinsic_count = 0
         self.episode_reward = 0
         return self._get_observation()
