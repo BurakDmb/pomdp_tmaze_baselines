@@ -3,9 +3,10 @@ from pomdp_tmaze_baselines.utils.UtilStableAgents import train_ppo_lstm_agent,\
     train_ppo_agent
 
 from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy, CNNACPolicy
-from stable_baselines3.common.vec_env import DummyVecEnv
+# from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
-total_timesteps = 10_000_000
+total_timesteps = 1_000_000
 maze_length = 10  # Not used in minigrid.
 envClass = MinigridEnv
 
@@ -13,24 +14,37 @@ number_of_parallel_experiments = 1
 # 0: No memory, 1: Kk, 2: Bk, 3: Ok, 4:OAk
 
 # Change the flags to True/False for only running specific agents
-start_ae_no_mem = True
-start_ae_smm_lastk = True
-start_ae_smm_bk = True
-start_ae_smm_ok = True
-start_ae_smm_ok_intr = True
-start_ae_smm_oak = True
-start_ae_smm_oak_intr = True
-start_ae_lstm = True
+start_ae_no_mem = False
+start_ae_smm_lastk = False
+start_ae_smm_bk = False
+start_ae_smm_ok = False
+start_ae_smm_ok_intr = False
+start_ae_smm_oak = False
+start_ae_smm_oak_intr = False
+start_ae_lstm = False
 start_cnn_no_mem = True
 
+experiment_count = (
+    int(start_ae_no_mem) +
+    int(start_ae_smm_lastk) +
+    int(start_ae_smm_bk) +
+    int(start_ae_smm_ok) +
+    int(start_ae_smm_ok_intr) +
+    int(start_ae_smm_oak) +
+    int(start_ae_smm_oak_intr) +
+    int(start_ae_lstm) +
+    int(start_cnn_no_mem)
+)
 
 learning_rate = 1e-4
 discount_rate = 0.99
-nn_num_layers = 4
-nn_layer_size = 64
-n_steps = 512
-batch_size = 128
+nn_num_layers = 2
+nn_layer_size = 16
+env_n_proc = 30 // experiment_count if experiment_count > 0 else 1
+vec_env_cls = SubprocVecEnv
 
+n_steps = 1024
+batch_size = n_steps  # Full batch iteration
 
 mgrid_ae_no_mem_setting = {}
 mgrid_ae_no_mem_setting['envClass'] = envClass
@@ -48,11 +62,11 @@ mgrid_ae_no_mem_setting['ae_enabled'] = True
 mgrid_ae_no_mem_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_no_mem_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_no_mem_setting['eval_enabled'] = True
-mgrid_ae_no_mem_setting['eval_freq'] = 50
+mgrid_ae_no_mem_setting['eval_freq'] = n_steps*10
 mgrid_ae_no_mem_setting['eval_path'] = None
 mgrid_ae_no_mem_setting['eval_episodes'] = 4
-mgrid_ae_no_mem_setting['env_n_proc'] = 16
-mgrid_ae_no_mem_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_no_mem_setting['env_n_proc'] = env_n_proc
+mgrid_ae_no_mem_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_no_mem_setting['tb_log_name'] = "ae_no_mem"
 mgrid_ae_no_mem_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_no_mem_setting['maze_length'] = maze_length
@@ -80,11 +94,11 @@ mgrid_ae_smm_lastk_setting['ae_enabled'] = True
 mgrid_ae_smm_lastk_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_lastk_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_lastk_setting['eval_enabled'] = True
-mgrid_ae_smm_lastk_setting['eval_freq'] = 50
+mgrid_ae_smm_lastk_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_lastk_setting['eval_episodes'] = 4
 mgrid_ae_smm_lastk_setting['eval_path'] = None
-mgrid_ae_smm_lastk_setting['env_n_proc'] = 16
-mgrid_ae_smm_lastk_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_lastk_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_lastk_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_lastk_setting['tb_log_name'] = "ae_smm_lastk"
 mgrid_ae_smm_lastk_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_lastk_setting['maze_length'] = maze_length
@@ -112,11 +126,11 @@ mgrid_ae_smm_bk_setting['ae_enabled'] = True
 mgrid_ae_smm_bk_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_bk_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_bk_setting['eval_enabled'] = True
-mgrid_ae_smm_bk_setting['eval_freq'] = 50
+mgrid_ae_smm_bk_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_bk_setting['eval_episodes'] = 4
 mgrid_ae_smm_bk_setting['eval_path'] = None
-mgrid_ae_smm_bk_setting['env_n_proc'] = 16
-mgrid_ae_smm_bk_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_bk_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_bk_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_bk_setting['tb_log_name'] = "ae_smm_bk"
 mgrid_ae_smm_bk_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_bk_setting['maze_length'] = maze_length
@@ -144,11 +158,11 @@ mgrid_ae_smm_ok_setting['ae_enabled'] = True
 mgrid_ae_smm_ok_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_ok_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_ok_setting['eval_enabled'] = True
-mgrid_ae_smm_ok_setting['eval_freq'] = 50
+mgrid_ae_smm_ok_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_ok_setting['eval_episodes'] = 4
 mgrid_ae_smm_ok_setting['eval_path'] = None
-mgrid_ae_smm_ok_setting['env_n_proc'] = 16
-mgrid_ae_smm_ok_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_ok_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_ok_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_ok_setting['tb_log_name'] = "ae_smm_ok"
 mgrid_ae_smm_ok_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_ok_setting['maze_length'] = maze_length
@@ -176,11 +190,11 @@ mgrid_ae_smm_ok_intr_setting['ae_enabled'] = True
 mgrid_ae_smm_ok_intr_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_ok_intr_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_ok_intr_setting['eval_enabled'] = True
-mgrid_ae_smm_ok_intr_setting['eval_freq'] = 50
+mgrid_ae_smm_ok_intr_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_ok_intr_setting['eval_episodes'] = 4
 mgrid_ae_smm_ok_intr_setting['eval_path'] = None
-mgrid_ae_smm_ok_intr_setting['env_n_proc'] = 16
-mgrid_ae_smm_ok_intr_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_ok_intr_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_ok_intr_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_ok_intr_setting['tb_log_name'] = "ae_smm_ok_intr"
 mgrid_ae_smm_ok_intr_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_ok_intr_setting['maze_length'] = maze_length
@@ -208,11 +222,11 @@ mgrid_ae_smm_oak_setting['ae_enabled'] = True
 mgrid_ae_smm_oak_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_oak_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_oak_setting['eval_enabled'] = True
-mgrid_ae_smm_oak_setting['eval_freq'] = 50
+mgrid_ae_smm_oak_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_oak_setting['eval_episodes'] = 4
 mgrid_ae_smm_oak_setting['eval_path'] = None
-mgrid_ae_smm_oak_setting['env_n_proc'] = 16
-mgrid_ae_smm_oak_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_oak_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_oak_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_oak_setting['tb_log_name'] = "ae_smm_oak"
 mgrid_ae_smm_oak_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_oak_setting['maze_length'] = maze_length
@@ -240,11 +254,11 @@ mgrid_ae_smm_oak_intr_setting['ae_enabled'] = True
 mgrid_ae_smm_oak_intr_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_oak_intr_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_smm_oak_intr_setting['eval_enabled'] = True
-mgrid_ae_smm_oak_intr_setting['eval_freq'] = 50
+mgrid_ae_smm_oak_intr_setting['eval_freq'] = n_steps*10
 mgrid_ae_smm_oak_intr_setting['eval_episodes'] = 4
 mgrid_ae_smm_oak_intr_setting['eval_path'] = None
-mgrid_ae_smm_oak_intr_setting['env_n_proc'] = 16
-mgrid_ae_smm_oak_intr_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_smm_oak_intr_setting['env_n_proc'] = env_n_proc
+mgrid_ae_smm_oak_intr_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_smm_oak_intr_setting['tb_log_name'] = "ae_smm_oak_intr"
 mgrid_ae_smm_oak_intr_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_smm_oak_intr_setting['maze_length'] = maze_length
@@ -272,11 +286,11 @@ mgrid_ae_lstm_setting['ae_enabled'] = True
 mgrid_ae_lstm_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_lstm_setting['ae_rcons_err_type'] = "MSE"
 mgrid_ae_lstm_setting['eval_enabled'] = True
-mgrid_ae_lstm_setting['eval_freq'] = 50
+mgrid_ae_lstm_setting['eval_freq'] = n_steps*10
 mgrid_ae_lstm_setting['eval_episodes'] = 4
 mgrid_ae_lstm_setting['eval_path'] = None
-mgrid_ae_lstm_setting['env_n_proc'] = 16
-mgrid_ae_lstm_setting['vec_env_cls'] = DummyVecEnv
+mgrid_ae_lstm_setting['env_n_proc'] = env_n_proc
+mgrid_ae_lstm_setting['vec_env_cls'] = vec_env_cls
 mgrid_ae_lstm_setting['tb_log_name'] = "ae_lstm"
 mgrid_ae_lstm_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_ae_lstm_setting['maze_length'] = maze_length
@@ -304,11 +318,11 @@ mgrid_cnn_no_mem_setting['ae_enabled'] = False
 mgrid_cnn_no_mem_setting['ae_path'] = "models/ae.torch"
 mgrid_cnn_no_mem_setting['ae_rcons_err_type'] = "MSE"
 mgrid_cnn_no_mem_setting['eval_enabled'] = True
-mgrid_cnn_no_mem_setting['eval_freq'] = 50
+mgrid_cnn_no_mem_setting['eval_freq'] = n_steps*10
 mgrid_cnn_no_mem_setting['eval_episodes'] = 4
 mgrid_cnn_no_mem_setting['eval_path'] = None
-mgrid_cnn_no_mem_setting['env_n_proc'] = 16
-mgrid_cnn_no_mem_setting['vec_env_cls'] = DummyVecEnv
+mgrid_cnn_no_mem_setting['env_n_proc'] = env_n_proc
+mgrid_cnn_no_mem_setting['vec_env_cls'] = vec_env_cls
 mgrid_cnn_no_mem_setting['tb_log_name'] = "cnn_no_mem"
 mgrid_cnn_no_mem_setting['tb_log_dir'] = "./logs/c_minigrid_tb/"
 mgrid_cnn_no_mem_setting['maze_length'] = maze_length

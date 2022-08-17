@@ -7,6 +7,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from agents.ClassQAgent import QAgent
 from agents.ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
+import numpy as np
+from stable_baselines3.common.evaluation import evaluate_policy
 
 
 def train_q_agent(learning_setting):
@@ -117,7 +119,7 @@ def train_dqn_agent(learning_setting):
     envClass = learning_setting['envClass']
     env_n_proc = learning_setting.get('env_n_proc', 1)
     vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
-    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+    vec_env_kwargs = dict(start_method='forkserver') if isinstance(
         vec_env_cls, DummyVecEnv) else None
     if env_n_proc > 1:
         env = make_vec_env(
@@ -159,7 +161,11 @@ def train_dqn_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                # callback=TensorboardCallback(),
+                callback=TensorboardCallback(
+                    learning_setting['eval_enabled'],
+                    eval_env,
+                    learning_setting['eval_freq'],
+                    learning_setting['eval_episodes']),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -211,7 +217,7 @@ def train_ppo_agent(learning_setting):
     envClass = learning_setting['envClass']
     env_n_proc = learning_setting.get('env_n_proc', 1)
     vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
-    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+    vec_env_kwargs = dict(start_method='forkserver') if isinstance(
         vec_env_cls, DummyVecEnv) else None
     if env_n_proc > 1:
         env = make_vec_env(
@@ -252,7 +258,11 @@ def train_ppo_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                # callback=TensorboardCallback(),
+                callback=TensorboardCallback(
+                    learning_setting['eval_enabled'],
+                    eval_env,
+                    learning_setting['eval_freq'],
+                    learning_setting['eval_episodes']),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -303,7 +313,7 @@ def train_a2c_agent(learning_setting):
     envClass = learning_setting['envClass']
     env_n_proc = learning_setting.get('env_n_proc', 1)
     vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
-    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+    vec_env_kwargs = dict(start_method='forkserver') if isinstance(
         vec_env_cls, DummyVecEnv) else None
     if env_n_proc > 1:
         env = make_vec_env(
@@ -343,7 +353,11 @@ def train_a2c_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                # callback=TensorboardCallback(),
+                callback=TensorboardCallback(
+                    learning_setting['eval_enabled'],
+                    eval_env,
+                    learning_setting['eval_freq'],
+                    learning_setting['eval_episodes']),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -395,7 +409,7 @@ def train_ppo_lstm_agent(learning_setting):
     envClass = learning_setting['envClass']
     env_n_proc = learning_setting.get('env_n_proc', 1)
     vec_env_cls = learning_setting.get('vec_env_cls', DummyVecEnv)
-    vec_env_kwargs = dict(start_method='spawn') if isinstance(
+    vec_env_kwargs = dict(start_method='forkserver') if isinstance(
         vec_env_cls, DummyVecEnv) else None
     if env_n_proc > 1:
         env = make_vec_env(
@@ -440,7 +454,11 @@ def train_ppo_lstm_agent(learning_setting):
     model.learn(total_timesteps=learning_setting['total_timesteps'],
                 tb_log_name=learning_setting['tb_log_name'] +
                 "-" + str(datetime.datetime.now()),
-                # callback=TensorboardCallback(),
+                callback=TensorboardCallback(
+                    learning_setting['eval_enabled'],
+                    eval_env,
+                    learning_setting['eval_freq'],
+                    learning_setting['eval_episodes']),
                 eval_env=eval_env,
                 eval_freq=learning_setting['eval_freq'],
                 n_eval_episodes=learning_setting['eval_episodes'],
@@ -459,8 +477,16 @@ class TensorboardCallback(BaseCallback):
     Custom callback for plotting additional values in tensorboard.
     """
 
-    def __init__(self, verbose=0):
+    def __init__(
+            self, eval_enabled=False,
+            eval_env=None, eval_freq=1,
+            eval_episodes=1, verbose=0):
         super(TensorboardCallback, self).__init__(verbose)
+        self.eval_enabled = eval_enabled
+        self.eval_env = eval_env
+        self.eval_freq = eval_freq
+        self.eval_episodes = eval_episodes
+        # self.n_calls = 0
 
     def _on_training_start(self):
         output_formats = self.logger.output_formats
@@ -473,44 +499,97 @@ class TensorboardCallback(BaseCallback):
                                      if isinstance(formatter,
                                                    TensorBoardOutputFormat))
 
+    def _log_success_callback(self, locals_, globals_):
+        """
+        Callback passed to the  ``evaluate_policy`` function
+        in order to log the success rate (when applicable),
+        for instance when using HER.
+        :param locals_:
+        :param globals_:
+        """
+        info = locals_["info"]
+
+        if locals_["done"]:
+            maybe_is_success = info.get("is_success")
+            if maybe_is_success is not None:
+                self._is_success_buffer.append(maybe_is_success)
+
     def _on_step(self) -> bool:
-        if (self.locals['self'].env.buf_dones[-1]):
-            epi_reward = self.model.env.unwrapped.envs[0].episode_returns[-1]
-            epi_number = len(self.locals['self'].env.unwrapped.envs[0].
-                             episode_lengths)
-            success_ratio = (self.locals['self'].env.unwrapped.envs[0].
-                             success_count /
-                             self.locals['self'].env.unwrapped.envs[0].
-                             episode_count) * 100
-            if self.tb_formatter:
-                self.tb_formatter.writer.\
-                    add_scalar("_tmaze/Reward per episode",
-                               epi_reward, epi_number)
+        if self.eval_enabled:
+            if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
 
-            if self.tb_formatter:
-                self.tb_formatter.writer.flush()
-                self.tb_formatter.writer.\
-                    add_scalar("_tmaze/Episode length per episode",
-                               self.locals['self'].env.
-                               unwrapped.envs[0].
-                               episode_lengths[-1],
-                               epi_number)
+                self._is_success_buffer = []
 
-                self.tb_formatter.writer.\
-                    add_scalar("_tmaze/Success Ratio per episode",
-                               success_ratio, epi_number)
+                episode_rewards, episode_lengths = evaluate_policy(
+                    self.model,
+                    self.eval_env,
+                    n_eval_episodes=self.eval_episodes,
+                    deterministic=True,
+                    return_episode_rewards=True,
+                    callback=self._log_success_callback)
 
-                if self.locals['self'].env.unwrapped.\
-                        envs[0].intrinsic_enabled == 1:
-                    if self.locals['self'].env.unwrapped.\
-                            envs[0].env_type == "TmazeEnv":
-                        self.tb_formatter.writer.\
-                            add_text(
-                                "_tmaze/Frequency Dictionary String " +
-                                "per episode",
-                                str(self.locals['self'].env.
-                                    unwrapped.envs[0].
-                                    intrinsic_dict), epi_number)
+                mean_reward, _ = np.mean(
+                    episode_rewards), np.std(episode_rewards)
+                mean_ep_length, _ = np.mean(
+                    episode_lengths), np.std(episode_lengths)
+                self.last_mean_reward = mean_reward
 
-                self.tb_formatter.writer.flush()
+                self.logger.record("eval/mean_reward", float(mean_reward))
+                self.logger.record("eval/mean_ep_length", mean_ep_length)
+
+                if len(self._is_success_buffer) > 0:
+                    success_rate = np.mean(self._is_success_buffer)
+                    self.logger.record("eval/success_rate", success_rate)
+
+                self.logger.record(
+                    "time/total_timesteps",
+                    self.num_timesteps, exclude="tensorboard")
+                self.logger.dump(self.num_timesteps)
+
         return True
+
+        # if True:
+        #     if (self.locals['self'].env.buf_dones[-1]):
+        #         epi_reward = (
+        #             self.model.env.unwrapped.envs[0].episode_returns[-1])
+        #         epi_number = len(
+        #             self.locals['self'].env.unwrapped.envs[0].episode_lengths)
+        #         success_ratio = (
+        #             self.locals['self'].env.unwrapped.envs[0].
+        #             success_count /
+        #             self.locals['self'].env.unwrapped.envs[0].
+        #             episode_count) * 100
+        #         if self.tb_formatter:
+        #             self.tb_formatter.writer.add_scalar(
+        #                 "_tmaze/Reward per episode",
+        #                 epi_reward, epi_number)
+
+        #         if self.tb_formatter:
+        #             self.tb_formatter.writer.flush()
+        #             self.tb_formatter.writer.\
+        #                 add_scalar(
+        #                     "_tmaze/Episode length per episode",
+        #                     self.locals['self'].env.
+        #                     unwrapped.envs[0].
+        #                     episode_lengths[-1],
+        #                     epi_number)
+
+        #             self.tb_formatter.writer.\
+        #                 add_scalar(
+        #                     "_tmaze/Success Ratio per episode",
+        #                     success_ratio, epi_number)
+
+        #             if self.locals['self'].env.unwrapped.\
+        #                     envs[0].intrinsic_enabled == 1:
+        #                 if self.locals['self'].env.unwrapped.\
+        #                         envs[0].env_type == "TmazeEnv":
+        #                     self.tb_formatter.writer.\
+        #                         add_text(
+        #                             "_tmaze/Frequency Dictionary String " +
+        #                             "per episode",
+        #                             str(self.locals['self'].env.
+        #                                 unwrapped.envs[0].
+        #                                 intrinsic_dict), epi_number)
+
+        #             self.tb_formatter.writer.flush()
+        # return True

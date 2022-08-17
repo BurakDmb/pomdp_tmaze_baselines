@@ -49,7 +49,7 @@ class TestCode(unittest.TestCase):
             env_id=EnvMinigrid.MinigridEnv,
             n_envs=n_procs,
             vec_env_cls=SubprocVecEnv,
-            vec_env_kwargs=dict(start_method='spawn'),
+            vec_env_kwargs=dict(start_method='forkserver'),
             env_kwargs=dict(**learning_setting))
 
         obs = train_env.reset()
@@ -63,7 +63,7 @@ class TestCode(unittest.TestCase):
                 env_id=EnvMinigrid.MinigridEnv,
                 n_envs=env_n_proc,
                 vec_env_cls=SubprocVecEnv,
-                vec_env_kwargs=dict(start_method='spawn'),
+                vec_env_kwargs=dict(start_method='forkserver'),
                 env_kwargs=dict(**learning_setting))
         else:
             train_env = EnvMinigrid.MinigridEnv(**learning_setting)
