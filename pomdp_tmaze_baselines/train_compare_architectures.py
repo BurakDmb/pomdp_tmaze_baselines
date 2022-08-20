@@ -32,7 +32,7 @@ if __name__ == '__main__':
             lstm_intr_learning_setting
         )
 
-    mp.set_start_method('spawn')
+    mp.set_start_method('forkserver', force=True)
     processes = []
 
     for _ in range(number_of_parallel_experiments):

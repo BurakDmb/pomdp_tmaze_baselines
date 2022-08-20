@@ -10,6 +10,7 @@ import numpy as np
 import torch
 import torchvision
 from PIL import Image
+# import time
 
 input_dims = 48
 latent_dims = 128
@@ -40,7 +41,7 @@ class MinigridEnv(gym.Env):
         self.ae_path = kwargs.get('ae_path', None)
         self.ae_rcons_err_type = kwargs.get('ae_rcons_err_type', "MSE")
         self.device = kwargs.get('device', "cpu")
-        self.ae_device = "cuda:0"
+        self.env_id = kwargs.get('env_id', 0)
 
         env = gym.make('MiniGrid-MemoryS13-v0')
         env = RGBImgPartialObsWrapper(env)
@@ -68,10 +69,8 @@ class MinigridEnv(gym.Env):
                 input_dims,
                 input_dims), dtype=np.uint8)
 
-        if self.ae_enabled and self.ae_path is not None:
-            self.ae = torch.load(self.ae_path).to(self.device)
-            self.ae = self.ae.module
-            self.ae.eval()
+        if self.ae_enabled:
+            self.ae_comm_list = kwargs.get('ae_comm_list', None)
 
         # Memory type 0 = None
         if self.memory_type == 0 and self.ae_enabled:
@@ -210,10 +209,10 @@ class MinigridEnv(gym.Env):
                     observation_ae_img)
 
             observation_ae = observation_ae[None, :]
-            with torch.no_grad():
-                _, observation_ = self.ae(
-                    observation_ae.to(self.ae_device))
-            observation_latent = observation_.cpu().numpy().transpose()
+
+            _, observation_ = self.get_ae_result(observation_ae)
+
+            observation_latent = observation_.transpose()
             observation[:self.obs_single_size] = observation_latent[:, 0]
             if self.memory_type != 0 and self.memory_type != 5:
                 observation[self.obs_single_size:] = self.external_memory
@@ -322,10 +321,11 @@ class MinigridEnv(gym.Env):
                         observation_ae_img)
                     observation_ae_img.close()
                     observation_ae = observation_ae[None, :]
-                    new_state_gen_tmp, _ = self.ae(
-                        observation_ae.to(self.ae_device))
-                    new_state_gen_tmp = torch.squeeze(
-                        new_state_gen_tmp, 0).cpu().numpy()
+
+                    new_state_gen_tmp, _ = self.get_ae_result(observation_ae)
+
+                    new_state_gen_tmp = np.squeeze(
+                        new_state_gen_tmp, 0)
 
                     new_state_img = Image.fromarray(new_state)
                     new_state_orig_tmp = self.transforms_ae(
@@ -417,3 +417,27 @@ class MinigridEnv(gym.Env):
         self.intrinsic_count = 0
         self.episode_reward = 0
         return self._get_observation()
+
+    # Comm variable:
+    # 0 request
+    # 1 request_completed
+    # 2 data
+    # 3 result_obs
+    # 4 result latent
+    def get_ae_result(self, tensor_data, timeout=100):
+        data = tensor_data.cpu().numpy()
+        comm_variable = self.ae_comm_list[self.env_id]
+
+        comm_variable[2] = data
+        comm_variable[1] = False
+        comm_variable[0] = True
+
+        while (not comm_variable[1]):
+            pass
+
+        obs = comm_variable[3]
+        latent = comm_variable[4]
+        # assert (self.ae_comm_list['data'] == tensor_data.cpu().numpy()).all()
+
+        return obs, latent
+# TODO: lock ile index al, sonraki cagirmalarda o indeksli datadan temin et.

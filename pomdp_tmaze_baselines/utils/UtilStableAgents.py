@@ -2,13 +2,17 @@ from stable_baselines3 import PPO, DQN, A2C
 from sb3_contrib import RecurrentPPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
-from stable_baselines3.common.env_util import make_vec_env
+# from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import DummyVecEnv
 from agents.ClassQAgent import QAgent
 from agents.ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
 import numpy as np
 from stable_baselines3.common.evaluation import evaluate_policy
+import os
+import gym
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.utils import compat_gym_seed
 
 
 def train_q_agent(learning_setting):
@@ -93,6 +97,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['intrinsic_enabled'] = False
         dqn_learning_setting['intrinsic_beta'] = 0.01
         dqn_learning_setting['ae_enabled'] = True
+        dqn_learning_setting['ae_comm_list'] = comm_list['dqn-tmazev0']
         dqn_learning_setting['ae_path'] = "models/ae.torch"
         dqn_learning_setting['ae_rcons_err_type'] = "MSE"
         dqn_learning_setting['eval_enabled'] = False
@@ -196,6 +201,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['intrinsic_enabled'] = False
         ppo_learning_setting['intrinsic_beta'] = 0.01
         ppo_learning_setting['ae_enabled'] = True
+        ppo_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppo_learning_setting['ae_path'] = "models/ae.torch"
         ppo_learning_setting['ae_rcons_err_type'] = "MSE"
         ppo_learning_setting['eval_enabled'] = False
@@ -292,6 +298,7 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['intrinsic_enabled'] = False
         a2c_learning_setting['intrinsic_beta'] = 0.01
         a2c_learning_setting['ae_enabled'] = True
+        a2c_learning_setting['ae_comm_list'] = comm_list['a2c-tmazev0']
         a2c_learning_setting['ae_path'] = "models/ae.torch"
         a2c_learning_setting['ae_rcons_err_type'] = "MSE"
         a2c_learning_setting['eval_enabled'] = False
@@ -389,6 +396,7 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['intrinsic_enabled'] = False
         ppolstm_learning_setting['intrinsic_beta'] = 0.01
         ppolstm_learning_setting['ae_enabled'] = True
+        ppolstm_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppolstm_learning_setting['ae_path'] = "models/ae.torch"
         ppolstm_learning_setting['ae_rcons_err_type'] = "MSE"
         ppolstm_learning_setting['eval_enabled'] = False
@@ -593,3 +601,57 @@ class TensorboardCallback(BaseCallback):
 
         #             self.tb_formatter.writer.flush()
         # return True
+
+
+def make_vec_env(
+    env_id,
+    n_envs=1,
+    seed=None,
+    start_index=0,
+    monitor_dir=None,
+    wrapper_class=None,
+    env_kwargs=None,
+    vec_env_cls=None,
+    vec_env_kwargs=None,
+    monitor_kwargs=None,
+    wrapper_kwargs=None,
+):
+
+    env_kwargs = {} if env_kwargs is None else env_kwargs
+    vec_env_kwargs = {} if vec_env_kwargs is None else vec_env_kwargs
+    monitor_kwargs = {} if monitor_kwargs is None else monitor_kwargs
+    wrapper_kwargs = {} if wrapper_kwargs is None else wrapper_kwargs
+
+    def make_env(rank):
+        def _init():
+            if isinstance(env_id, str):
+                env = gym.make(env_id, **env_kwargs)
+            else:
+                env = env_id(**env_kwargs, env_id=rank)
+            if seed is not None:
+                compat_gym_seed(env, seed=seed + rank)
+                env.action_space.seed(seed + rank)
+            # Wrap the env in a Monitor wrapper
+            # to have additional training information
+            monitor_path = os.path.join(
+                monitor_dir, str(rank)
+                ) if monitor_dir is not None else None
+            # Create the monitor folder if needed
+            if monitor_path is not None:
+                os.makedirs(monitor_dir, exist_ok=True)
+            env = Monitor(env, filename=monitor_path, **monitor_kwargs)
+            # Optionally, wrap the environment with the provided wrapper
+            if wrapper_class is not None:
+                env = wrapper_class(env, **wrapper_kwargs)
+            return env
+
+        return _init
+
+    # No custom VecEnv is passed
+    if vec_env_cls is None:
+        # Default: use a DummyVecEnv
+        vec_env_cls = DummyVecEnv
+
+    return vec_env_cls(
+        [make_env(i + start_index) for i in range(n_envs)],
+        **vec_env_kwargs)

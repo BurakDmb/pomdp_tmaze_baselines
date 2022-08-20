@@ -79,6 +79,8 @@ pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contr
 pip install torchsummary --no-dependencies
 pip install scikit-learn profilehooks progressbar matplotlib tensorboard numpy pandas cloudpickle optuna mysqlclient mysql-client plotly flake8
 pip install tensorboard-reducer --no-dependencies
+pip install nvidia-pyindex
+pip install nvidia-tensorrt
 
 python setup.py develop
 ```

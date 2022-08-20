@@ -262,7 +262,7 @@ def main():
         load_if_exists=True
         )
 
-    mp.set_start_method('spawn')
+    mp.set_start_method('forkserver', force=True)
     processes = []
     for device_id in cuda_devices:
         for _ in range(number_of_parallel_jobs):
