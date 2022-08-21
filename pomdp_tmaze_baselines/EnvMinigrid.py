@@ -198,36 +198,44 @@ class MinigridEnv(gym.Env):
                 high=1,
                 shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
+        self.observation = self.observation_space.sample()
+        self.observation_valid = False
+        self.step_count = 0
+
     def _get_observation(self, ):
-
-        if self.ae_enabled:
-            observation = np.zeros(
-                self.obs_number_of_dimension, dtype=np.float32)
-            observation_ae_img = Image.fromarray(self.current_state)
-            if self.transforms is not None:
-                observation_ae = self.transforms_ae(
-                    observation_ae_img)
-
-            observation_ae = observation_ae[None, :]
-
-            _, observation_ = self.get_ae_result(observation_ae)
-
-            observation_latent = observation_.cpu().numpy().transpose()
-            observation[:self.obs_single_size] = observation_latent[:, 0]
-            if self.memory_type != 0 and self.memory_type != 5:
-                observation[self.obs_single_size:] = self.external_memory
-            observation_ae_img.close()
-
+        if self.observation_valid:
+            return self.observation
         else:
-            observation_ae_img = Image.fromarray(self.current_state)
-            if self.transforms is not None:
-                observation_ae = self.transforms(
-                    observation_ae_img)
-            # CxHxW with [0, 255] uint8
-            observation = observation_ae.cpu().numpy()
-            observation_ae_img.close()
+            if self.ae_enabled:
+                observation = np.zeros(
+                    self.obs_number_of_dimension, dtype=np.float32)
+                observation_ae_img = Image.fromarray(self.current_state)
+                if self.transforms is not None:
+                    observation_ae = self.transforms_ae(
+                        observation_ae_img)
 
-        return observation
+                observation_ae = observation_ae[None, :]
+
+                _, observation_ = self.get_ae_result(observation_ae)
+
+                observation_latent = observation_.cpu().numpy().transpose()
+                observation[:self.obs_single_size] = observation_latent[:, 0]
+                if self.memory_type != 0 and self.memory_type != 5:
+                    observation[self.obs_single_size:] = self.external_memory
+                observation_ae_img.close()
+
+            else:
+                observation_ae_img = Image.fromarray(self.current_state)
+                if self.transforms is not None:
+                    observation_ae = self.transforms(
+                        observation_ae_img)
+                # CxHxW with [0, 255] uint8
+                observation = observation_ae.cpu().numpy()
+                observation_ae_img.close()
+
+            self.observation = observation
+            self.observation_valid = True
+            return self.observation
 
     def add_observation_to_memory(self, memoryAction, action):
         # The memory update strategy could be changed, for now, it is set to
@@ -271,6 +279,7 @@ class MinigridEnv(gym.Env):
                     np.append(
                         self._get_observation()[:self.obs_single_size],
                         [action])
+            self.observation_valid = False
 
     def step(self, action):
         done = False
@@ -304,6 +313,7 @@ class MinigridEnv(gym.Env):
             memoryAction = 0
 
         new_state, reward, done, _ = self.env.step(movementAction)
+        self.step_count += 1
 
         # Check if add observation to memory action or not
         if self.ae_enabled and memoryAction != 0:
@@ -360,10 +370,10 @@ class MinigridEnv(gym.Env):
                     # [0.5, 1] (result range)
                     if self.intrinsic_avg_loss > 0 and (
                             loss / self.intrinsic_avg_loss) > 1.0:
-                        intrinsic_reward = (
+                        intrinsic_reward = ((
                             (loss-self.intrinsic_avg_loss) /
                             (2*(1-self.intrinsic_avg_loss))
-                            ) + 0.5
+                            ) + 0.5) / (self.step_count**2)
                     else:
                         intrinsic_reward = 0
 
@@ -396,6 +406,8 @@ class MinigridEnv(gym.Env):
 
         self.current_state = new_state
         self.episode_reward += reward
+
+        self.observation_valid = False
         return self._get_observation(), reward, done, {
             'success': success, 'is_success': bool(success)}
 
@@ -430,6 +442,9 @@ class MinigridEnv(gym.Env):
         self.intrinsic_avg_loss = 0
         self.intrinsic_count = 0
         self.episode_reward = 0
+
+        self.step_count = 0
+        self.observation_valid = False
         return self._get_observation()
 
     def get_ae_result(self, tensor_data):

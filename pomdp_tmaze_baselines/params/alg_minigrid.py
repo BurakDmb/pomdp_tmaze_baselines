@@ -53,7 +53,7 @@ start_dict = {
     'cnn_no_mem': start_cnn_no_mem,
 }
 
-learning_rate = 1e-4
+learning_rate = 3e-4
 discount_rate = 0.99
 nn_num_layers = 2
 nn_layer_size = 16
