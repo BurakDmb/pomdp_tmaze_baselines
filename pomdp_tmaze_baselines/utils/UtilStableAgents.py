@@ -439,11 +439,15 @@ def train_ppo_lstm_agent(learning_setting):
             **learning_setting
             ) if learning_setting['eval_enabled'] else None
 
-    policy_kwargs = dict(net_arch=[dict(vf=[learning_setting['nn_layer_size']]
-                                        * learning_setting['nn_num_layers'])],
-                         #  shared_lstm=False,
-                         #  enable_critic_lstm=True,
-                         ortho_init=False)
+    policy_kwargs = dict(
+        net_arch=[dict(vf=[
+            learning_setting['nn_layer_size']] *
+            learning_setting['nn_num_layers'])],
+        #  shared_lstm=False,
+        #  enable_critic_lstm=True,
+        lstm_hidden_size=16,
+        n_lstm_layers=2,
+        ortho_init=False)
 
     model = RecurrentPPO(
         learning_setting['policy'],

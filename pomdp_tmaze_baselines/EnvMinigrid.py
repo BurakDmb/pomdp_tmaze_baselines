@@ -346,9 +346,24 @@ class MinigridEnv(gym.Env):
                     # Loss is in range (0, 1)
                     loss = loss / (1*input_dims*input_dims*in_channels)
 
+                    # In the code below, if the calculated reconstruction loss
+                    # is greater than average, an additional intrinsic
+                    # motivation is constructed. The range of the reward is
+                    # shaped accordingly to be in the range of [0.5, 1].
+                    # (since average reward of this environment due to
+                    # the partially observability is 0.5)
+                    # Reward shaping steps. (reconstruction loss is normalized,
+                    # therefore max. value is 1)
+                    # [avg, 1] (subtract avg)
+                    # [0, 1-avg] (divide 2*(1-avg))
+                    # [0, 0.5] (add 0.5)
+                    # [0.5, 1] (result range)
                     if self.intrinsic_avg_loss > 0 and (
-                            loss / self.intrinsic_avg_loss) > 1.25:
-                        intrinsic_reward = loss
+                            loss / self.intrinsic_avg_loss) > 1.0:
+                        intrinsic_reward = (
+                            (loss-self.intrinsic_avg_loss) /
+                            (2*(1-self.intrinsic_avg_loss))
+                            ) + 0.5
                     else:
                         intrinsic_reward = 0
 
