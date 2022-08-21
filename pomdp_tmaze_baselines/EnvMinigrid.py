@@ -325,7 +325,7 @@ class MinigridEnv(gym.Env):
                     new_state_gen_tmp, _ = self.get_ae_result(observation_ae)
 
                     new_state_gen_tmp = np.squeeze(
-                        new_state_gen_tmp.cpu.numpy(), 0)
+                        new_state_gen_tmp.cpu().numpy(), 0)
 
                     new_state_img = Image.fromarray(new_state)
                     new_state_orig_tmp = self.transforms_ae(
@@ -366,7 +366,6 @@ class MinigridEnv(gym.Env):
                     # Higher loss leads to higher positive reward.
                     # Intrinsic motivation is multiplied with intrinsic beta
                     # to tune the density of the intrinsic reward
-                    intrinsic_reward = loss
                     reward += self.intrinsic_beta * intrinsic_reward
             else:
                 print("***Intrinsic reward calculation without autoencoders" +
