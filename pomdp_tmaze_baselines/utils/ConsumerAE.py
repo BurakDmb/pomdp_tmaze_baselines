@@ -1,94 +1,67 @@
-# Multi producer single consumer yapisi
-# Her producer icin ayri bir pipe olustur.
-# Loopda donecek olan kodda sirayla her pipe'da veri var mi bak.
-# Eger veri varsa
-
-# from time import sleep
-# from random import random
-from multiprocessing import Process
-from multiprocessing import Manager
+from multiprocessing import Process, Manager
 import torch
 import numpy as np
-import torch2trt
+from queue import Empty
 
 
 # Generates queues for each experiment and returns the list
 # Each element corresponds to the connection element
-# TODO generate all the keys in here
 def generateCommDict(start_dict, env_n_proc):
     comm_dict = {}
     for key in start_dict:
         if start_dict[key]:
             manager = Manager()
-            # comm_variable = manager.dict()
-            comm_variable = manager.list()
+            # comm_list = manager.dict()
+            # comm_list = manager.list()
+            comm_list = list()
             for i in range(env_n_proc):
-                comm_variable.append(manager.list(
-                    [False, False, None, None, None]))
-            # comm_lock = manager.Lock()
-            # comm_variable['request'] = [False]*env_n_proc
-            # comm_variable['request_completed'] = [False]*env_n_proc
-            # comm_variable['data'] = [None]*env_n_proc
-            # comm_variable['result_obs'] = [None]*env_n_proc
-            # comm_variable['result_latent'] = [None]*env_n_proc
-            # comm_variable['lock'] = comm_lock
-            comm_dict[key] = comm_variable
+                produceQueue = manager.Queue()
+                consumeQueue = manager.Queue()
+                comm_list.append((produceQueue, consumeQueue))
+
+            comm_dict[key] = comm_list
         else:
             comm_dict[key] = None
     return comm_dict
 
 
-# comm variable i vektorel olacak, consumer ise her
-# zaman loop icerisinde donerek batch şeklinde tum
-# inputlarin output'ini hesaplayacak.
-# Eger o an request eden yok ise onceden initialize
-# edilmis bos zero tensoru kullanilacak.
-# Comm variable:
-# 0 request
-# 1 request_completed
-# 2 data
-# 3 result_obs
-# 4 result latent
-def ae_consumer(comm_list_, ae_path, device):
+# This consumer constantly consumes queues to infer autoencoder model
+# comm_dict_ includes each experiment
+# comm_list includes a list with env_n_proc elements,
+# each element corresponds to:
+# 0th index: producer queue, 1st index: consumer queue
+def ae_consumer(comm_dict_, ae_path, device):
 
     # Init AE model
     if ae_path is not None:
 
         ae_model_ = torch.load(ae_path).to(device)
-        ae_model_ = ae_model_.module.to(device)
+        ae_model_ = ae_model_.module
         ae_model_.eval()
-
-        ae_model = tortch2trt.TRTModule()
-        ae_model.load_state_dict(torch.load())
-
-        # ae_model = torch2trt.torch2trt(
-        #     ae_model_, [torch.tensor(
-        #         np.zeros((1, 3, 48, 48)),
-        #         dtype=torch.float32).cuda()],
-        #     strict_type_constraints=True,
-        #     # fp16_mode=False,
-        #     use_onnx=True
-        #     )
-        # ae_model = TRTModule(ae_model_)
-        # ae_model.load_state_dict(ae_model_)
+        ae_model = ae_model_
 
     data_dict = {}
     env_n_proc = {}
-    for comm_key in comm_list_:
-        if comm_list_[comm_key] is None:
+    for comm_key in comm_dict_:
+        if comm_dict_[comm_key] is None:
             env_n_proc[comm_key] = 0
         else:
-            env_n_proc[comm_key] = len(comm_list_[comm_key])
+            env_n_proc[comm_key] = len(comm_dict_[comm_key])
         data_dict[comm_key] = np.zeros((env_n_proc[comm_key], 3, 48, 48))
 
     while True:
-        # comm_list = dict(comm_list_)
-        for comm_key in comm_list_:
-            comm = comm_list_[comm_key]
-            if (comm is not None):
-                for i in range(len(comm)):
-                    if comm[i][0]:
-                        data_dict[comm_key][i:i+1, :] = comm[i][2]
+        for comm_key in comm_dict_:
+            comm_list = comm_dict_[comm_key]
+            if (comm_list is not None):
+                # comm = list(comm_list)
+                validRequests = [False]*len(comm_list)
+                for i in range(len(comm_list)):
+                    try:
+                        data_ = comm_list[i][0].get_nowait()
+                        data_dict[comm_key][i:i+1, :] = data_
+                        validRequests[i] = True
+                    except Empty:
+                        pass
 
                 with torch.no_grad():
                     data = torch.tensor(
@@ -97,14 +70,13 @@ def ae_consumer(comm_list_, ae_path, device):
                         dtype=torch.float32)
 
                     obs, latent = ae_model(data)
+                obs = obs.cpu().numpy()
+                latent = latent.cpu().numpy()
 
-                for i in range(len(comm)):
-
-                    comm[i][3] = obs[i: i+1, :].cpu().numpy()
-                    comm[i][4] = latent[i:i+1, :].cpu().numpy()
-                    if comm[i][0]:
-                        comm[i][0] = False
-                        comm[i][1] = True
+                for i in range(len(comm_list)):
+                    if validRequests[i]:
+                        comm_list[i][1].put(
+                            (obs[i: i+1, :], latent[i:i+1, :]))
 
 
 if __name__ == '__main__':

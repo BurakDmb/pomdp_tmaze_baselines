@@ -212,7 +212,7 @@ class MinigridEnv(gym.Env):
 
             _, observation_ = self.get_ae_result(observation_ae)
 
-            observation_latent = observation_.transpose()
+            observation_latent = observation_.cpu().numpy().transpose()
             observation[:self.obs_single_size] = observation_latent[:, 0]
             if self.memory_type != 0 and self.memory_type != 5:
                 observation[self.obs_single_size:] = self.external_memory
@@ -325,7 +325,7 @@ class MinigridEnv(gym.Env):
                     new_state_gen_tmp, _ = self.get_ae_result(observation_ae)
 
                     new_state_gen_tmp = np.squeeze(
-                        new_state_gen_tmp, 0)
+                        new_state_gen_tmp.cpu.numpy(), 0)
 
                     new_state_img = Image.fromarray(new_state)
                     new_state_orig_tmp = self.transforms_ae(
@@ -418,26 +418,12 @@ class MinigridEnv(gym.Env):
         self.episode_reward = 0
         return self._get_observation()
 
-    # Comm variable:
-    # 0 request
-    # 1 request_completed
-    # 2 data
-    # 3 result_obs
-    # 4 result latent
-    def get_ae_result(self, tensor_data, timeout=100):
+    def get_ae_result(self, tensor_data):
         data = tensor_data.cpu().numpy()
         comm_variable = self.ae_comm_list[self.env_id]
-
-        comm_variable[2] = data
-        comm_variable[1] = False
-        comm_variable[0] = True
-
-        while (not comm_variable[1]):
-            pass
-
-        obs = comm_variable[3]
-        latent = comm_variable[4]
-        # assert (self.ae_comm_list['data'] == tensor_data.cpu().numpy()).all()
+        comm_variable[0].put(data)
+        (obs_, latent_) = comm_variable[1].get()
+        obs = torch.tensor(obs_, dtype=torch.float32)
+        latent = torch.tensor(latent_, dtype=torch.float32)
 
         return obs, latent
-# TODO: lock ile index al, sonraki cagirmalarda o indeksli datadan temin et.

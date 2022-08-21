@@ -134,12 +134,12 @@ def train_dqn_agent(learning_setting):
             vec_env_kwargs=vec_env_kwargs,
             env_kwargs=dict(**learning_setting))
         eval_env = make_vec_env(
-                env_id=envClass,
-                n_envs=1,
-                vec_env_cls=vec_env_cls,
-                vec_env_kwargs=vec_env_kwargs,
-                env_kwargs=dict(**learning_setting)
-                ) if learning_setting['eval_enabled'] else None
+            env_id=envClass,
+            n_envs=1,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting)
+            ) if learning_setting['eval_enabled'] else None
     else:
         env = envClass(**learning_setting)
         eval_env = envClass(
@@ -233,12 +233,12 @@ def train_ppo_agent(learning_setting):
             vec_env_kwargs=vec_env_kwargs,
             env_kwargs=dict(**learning_setting))
         eval_env = make_vec_env(
-                env_id=envClass,
-                n_envs=1,
-                vec_env_cls=vec_env_cls,
-                vec_env_kwargs=vec_env_kwargs,
-                env_kwargs=dict(**learning_setting)
-                ) if learning_setting['eval_enabled'] else None
+            env_id=envClass,
+            n_envs=1,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting)
+            ) if learning_setting['eval_enabled'] else None
     else:
         env = envClass(**learning_setting)
         eval_env = envClass(
@@ -330,12 +330,12 @@ def train_a2c_agent(learning_setting):
             vec_env_kwargs=vec_env_kwargs,
             env_kwargs=dict(**learning_setting))
         eval_env = make_vec_env(
-                env_id=envClass,
-                n_envs=1,
-                vec_env_cls=vec_env_cls,
-                vec_env_kwargs=vec_env_kwargs,
-                env_kwargs=dict(**learning_setting)
-                ) if learning_setting['eval_enabled'] else None
+            env_id=envClass,
+            n_envs=1,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting)
+            ) if learning_setting['eval_enabled'] else None
     else:
         env = envClass(**learning_setting)
         eval_env = envClass(
@@ -427,12 +427,12 @@ def train_ppo_lstm_agent(learning_setting):
             vec_env_kwargs=vec_env_kwargs,
             env_kwargs=dict(**learning_setting))
         eval_env = make_vec_env(
-                env_id=envClass,
-                n_envs=1,
-                vec_env_cls=vec_env_cls,
-                vec_env_kwargs=vec_env_kwargs,
-                env_kwargs=dict(**learning_setting)
-                ) if learning_setting['eval_enabled'] else None
+            env_id=envClass,
+            n_envs=1,
+            vec_env_cls=vec_env_cls,
+            vec_env_kwargs=vec_env_kwargs,
+            env_kwargs=dict(**learning_setting)
+            ) if learning_setting['eval_enabled'] else None
     else:
         env = envClass(**learning_setting)
         eval_env = envClass(
@@ -525,7 +525,6 @@ class TensorboardCallback(BaseCallback):
     def _on_step(self) -> bool:
         if self.eval_enabled:
             if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
-
                 self._is_success_buffer = []
 
                 episode_rewards, episode_lengths = evaluate_policy(
@@ -536,10 +535,8 @@ class TensorboardCallback(BaseCallback):
                     return_episode_rewards=True,
                     callback=self._log_success_callback)
 
-                mean_reward, _ = np.mean(
-                    episode_rewards), np.std(episode_rewards)
-                mean_ep_length, _ = np.mean(
-                    episode_lengths), np.std(episode_lengths)
+                mean_reward = np.mean(episode_rewards)
+                mean_ep_length = np.mean(episode_lengths)
                 self.last_mean_reward = mean_reward
 
                 self.logger.record("eval/mean_reward", float(mean_reward))
@@ -553,7 +550,6 @@ class TensorboardCallback(BaseCallback):
                     "time/total_timesteps",
                     self.num_timesteps, exclude="tensorboard")
                 self.logger.dump(self.num_timesteps)
-
         return True
 
         # if True:
