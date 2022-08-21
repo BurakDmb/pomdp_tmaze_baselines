@@ -446,7 +446,7 @@ def train_ppo_lstm_agent(learning_setting):
         #  shared_lstm=False,
         #  enable_critic_lstm=True,
         lstm_hidden_size=16,
-        n_lstm_layers=2,
+        n_lstm_layers=1,
         ortho_init=False)
 
     model = RecurrentPPO(
