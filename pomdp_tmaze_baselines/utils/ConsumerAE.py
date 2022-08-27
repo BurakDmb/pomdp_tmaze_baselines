@@ -49,12 +49,14 @@ def ae_consumer(comm_dict_, ae_path, device):
             env_n_proc[comm_key] = len(comm_dict_[comm_key])
         data_dict[comm_key] = np.zeros((env_n_proc[comm_key], 3, 48, 48))
 
-    while True:
+    break_loop = False
+    while not break_loop:
         for comm_key in comm_dict_:
             comm_list = comm_dict_[comm_key]
             if (comm_list is not None):
                 # comm = list(comm_list)
                 validRequests = [False]*len(comm_list)
+                verr_count1 = 0
                 for i in range(len(comm_list)):
                     try:
                         data_ = comm_list[i][0].get_nowait()
@@ -62,6 +64,11 @@ def ae_consumer(comm_dict_, ae_path, device):
                         validRequests[i] = True
                     except Empty:
                         pass
+                    except ValueError:
+                        verr_count1 += 1
+                if verr_count1 >= len(comm_list):
+                    break_loop = True
+                    break
 
                 with torch.no_grad():
                     data = torch.tensor(
@@ -73,10 +80,18 @@ def ae_consumer(comm_dict_, ae_path, device):
                 obs = obs.cpu().numpy()
                 latent = latent.cpu().numpy()
 
+                verr_count2 = 0
                 for i in range(len(comm_list)):
                     if validRequests[i]:
-                        comm_list[i][1].put(
-                            (obs[i: i+1, :], latent[i:i+1, :]))
+                        try:
+                            comm_list[i][1].put(
+                                (obs[i: i+1, :], latent[i:i+1, :]))
+                        except ValueError:
+                            verr_count2 += 1
+
+                if verr_count2 >= len(comm_list):
+                    break_loop = True
+                    break
 
 
 if __name__ == '__main__':

@@ -2,17 +2,17 @@ from stable_baselines3 import PPO, DQN, A2C
 from sb3_contrib import RecurrentPPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import TensorBoardOutputFormat
-# from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import DummyVecEnv
 from agents.ClassQAgent import QAgent
 from agents.ClassSarsaLambdaAgent import SarsaLambdaAgent
 import datetime
 import numpy as np
-from stable_baselines3.common.evaluation import evaluate_policy
 import os
 import gym
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import compat_gym_seed
+from stable_baselines3.common.vec_env import (
+    VecEnv, VecMonitor, is_vecenv_wrapped)
 
 
 def train_q_agent(learning_setting):
@@ -97,6 +97,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['intrinsic_enabled'] = False
         dqn_learning_setting['intrinsic_beta'] = 0.01
         dqn_learning_setting['ae_enabled'] = True
+        dqn_learning_setting['ae_shared'] = False
         dqn_learning_setting['ae_comm_list'] = comm_list['dqn-tmazev0']
         dqn_learning_setting['ae_path'] = "models/ae.torch"
         dqn_learning_setting['ae_rcons_err_type'] = "MSE"
@@ -201,6 +202,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['intrinsic_enabled'] = False
         ppo_learning_setting['intrinsic_beta'] = 0.01
         ppo_learning_setting['ae_enabled'] = True
+        ppo_learning_setting['ae_shared'] = False
         ppo_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppo_learning_setting['ae_path'] = "models/ae.torch"
         ppo_learning_setting['ae_rcons_err_type'] = "MSE"
@@ -298,6 +300,7 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['intrinsic_enabled'] = False
         a2c_learning_setting['intrinsic_beta'] = 0.01
         a2c_learning_setting['ae_enabled'] = True
+        a2c_learning_setting['ae_shared'] = False
         a2c_learning_setting['ae_comm_list'] = comm_list['a2c-tmazev0']
         a2c_learning_setting['ae_path'] = "models/ae.torch"
         a2c_learning_setting['ae_rcons_err_type'] = "MSE"
@@ -396,6 +399,7 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['intrinsic_enabled'] = False
         ppolstm_learning_setting['intrinsic_beta'] = 0.01
         ppolstm_learning_setting['ae_enabled'] = True
+        ppolstm_learning_setting['ae_shared'] = False
         ppolstm_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppolstm_learning_setting['ae_path'] = "models/ae.torch"
         ppolstm_learning_setting['ae_rcons_err_type'] = "MSE"
@@ -531,13 +535,14 @@ class TensorboardCallback(BaseCallback):
             if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
                 self._is_success_buffer = []
 
-                episode_rewards, episode_lengths = evaluate_policy(
-                    self.model,
-                    self.eval_env,
-                    n_eval_episodes=self.eval_episodes,
-                    deterministic=True,
-                    return_episode_rewards=True,
-                    callback=self._log_success_callback)
+                episode_rewards, episode_lengths,\
+                    memory_changes = evaluate_policy(
+                        self.model,
+                        self.eval_env,
+                        n_eval_episodes=self.eval_episodes,
+                        deterministic=True,
+                        return_episode_rewards=True,
+                        callback=self._log_success_callback)
 
                 mean_reward = np.mean(episode_rewards)
                 mean_ep_length = np.mean(episode_lengths)
@@ -545,6 +550,7 @@ class TensorboardCallback(BaseCallback):
 
                 self.logger.record("eval/mean_reward", float(mean_reward))
                 self.logger.record("eval/mean_ep_length", mean_ep_length)
+                self.logger.record("eval/memory_change_avg", memory_changes)
 
                 if len(self._is_success_buffer) > 0:
                     success_rate = np.mean(self._is_success_buffer)
@@ -655,3 +661,144 @@ def make_vec_env(
     return vec_env_cls(
         [make_env(i + start_index) for i in range(n_envs)],
         **vec_env_kwargs)
+
+
+def evaluate_policy(
+        model,
+        env,
+        n_eval_episodes=10,
+        deterministic=True,
+        render=False,
+        callback=None,
+        reward_threshold=None,
+        return_episode_rewards=False,
+        warn=False):
+    """
+    Runs policy for ``n_eval_episodes`` episodes and returns average reward.
+    If a vector env is passed in, this divides the episodes to
+    evaluate onto the
+    different elements of the vector env. This static division of
+    work is done to
+    remove bias. See https://github.com/DLR-RM/stable-baselines3/issues/402
+    for more details and discussion.
+
+    .. note::
+    If environment has not been wrapped with ``Monitor`` wrapper, reward and
+    episode lengths are counted as it appears with ``env.step``
+    calls. If
+    the environment contains wrappers that modify rewards or episode lengths
+    (e.g. reward scaling, early episode reset), these will affect
+    the evaluation
+    results as well. You can avoid this by wrapping
+    environment with ``Monitor`` wrapper before anything else.
+
+    :param model: The RL agent you want to evaluate.
+    :param env: The gym environment or ``VecEnv`` environment.
+    :param n_eval_episodes: Number of episode to evaluate the agent
+    :param deterministic: Whether to use deterministic or
+        stochastic actions
+    :param render: Whether to render the environment or not
+    :param callback: callback function to do additional checks,
+        called after each step. Gets locals() and globals() passed
+        as parameters.
+    :param reward_threshold: Minimum expected reward per episode,
+        this will raise an error if the performance is not met
+    :param return_episode_rewards: If True, a list of rewards and
+        episode lengths
+        per episode will be returned instead of the mean.
+    :param warn: If True (default), warns user about lack of
+        a Monitor wrapper in the evaluation environment.
+    :return: Mean reward per episode, std of reward per episode.
+        Returns ([float], [int]) when ``return_episode_rewards`` is True, first
+        list containing per-episode rewards and second
+        containing per-episode lengths (in number of steps).
+    """
+    is_monitor_wrapped = False
+    # Avoid circular import
+    from stable_baselines3.common.monitor import Monitor
+
+    if not isinstance(env, VecEnv):
+        env = DummyVecEnv([lambda: env])
+
+    is_monitor_wrapped = is_vecenv_wrapped(
+        env, VecMonitor) or env.env_is_wrapped(Monitor)[0]
+
+    n_envs = env.num_envs
+    episode_rewards = []
+    episode_lengths = []
+    memory_changes = []
+
+    episode_counts = np.zeros(n_envs, dtype="int")
+    # Divides episodes among different sub environments in
+    # the vector as evenly as possible
+    episode_count_targets = np.array(
+        [(n_eval_episodes + i) // n_envs for i in range(n_envs)], dtype="int")
+
+    current_rewards = np.zeros(n_envs)
+    current_lengths = np.zeros(n_envs, dtype="int")
+    observations = env.reset()
+    states = None
+    episode_starts = np.ones((env.num_envs,), dtype=bool)
+    while (episode_counts < episode_count_targets).any():
+        actions, states = model.predict(
+            observations, state=states,
+            episode_start=episode_starts, deterministic=deterministic)
+        observations, rewards, dones, infos = env.step(actions)
+        current_rewards += rewards
+        current_lengths += 1
+
+        for i in range(n_envs):
+            if episode_counts[i] < episode_count_targets[i]:
+
+                # unpack values so that the callback
+                # can access the local variables
+                reward = rewards[i]
+                done = dones[i]
+                info = infos[i]
+                episode_starts[i] = done
+
+                if callback is not None:
+                    callback(locals(), globals())
+
+                if dones[i]:
+                    if is_monitor_wrapped:
+                        # Atari wrapper can send a "done" signal when
+                        # the agent loses a life, but it does not correspond
+                        # to the true end of episode
+                        if "episode" in info.keys():
+                            # Do not trust "done" with episode endings.
+                            # Monitor wrapper includes "episode"
+                            # key in info if environment
+                            # has been wrapped with it.
+                            # Use those rewards instead.
+                            episode_rewards.append(info["episode"]["r"])
+                            episode_lengths.append(info["episode"]["l"])
+                            memory_changes.append(
+                                info["memory_change_counter"])
+
+                            # Only increment at the real end of an episode
+                            episode_counts[i] += 1
+                    else:
+                        episode_rewards.append(current_rewards[i])
+                        episode_lengths.append(current_lengths[i])
+                        episode_counts[i] += 1
+
+                        memory_changes.append(
+                                info["memory_change_counter"])
+
+                    current_rewards[i] = 0
+                    current_lengths[i] = 0
+
+        if render:
+            env.render()
+
+    memory_change_avg = sum(memory_changes) / n_eval_episodes
+
+    mean_reward = np.mean(episode_rewards)
+    std_reward = np.std(episode_rewards)
+    if reward_threshold is not None:
+        assert mean_reward > reward_threshold, "Mean reward below threshold: "\
+            f"{mean_reward:.2f} < {reward_threshold:.2f}"
+    if return_episode_rewards:
+        return episode_rewards, episode_lengths, memory_change_avg
+    return mean_reward, std_reward, memory_change_avg

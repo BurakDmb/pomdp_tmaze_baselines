@@ -49,7 +49,9 @@ if __name__ == '__main__':
             mgrid_ae_smm_oak_intr_setting, mgrid_ae_lstm_setting,
 
             mgrid_cnn_no_mem_setting,
+            comm_dict, ae_path, ae_shared
         )
+        from pomdp_tmaze_baselines.utils.ConsumerAE import ae_consumer
 
     mp.set_start_method('forkserver', force=True)
     processes = []
@@ -118,6 +120,11 @@ if __name__ == '__main__':
                 kwargs={'learning_setting': mgrid_cnn_no_mem_setting})
             p.start()
             processes.append(p)
+
+        if ae_shared:
+            ae_consumer_process = mp.Process(
+                target=ae_consumer, args=(comm_dict, ae_path, "cuda:0"))
+            ae_consumer_process.start()
 
     print("Training started with selected  " +
           "(each architecture experiment will run with " +

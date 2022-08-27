@@ -7,8 +7,6 @@ from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy, CNNACPolicy
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
 from pomdp_tmaze_baselines.utils.ConsumerAE import generateCommDict
-from pomdp_tmaze_baselines.utils.ConsumerAE import ae_consumer
-from multiprocessing import Process
 
 total_timesteps = 1_000_000
 maze_length = 10  # Not used in minigrid.
@@ -53,23 +51,21 @@ start_dict = {
     'cnn_no_mem': start_cnn_no_mem,
 }
 
-learning_rate = 3e-4
+learning_rate = 1e-4
 discount_rate = 0.99
 nn_num_layers = 2
-nn_layer_size = 16
-env_n_proc = 32 // (
+nn_layer_size = 256
+env_n_proc = max(32 // (
     experiment_count*number_of_parallel_experiments
-    ) if experiment_count > 0 else 1
+    ), 1) if experiment_count > 0 else 1
 vec_env_cls = SubprocVecEnv
 
-n_steps = 1024
+n_steps = 32
 batch_size = n_steps  # Full batch iteration
 
 ae_path = "models/ae.torch"
+ae_shared = True
 comm_dict = generateCommDict(start_dict, env_n_proc)
-ae_consumer_process = Process(
-    target=ae_consumer, args=(comm_dict, ae_path, "cuda:0"))
-ae_consumer_process.start()
 
 
 mgrid_ae_no_mem_setting = {}
@@ -85,6 +81,7 @@ mgrid_ae_no_mem_setting['memory_length'] = 1
 mgrid_ae_no_mem_setting['intrinsic_enabled'] = False
 mgrid_ae_no_mem_setting['intrinsic_beta'] = 0.01
 mgrid_ae_no_mem_setting['ae_enabled'] = True
+mgrid_ae_no_mem_setting['ae_shared'] = ae_shared
 mgrid_ae_no_mem_setting['ae_comm_list'] = comm_dict['ae_no_mem']
 mgrid_ae_no_mem_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_no_mem_setting['ae_rcons_err_type'] = "MSE"
@@ -118,6 +115,7 @@ mgrid_ae_smm_lastk_setting['memory_length'] = 1
 mgrid_ae_smm_lastk_setting['intrinsic_enabled'] = False
 mgrid_ae_smm_lastk_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_lastk_setting['ae_enabled'] = True
+mgrid_ae_smm_lastk_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_lastk_setting['ae_comm_list'] = comm_dict['ae_smm_lastk']
 mgrid_ae_smm_lastk_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_lastk_setting['ae_rcons_err_type'] = "MSE"
@@ -151,6 +149,7 @@ mgrid_ae_smm_bk_setting['memory_length'] = 1
 mgrid_ae_smm_bk_setting['intrinsic_enabled'] = False
 mgrid_ae_smm_bk_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_bk_setting['ae_enabled'] = True
+mgrid_ae_smm_bk_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_bk_setting['ae_comm_list'] = comm_dict['ae_smm_bk']
 mgrid_ae_smm_bk_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_bk_setting['ae_rcons_err_type'] = "MSE"
@@ -184,6 +183,7 @@ mgrid_ae_smm_ok_setting['memory_length'] = 1
 mgrid_ae_smm_ok_setting['intrinsic_enabled'] = False
 mgrid_ae_smm_ok_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_ok_setting['ae_enabled'] = True
+mgrid_ae_smm_ok_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_ok_setting['ae_comm_list'] = comm_dict['ae_smm_ok']
 mgrid_ae_smm_ok_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_ok_setting['ae_rcons_err_type'] = "MSE"
@@ -217,6 +217,7 @@ mgrid_ae_smm_ok_intr_setting['memory_length'] = 1
 mgrid_ae_smm_ok_intr_setting['intrinsic_enabled'] = True
 mgrid_ae_smm_ok_intr_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_ok_intr_setting['ae_enabled'] = True
+mgrid_ae_smm_ok_intr_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_ok_intr_setting['ae_comm_list'] = comm_dict['ae_smm_ok_intr']
 mgrid_ae_smm_ok_intr_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_ok_intr_setting['ae_rcons_err_type'] = "MSE"
@@ -250,6 +251,7 @@ mgrid_ae_smm_oak_setting['memory_length'] = 1
 mgrid_ae_smm_oak_setting['intrinsic_enabled'] = False
 mgrid_ae_smm_oak_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_oak_setting['ae_enabled'] = True
+mgrid_ae_smm_oak_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_oak_setting['ae_comm_list'] = comm_dict['ae_smm_oak']
 mgrid_ae_smm_oak_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_oak_setting['ae_rcons_err_type'] = "MSE"
@@ -283,6 +285,7 @@ mgrid_ae_smm_oak_intr_setting['memory_length'] = 1
 mgrid_ae_smm_oak_intr_setting['intrinsic_enabled'] = True
 mgrid_ae_smm_oak_intr_setting['intrinsic_beta'] = 0.01
 mgrid_ae_smm_oak_intr_setting['ae_enabled'] = True
+mgrid_ae_smm_oak_intr_setting['ae_shared'] = ae_shared
 mgrid_ae_smm_oak_intr_setting['ae_comm_list'] = comm_dict['ae_smm_oak_intr']
 mgrid_ae_smm_oak_intr_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_smm_oak_intr_setting['ae_rcons_err_type'] = "MSE"
@@ -316,6 +319,7 @@ mgrid_ae_lstm_setting['memory_length'] = 1
 mgrid_ae_lstm_setting['intrinsic_enabled'] = False
 mgrid_ae_lstm_setting['intrinsic_beta'] = 0.01
 mgrid_ae_lstm_setting['ae_enabled'] = True
+mgrid_ae_lstm_setting['ae_shared'] = ae_shared
 mgrid_ae_lstm_setting['ae_comm_list'] = comm_dict['ae_lstm']
 mgrid_ae_lstm_setting['ae_path'] = "models/ae.torch"
 mgrid_ae_lstm_setting['ae_rcons_err_type'] = "MSE"
@@ -349,6 +353,7 @@ mgrid_cnn_no_mem_setting['memory_length'] = 1
 mgrid_cnn_no_mem_setting['intrinsic_enabled'] = False
 mgrid_cnn_no_mem_setting['intrinsic_beta'] = 0.01
 mgrid_cnn_no_mem_setting['ae_enabled'] = False
+mgrid_cnn_no_mem_setting['ae_shared'] = ae_shared
 mgrid_cnn_no_mem_setting['ae_comm_list'] = comm_dict['cnn_no_mem']
 mgrid_cnn_no_mem_setting['ae_path'] = "models/ae.torch"
 mgrid_cnn_no_mem_setting['ae_rcons_err_type'] = "MSE"

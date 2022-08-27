@@ -38,6 +38,7 @@ class MinigridEnv(gym.Env):
         self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.1)
 
         self.ae_enabled = kwargs.get('ae_enabled', False)
+        self.ae_shared = kwargs.get('ae_shared', False)
         self.ae_path = kwargs.get('ae_path', None)
         self.ae_rcons_err_type = kwargs.get('ae_rcons_err_type', "MSE")
         self.device = kwargs.get('device', "cpu")
@@ -51,6 +52,7 @@ class MinigridEnv(gym.Env):
         self.episode_count = 0
         self.intrinsic_avg_loss = 0
         self.intrinsic_count = 0
+        self.memory_change_counter = 0
 
         self.transforms = torchvision.transforms.Compose([
                 torchvision.transforms.Resize(input_dims),
@@ -70,7 +72,13 @@ class MinigridEnv(gym.Env):
                 input_dims), dtype=np.uint8)
 
         if self.ae_enabled:
-            self.ae_comm_list = kwargs.get('ae_comm_list', None)
+            if self.ae_shared:
+                self.ae_comm_list = kwargs.get('ae_comm_list', None)
+            else:
+                ae_model_ = torch.load(self.ae_path).to(self.device)
+                ae_model_ = ae_model_.module
+                ae_model_.eval()
+                self.ae_model = ae_model_
 
         # Memory type 0 = None
         if self.memory_type == 0 and self.ae_enabled:
@@ -246,6 +254,7 @@ class MinigridEnv(gym.Env):
 
         # Memory type 2 = Bk
         if self.memory_type == 2:
+
             string_binary = str(bin(memoryAction))
 
             # Converting int value to binary and splitting each
@@ -254,11 +263,14 @@ class MinigridEnv(gym.Env):
             int_list = list(map(int, [char for char in string_binary][2:]))
             if len(int_list) < self.memory_length:
                 int_list = [0]*(self.memory_length - len(int_list)) + int_list
+            if self.external_memory != np.array(int_list, dtype=np.float32):
+                self.memory_change_counter += 1
             self.external_memory = np.array(int_list, dtype=np.float32)
         else:
 
             # Memory type 1 = Kk
             if self.memory_type == 1:
+                self.memory_change_counter += 1
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
                 self.external_memory[0:self.mem_single_size] = \
@@ -266,6 +278,7 @@ class MinigridEnv(gym.Env):
 
             # Memory type 3 = Ok
             elif self.memory_type == 3 and memoryAction == 1:
+                self.memory_change_counter += 1
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
                 self.external_memory[0:self.mem_single_size] = \
@@ -273,6 +286,7 @@ class MinigridEnv(gym.Env):
 
             # Memory type 4 = OAk
             elif self.memory_type == 4 and memoryAction == 1:
+                self.memory_change_counter += 1
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
                 self.external_memory[0:self.mem_single_size] = \
@@ -409,7 +423,8 @@ class MinigridEnv(gym.Env):
 
         self.observation_valid = False
         return self._get_observation(), reward, done, {
-            'success': success, 'is_success': bool(success)}
+            'success': success, 'is_success': bool(success),
+            'memory_change_counter': self.memory_change_counter}
 
     def reset(self, seed=None):
         # Memory type 1 = Kk
@@ -444,15 +459,18 @@ class MinigridEnv(gym.Env):
         self.episode_reward = 0
 
         self.step_count = 0
+        self.memory_change_counter = 0
         self.observation_valid = False
         return self._get_observation()
 
     def get_ae_result(self, tensor_data):
-        data = tensor_data.cpu().numpy()
-        comm_variable = self.ae_comm_list[self.env_id]
-        comm_variable[0].put(data)
-        (obs_, latent_) = comm_variable[1].get()
-        obs = torch.tensor(obs_, dtype=torch.float32)
-        latent = torch.tensor(latent_, dtype=torch.float32)
-
+        if self.ae_shared:
+            data = tensor_data.cpu().numpy()
+            comm_variable = self.ae_comm_list[self.env_id]
+            comm_variable[0].put(data)
+            (obs_, latent_) = comm_variable[1].get()
+            obs = torch.tensor(obs_, dtype=torch.float32)
+            latent = torch.tensor(latent_, dtype=torch.float32)
+        else:
+            obs, latent = self.ae_model(tensor_data)
         return obs, latent
