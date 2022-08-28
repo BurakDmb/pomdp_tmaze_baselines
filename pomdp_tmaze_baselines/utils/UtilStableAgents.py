@@ -13,6 +13,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import compat_gym_seed
 from stable_baselines3.common.vec_env import (
     VecEnv, VecMonitor, is_vecenv_wrapped)
+import json
 
 
 def train_q_agent(learning_setting):
@@ -146,6 +147,9 @@ def train_dqn_agent(learning_setting):
         eval_env = envClass(
             **learning_setting
             ) if learning_setting['eval_enabled'] else None
+    tb_log_name_ = (
+        learning_setting['tb_log_name'] + "-" +
+        str(datetime.datetime.now()))
 
     policy_kwargs = dict(net_arch=[learning_setting['nn_layer_size']] *
                          learning_setting['nn_num_layers'])
@@ -165,8 +169,7 @@ def train_dqn_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'] +
-                "-" + str(datetime.datetime.now()),
+                tb_log_name=tb_log_name_,
                 callback=TensorboardCallback(
                     learning_setting['eval_enabled'],
                     eval_env,
@@ -179,8 +182,10 @@ def train_dqn_agent(learning_setting):
                 )
 
     if learning_setting['save']:
-        model.save("saves/" + learning_setting['tb_log_name'] +
-                   "/" + str(datetime.datetime.now()))
+        save_path = "saves/" + learning_setting['tb_log_name'] + "/"
+        model.save(save_path + tb_log_name_)
+        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
+            params_file.write(json.dumps(learning_setting))
 
     return model
 
@@ -246,6 +251,9 @@ def train_ppo_agent(learning_setting):
         eval_env = envClass(
             **learning_setting
             ) if learning_setting['eval_enabled'] else None
+    tb_log_name_ = (
+        learning_setting['tb_log_name'] + "-" +
+        str(datetime.datetime.now()))
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -264,8 +272,7 @@ def train_ppo_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'] +
-                "-" + str(datetime.datetime.now()),
+                tb_log_name=tb_log_name_,
                 callback=TensorboardCallback(
                     learning_setting['eval_enabled'],
                     eval_env,
@@ -278,8 +285,10 @@ def train_ppo_agent(learning_setting):
                 )
 
     if learning_setting['save']:
-        model.save("saves/" + learning_setting['tb_log_name'] +
-                   "/" + str(datetime.datetime.now()))
+        save_path = "saves/" + learning_setting['tb_log_name'] + "/"
+        model.save(save_path + tb_log_name_)
+        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
+            params_file.write(json.dumps(learning_setting))
 
     return model
 
@@ -344,6 +353,9 @@ def train_a2c_agent(learning_setting):
         eval_env = envClass(
             **learning_setting
             ) if learning_setting['eval_enabled'] else None
+    tb_log_name_ = (
+        learning_setting['tb_log_name'] + "-" +
+        str(datetime.datetime.now()))
 
     policy_kwargs = dict(net_arch=[
                          dict(pi=[learning_setting['nn_layer_size']] *
@@ -361,8 +373,7 @@ def train_a2c_agent(learning_setting):
                 device=learning_setting['device'])
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'] +
-                "-" + str(datetime.datetime.now()),
+                tb_log_name=tb_log_name_,
                 callback=TensorboardCallback(
                     learning_setting['eval_enabled'],
                     eval_env,
@@ -375,8 +386,10 @@ def train_a2c_agent(learning_setting):
                 )
 
     if learning_setting['save']:
-        model.save("saves/" + learning_setting['tb_log_name'] +
-                   "/" + str(datetime.datetime.now()))
+        save_path = "saves/" + learning_setting['tb_log_name'] + "/"
+        model.save(save_path + tb_log_name_)
+        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
+            params_file.write(json.dumps(learning_setting))
 
     return model
 
@@ -442,6 +455,9 @@ def train_ppo_lstm_agent(learning_setting):
         eval_env = envClass(
             **learning_setting
             ) if learning_setting['eval_enabled'] else None
+    tb_log_name_ = (
+        learning_setting['tb_log_name'] + "-" +
+        str(datetime.datetime.now()))
 
     policy_kwargs = dict(
         net_arch=[dict(vf=[
@@ -468,8 +484,7 @@ def train_ppo_lstm_agent(learning_setting):
     )
 
     model.learn(total_timesteps=learning_setting['total_timesteps'],
-                tb_log_name=learning_setting['tb_log_name'] +
-                "-" + str(datetime.datetime.now()),
+                tb_log_name=tb_log_name_,
                 callback=TensorboardCallback(
                     learning_setting['eval_enabled'],
                     eval_env,
@@ -482,8 +497,10 @@ def train_ppo_lstm_agent(learning_setting):
                 )
 
     if learning_setting['save']:
-        model.save("saves/" + learning_setting['tb_log_name'] +
-                   "/" + str(datetime.datetime.now()))
+        save_path = "saves/" + learning_setting['tb_log_name'] + "/"
+        model.save(save_path + tb_log_name_)
+        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
+            params_file.write(json.dumps(learning_setting))
 
     return model
 
