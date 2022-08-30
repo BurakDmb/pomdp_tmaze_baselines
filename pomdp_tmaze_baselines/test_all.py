@@ -5,6 +5,51 @@ import numpy as np
 class TestCode(unittest.TestCase):
     # TODO: Implement TMaze Env unittest.
 
+    def test_binarize(self):
+        import pomdp_tmaze_baselines.EnvMinigrid as EnvMinigrid
+        from pomdp_tmaze_baselines.utils.UtilStableAgents import\
+            train_ppo_agent
+        from pomdp_tmaze_baselines.utils.UtilPolicies import MlpACPolicy
+        from stable_baselines3.common.vec_env import SubprocVecEnv
+
+        learning_setting = {}
+        learning_setting['envClass'] = EnvMinigrid.MinigridEnv
+        learning_setting['learning_rate'] = 1e-3
+        learning_setting['discount_rate'] = 0.99
+        learning_setting['nn_num_layers'] = 3
+        learning_setting['nn_layer_size'] = 8
+        learning_setting['n_steps'] = 32
+        learning_setting['batch_size'] = 32
+        learning_setting['memory_type'] = 0
+        learning_setting['memory_length'] = 1
+        learning_setting['intrinsic_enabled'] = True
+        learning_setting['intrinsic_beta'] = 0.1
+        learning_setting['ae_enabled'] = True
+        learning_setting['ae_integer'] = True
+        learning_setting['ae_shared'] = False
+        learning_setting['ae_path'] = "models/ae.torch"
+        learning_setting['ae_rcons_err_type'] = "MSE"
+        learning_setting['eval_enabled'] = False
+        learning_setting['eval_freq'] = 1000
+        learning_setting['eval_episodes'] = 0
+        learning_setting['eval_path'] = None
+        learning_setting['env_n_proc'] = 1
+        learning_setting['vec_env_cls'] = SubprocVecEnv
+        learning_setting['tb_log_name'] = "o_k"
+        learning_setting['tb_log_dir'] = None
+        learning_setting['maze_length'] = 10
+        learning_setting['total_timesteps'] = 50
+        learning_setting['seed'] = None
+        learning_setting['policy'] = MlpACPolicy
+        learning_setting['save'] = False
+        learning_setting['device'] = 'cpu'
+        learning_setting['train_func'] = train_ppo_agent
+
+        env = EnvMinigrid.MinigridEnv(**learning_setting)
+        obs = env.reset()
+        self.assertTrue(obs.dtype == "int32")
+        pass
+
     def test_vec_Minigrid(self):
         import pomdp_tmaze_baselines.EnvMinigrid as EnvMinigrid
         from pomdp_tmaze_baselines.utils.UtilStableAgents import\
