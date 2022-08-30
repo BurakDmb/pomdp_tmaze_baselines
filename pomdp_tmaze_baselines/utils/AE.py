@@ -37,8 +37,8 @@ class ConvBinaryAutoencoder(nn.Module):
         summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
-        # Creating a uniform random variable with U(-0.25, 0.25)
-        rand_tensor = torch.rand(self.latent_dims, device=x.device)*0.5 - 0.25
+        # Creating a uniform random variable with U(-0.3, 0.3)
+        rand_tensor = torch.rand(self.latent_dims, device=x.device)*0.6 - 0.3
         z = self.encoder(x) + rand_tensor
         result = self.decoder(z)
         return result, z

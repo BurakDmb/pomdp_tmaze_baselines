@@ -193,6 +193,7 @@ class TestCode(unittest.TestCase):
         # No memory
         # After turning 4 times, obs4 needs to be equal to the obs1.
         learning_setting['memory_type'] = 0
+        learning_setting['intrinsic_enabled'] = False
         env_no_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_no_mem.reset(seed=0)
         obs1, reward, done, _ = env_no_mem.step(0)
@@ -203,6 +204,7 @@ class TestCode(unittest.TestCase):
 
         # Lastk Memory
         learning_setting['memory_type'] = 1
+        learning_setting['intrinsic_enabled'] = False
         env_lastk_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_lastk_mem.reset(seed=0)
         obs1, reward, done, _ = env_lastk_mem.step(0)
@@ -214,6 +216,7 @@ class TestCode(unittest.TestCase):
         # Bk Memory
         # Checking for storing different binary values in the external memory.
         learning_setting['memory_type'] = 2
+        learning_setting['intrinsic_enabled'] = False
         env_bin_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_bin_mem.reset(seed=0)
         obs1, reward, done, _ = env_bin_mem.step((0, 10))
@@ -236,6 +239,7 @@ class TestCode(unittest.TestCase):
         # After turning 4 times, 5th action will save current observation,
         # which is the initial observation.
         learning_setting['memory_type'] = 3
+        learning_setting['intrinsic_enabled'] = True
         env_ok_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_ok_mem.reset(seed=0)
         obs1, reward, done, _ = env_ok_mem.step((0, 0))
@@ -250,6 +254,7 @@ class TestCode(unittest.TestCase):
         # observation+action, which is the initial observation and
         # the movement action 1.
         learning_setting['memory_type'] = 4
+        learning_setting['intrinsic_enabled'] = True
         env_oak_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_oak_mem.reset(seed=0)
         obs1, reward, done, _ = env_oak_mem.step((1, 0))
@@ -262,6 +267,7 @@ class TestCode(unittest.TestCase):
         # LSTM memory.
         # After turning 4 times, obs4 needs to be equal to the obs1.
         learning_setting['memory_type'] = 5
+        learning_setting['intrinsic_enabled'] = False
         env_lstm_mem = EnvMinigrid.MinigridEnv(**learning_setting)
         obs0 = env_lstm_mem.reset(seed=0)
         obs1, reward, done, _ = env_lstm_mem.step(0)

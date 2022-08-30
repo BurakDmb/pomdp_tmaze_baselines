@@ -153,6 +153,9 @@ class MinigridEnv(gym.Env):
             self.external_memory = np.zeros(
                 self.obs_number_of_dimension - self.obs_single_size,
                 dtype=np.float32)
+            self.external_memory_recons_losses = np.zeros(
+                self.memory_length,
+                dtype=np.float32)
             self.high = np.full(
                 self.obs_number_of_dimension, 1.0,
                 dtype=np.float32)
@@ -184,6 +187,10 @@ class MinigridEnv(gym.Env):
                 self.obs_number_of_dimension -
                 self.obs_single_size, dtype=np.float32)
 
+            self.external_memory_recons_losses = np.zeros(
+                self.memory_length,
+                dtype=np.float32)
+
             self.high = np.full(
                 self.obs_number_of_dimension, 1.0,
                 dtype=np.float32)
@@ -210,9 +217,12 @@ class MinigridEnv(gym.Env):
         self.observation_valid = False
         self.step_count = 0
 
+    # This function gets the current observation.
+    # In addition, it calculates the reconstruction loss if ae is enabled.
+    # If AE is disabled, then reconstruction loss is zero.
     def _get_observation(self, ):
         if self.observation_valid:
-            return self.observation
+            return self.observation, self.last_recons_loss
         else:
             if self.ae_enabled:
                 observation = np.zeros(
@@ -224,7 +234,22 @@ class MinigridEnv(gym.Env):
 
                 observation_ae = observation_ae[None, :]
 
-                _, observation_ = self.get_ae_result(observation_ae)
+                recons_obs, observation_ = self.get_ae_result(observation_ae)
+
+                # Calculate reconstruction loss (MAE or MSE)
+                # with autoencoders. Default is MSE.
+                if self.ae_rcons_err_type == "MAE":
+                    recons_loss = (np.abs(
+                        observation_ae - recons_obs)).sum()
+                else:
+                    recons_loss = ((
+                        observation_ae - recons_obs)**2).sum()
+                # Normalizing the loss with the maximum loss(each rgb pixel
+                # density is totally different, error is 1,
+                # and total of 1*input_dims*input_dims*in_channels
+                # Loss is in range (0, 1)
+                recons_loss = recons_loss / (
+                    1*input_dims*input_dims*in_channels)
 
                 observation_latent = observation_.cpu().numpy().transpose()
                 observation[:self.obs_single_size] = observation_latent[:, 0]
@@ -240,10 +265,12 @@ class MinigridEnv(gym.Env):
                 # CxHxW with [0, 255] uint8
                 observation = observation_ae.cpu().numpy()
                 observation_ae_img.close()
+                recons_loss = 0.0
 
             self.observation = observation
             self.observation_valid = True
-            return self.observation
+            self.last_recons_loss = recons_loss
+            return self.observation, self.last_recons_loss
 
     def add_observation_to_memory(self, memoryAction, action):
         # The memory update strategy could be changed, for now, it is set to
@@ -263,7 +290,8 @@ class MinigridEnv(gym.Env):
             int_list = list(map(int, [char for char in string_binary][2:]))
             if len(int_list) < self.memory_length:
                 int_list = [0]*(self.memory_length - len(int_list)) + int_list
-            if self.external_memory != np.array(int_list, dtype=np.float32):
+            if (self.external_memory != np.array(
+                    int_list, dtype=np.float32)).any():
                 self.memory_change_counter += 1
             self.external_memory = np.array(int_list, dtype=np.float32)
         else:
@@ -274,25 +302,35 @@ class MinigridEnv(gym.Env):
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
                 self.external_memory[0:self.mem_single_size] = \
-                    self._get_observation()[:self.obs_single_size]
+                    self._get_observation()[0][:self.obs_single_size]
 
             # Memory type 3 = Ok
             elif self.memory_type == 3 and memoryAction == 1:
                 self.memory_change_counter += 1
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
+                self.external_memory_recons_losses = np.roll(
+                    self.external_memory_recons_losses, 1)
+
+                observation, recons_loss = self._get_observation()
                 self.external_memory[0:self.mem_single_size] = \
-                    self._get_observation()[:self.obs_single_size]
+                    observation[:self.obs_single_size]
+                self.external_memory_recons_losses[0] = recons_loss
 
             # Memory type 4 = OAk
             elif self.memory_type == 4 and memoryAction == 1:
                 self.memory_change_counter += 1
                 self.external_memory = np.roll(
                     self.external_memory, self.mem_single_size)
+                self.external_memory_recons_losses = np.roll(
+                    self.external_memory_recons_losses, 1)
+
+                observation, recons_loss = self._get_observation()
                 self.external_memory[0:self.mem_single_size] = \
                     np.append(
-                        self._get_observation()[:self.obs_single_size],
+                        observation[:self.obs_single_size],
                         [action])
+                self.external_memory_recons_losses[0] = recons_loss
             self.observation_valid = False
 
     def step(self, action):
@@ -340,6 +378,7 @@ class MinigridEnv(gym.Env):
                 # PIL images in shape of (H x W x C), range [0, 255] to a
                 # uint8 tensor of shape (C x H x W) in the range [0, 255]
                 with torch.no_grad():
+                    """
                     observation_ae_img = Image.fromarray(new_state)
                     observation_ae = self.transforms_ae(
                         observation_ae_img)
@@ -355,6 +394,7 @@ class MinigridEnv(gym.Env):
                     new_state_orig_tmp = self.transforms_ae(
                         new_state_img).cpu().numpy()
                     new_state_img.close()
+
                     # Calculate reconstruction loss (MAE or MSE)
                     # with autoencoders. Default is MSE.
                     if self.ae_rcons_err_type == "MAE":
@@ -401,6 +441,9 @@ class MinigridEnv(gym.Env):
                     # between common and uncommon observations is small,
                     # a scaling operation could be useful to get more
                     # distinct and useful intrinsic rewards.
+                    """
+                    intrinsic_reward = ((np.mean(
+                        self.external_memory_recons_losses)) - 1)
 
                     # Higher loss leads to higher positive reward.
                     # Intrinsic motivation is multiplied with intrinsic beta
@@ -422,7 +465,7 @@ class MinigridEnv(gym.Env):
         self.episode_reward += reward
 
         self.observation_valid = False
-        return self._get_observation(), reward, done, {
+        return self._get_observation()[0], reward, done, {
             'success': success, 'is_success': bool(success),
             'memory_change_counter': self.memory_change_counter}
 
@@ -461,7 +504,7 @@ class MinigridEnv(gym.Env):
         self.step_count = 0
         self.memory_change_counter = 0
         self.observation_valid = False
-        return self._get_observation()
+        return self._get_observation()[0]
 
     def get_ae_result(self, tensor_data):
         if self.ae_shared:
@@ -469,8 +512,11 @@ class MinigridEnv(gym.Env):
             comm_variable = self.ae_comm_list[self.env_id]
             comm_variable[0].put(data)
             (obs_, latent_) = comm_variable[1].get()
-            obs = torch.tensor(obs_, dtype=torch.float32)
-            latent = torch.tensor(latent_, dtype=torch.float32)
+            obs = torch.tensor(
+                obs_, dtype=torch.float32, requires_grad=False)
+            latent = torch.tensor(
+                latent_, dtype=torch.float32, requires_grad=False)
         else:
-            obs, latent = self.ae_model(tensor_data)
+            with torch.no_grad():
+                obs, latent = self.ae_model(tensor_data)
         return obs, latent
