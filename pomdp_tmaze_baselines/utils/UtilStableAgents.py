@@ -98,6 +98,7 @@ def train_dqn_agent(learning_setting):
         dqn_learning_setting['intrinsic_enabled'] = False
         dqn_learning_setting['intrinsic_beta'] = 0.01
         dqn_learning_setting['ae_enabled'] = True
+        dqn_learning_setting['ae_integer'] = False
         dqn_learning_setting['ae_shared'] = False
         dqn_learning_setting['ae_comm_list'] = comm_list['dqn-tmazev0']
         dqn_learning_setting['ae_path'] = "models/ae.torch"
@@ -207,6 +208,7 @@ def train_ppo_agent(learning_setting):
         ppo_learning_setting['intrinsic_enabled'] = False
         ppo_learning_setting['intrinsic_beta'] = 0.01
         ppo_learning_setting['ae_enabled'] = True
+        ppo_learning_setting['ae_integer'] = False
         ppo_learning_setting['ae_shared'] = False
         ppo_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppo_learning_setting['ae_path'] = "models/ae.torch"
@@ -309,6 +311,7 @@ def train_a2c_agent(learning_setting):
         a2c_learning_setting['intrinsic_enabled'] = False
         a2c_learning_setting['intrinsic_beta'] = 0.01
         a2c_learning_setting['ae_enabled'] = True
+        a2c_learning_setting['ae_integer'] = False
         a2c_learning_setting['ae_shared'] = False
         a2c_learning_setting['ae_comm_list'] = comm_list['a2c-tmazev0']
         a2c_learning_setting['ae_path'] = "models/ae.torch"
@@ -412,6 +415,7 @@ def train_ppo_lstm_agent(learning_setting):
         ppolstm_learning_setting['intrinsic_enabled'] = False
         ppolstm_learning_setting['intrinsic_beta'] = 0.01
         ppolstm_learning_setting['ae_enabled'] = True
+        ppolstm_learning_setting['ae_integer'] = False
         ppolstm_learning_setting['ae_shared'] = False
         ppolstm_learning_setting['ae_comm_list'] = comm_list['ppo-tmazev0']
         ppolstm_learning_setting['ae_path'] = "models/ae.torch"

@@ -38,6 +38,7 @@ class MinigridEnv(gym.Env):
         self.intrinsic_beta = kwargs.get('intrinsic_beta', 0.1)
 
         self.ae_enabled = kwargs.get('ae_enabled', False)
+        self.ae_integer = kwargs.get('ae_integer', False)
         self.ae_shared = kwargs.get('ae_shared', False)
         self.ae_path = kwargs.get('ae_path', None)
         self.ae_rcons_err_type = kwargs.get('ae_rcons_err_type', "MSE")
@@ -83,34 +84,42 @@ class MinigridEnv(gym.Env):
         # Memory type 0 = None
         if self.memory_type == 0 and self.ae_enabled:
 
-            self.obs_number_of_dimension = latent_dims
-            self.obs_single_size = latent_dims
-            self.action_space = spaces.Discrete(3)
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                self.obs_number_of_dimension = latent_dims
+                self.obs_single_size = latent_dims
+                self.action_space = spaces.Discrete(3)
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ),
+                    dtype=np.float32)
 
         # Memory type 1 = Kk
         # LastK memory, it automatically keeps track of lastK
         # observation and adds to its memory.
         elif self.memory_type == 1 and self.ae_enabled:
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                self.obs_single_size = latent_dims
+                self.mem_single_size = self.obs_single_size
+                self.obs_number_of_dimension = (self.obs_single_size +
+                                                self.mem_single_size *
+                                                self.memory_length)
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension -
+                    self.obs_single_size, dtype=np.float32)
 
-            self.obs_single_size = latent_dims
-            self.mem_single_size = self.obs_single_size
-            self.obs_number_of_dimension = (self.obs_single_size +
-                                            self.mem_single_size *
-                                            self.memory_length)
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension -
-                self.obs_single_size, dtype=np.float32)
-
-            self.high = np.full(self.obs_number_of_dimension, 1)
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
-            self.action_space = self.action_space
+                self.high = np.full(self.obs_number_of_dimension, 1)
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+                self.action_space = self.action_space
 
         # Memory type 2 = Bk
         # Binary memory, an external memory will hold k bits,
@@ -118,100 +127,116 @@ class MinigridEnv(gym.Env):
         # External memory can hold values from 0 to 2^k -1 with k bits.
         # Actions: L-R-F cross 2^k. Ex: (0  0), (0  2^k-1), (2  0), (1  2^k-1)
         elif self.memory_type == 2 and self.ae_enabled:
-            self.obs_single_size = latent_dims
-            self.mem_single_size = 1
-            # Actions are defined n e s w, add observation to the memory.
-            self.obs_number_of_dimension = (self.obs_single_size +
-                                            self.mem_single_size *
-                                            self.memory_length)
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                self.obs_single_size = latent_dims
+                self.mem_single_size = 1
+                # Actions are defined n e s w, add observation to the memory.
+                self.obs_number_of_dimension = (self.obs_single_size +
+                                                self.mem_single_size *
+                                                self.memory_length)
 
-            self.high = np.full(
-                self.obs_number_of_dimension, 1, dtype=np.float32)
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+                self.high = np.full(
+                    self.obs_number_of_dimension, 1, dtype=np.float32)
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
-            self.action_space = spaces.MultiDiscrete(
-                [3, 2**self.memory_length])
-            # self.action_space = spaces.Discrete(
-            #     self.action_space.n * (2**self.memory_length))
-            self.external_memory = np.zeros(
-                self.memory_length, dtype=np.float32)
+                self.action_space = spaces.MultiDiscrete(
+                    [3, 2**self.memory_length])
+                # self.action_space = spaces.Discrete(
+                #     self.action_space.n * (2**self.memory_length))
+                self.external_memory = np.zeros(
+                    self.memory_length, dtype=np.float32)
 
         # Memory type 3 = Ok
         # Observation-k memory, an external memory will hold k observation,
         # Actions: L-R-F cross memory actions ( add obs, clear obs, NOOP)
         elif self.memory_type == 3 and self.ae_enabled:
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
 
-            self.obs_single_size = latent_dims
-            self.mem_single_size = self.obs_single_size
+                self.obs_single_size = latent_dims
+                self.mem_single_size = self.obs_single_size
 
-            self.obs_number_of_dimension = (self.obs_single_size +
-                                            self.mem_single_size *
-                                            self.memory_length)
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension - self.obs_single_size,
-                dtype=np.float32)
-            self.external_memory_recons_losses = np.zeros(
-                self.memory_length,
-                dtype=np.float32)
-            self.high = np.full(
-                self.obs_number_of_dimension, 1.0,
-                dtype=np.float32)
+                self.obs_number_of_dimension = (self.obs_single_size +
+                                                self.mem_single_size *
+                                                self.memory_length)
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension - self.obs_single_size,
+                    dtype=np.float32)
+                self.external_memory_recons_losses = np.zeros(
+                    self.memory_length,
+                    dtype=np.float32)
+                self.high = np.full(
+                    self.obs_number_of_dimension, 1.0,
+                    dtype=np.float32)
 
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
-            # self.action_space = spaces.Discrete(self.action_space.n * 2)
-            self.action_space = spaces.MultiDiscrete(
-                [3, 2])
+                # self.action_space = spaces.Discrete(self.action_space.n * 2)
+                self.action_space = spaces.MultiDiscrete(
+                    [3, 2])
 
         # Memory type 4 = OAk
         # ObservationAction-k memory, an external memory will hold
         # k observation-action pair,
         # Actions: L-R-F cross memory actions ( add obs, clear obs, NOOP)
         elif self.memory_type == 4 and self.ae_enabled:
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
 
-            self.obs_single_size = latent_dims
-            self.act_single_size = 1
-            self.mem_single_size = (
-                self.obs_single_size + self.act_single_size)
+                self.obs_single_size = latent_dims
+                self.act_single_size = 1
+                self.mem_single_size = (
+                    self.obs_single_size + self.act_single_size)
 
-            self.obs_number_of_dimension = (self.obs_single_size +
-                                            self.mem_single_size *
-                                            self.memory_length)
-            self.external_memory = np.zeros(
-                self.obs_number_of_dimension -
-                self.obs_single_size, dtype=np.float32)
+                self.obs_number_of_dimension = (self.obs_single_size +
+                                                self.mem_single_size *
+                                                self.memory_length)
+                self.external_memory = np.zeros(
+                    self.obs_number_of_dimension -
+                    self.obs_single_size, dtype=np.float32)
 
-            self.external_memory_recons_losses = np.zeros(
-                self.memory_length,
-                dtype=np.float32)
+                self.external_memory_recons_losses = np.zeros(
+                    self.memory_length,
+                    dtype=np.float32)
 
-            self.high = np.full(
-                self.obs_number_of_dimension, 1.0,
-                dtype=np.float32)
+                self.high = np.full(
+                    self.obs_number_of_dimension, 1.0,
+                    dtype=np.float32)
 
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
-            # self.action_space = spaces.Discrete(self.action_space.n * 2)
-            self.action_space = spaces.MultiDiscrete(
-                [3, 2])
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+                # self.action_space = spaces.Discrete(self.action_space.n * 2)
+                self.action_space = spaces.MultiDiscrete(
+                    [3, 2])
 
         # Memory type 5 = None (For LSTM)
         elif self.memory_type == 5 and self.ae_enabled:
-            self.obs_number_of_dimension = latent_dims
-            self.obs_single_size = latent_dims
-            self.action_space = spaces.Discrete(3)
-            self.observation_space = gym.spaces.Box(
-                low=-1,
-                high=1,
-                shape=(self.obs_number_of_dimension, ), dtype=np.float32)
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                self.obs_number_of_dimension = latent_dims
+                self.obs_single_size = latent_dims
+                self.action_space = spaces.Discrete(3)
+                self.observation_space = gym.spaces.Box(
+                    low=-1,
+                    high=1,
+                    shape=(self.obs_number_of_dimension, ), dtype=np.float32)
 
         self.observation = self.observation_space.sample()
         self.observation_valid = False
@@ -225,8 +250,12 @@ class MinigridEnv(gym.Env):
             return self.observation, self.last_recons_loss
         else:
             if self.ae_enabled:
-                observation = np.zeros(
-                    self.obs_number_of_dimension, dtype=np.float32)
+                if self.ae_integer:
+                    # TODO
+                    pass
+                else:
+                    observation = np.zeros(
+                        self.obs_number_of_dimension, dtype=np.float32)
                 observation_ae_img = Image.fromarray(self.current_state)
                 if self.transforms is not None:
                     observation_ae = self.transforms_ae(
@@ -472,27 +501,31 @@ class MinigridEnv(gym.Env):
     def reset(self, seed=None):
         # Memory type 1 = Kk
         if self.ae_enabled:
-            if self.memory_type == 1:
-                self.external_memory = np.zeros(
-                    self.obs_number_of_dimension -
-                    self.obs_single_size, dtype=np.float32)
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                if self.memory_type == 1:
+                    self.external_memory = np.zeros(
+                        self.obs_number_of_dimension -
+                        self.obs_single_size, dtype=np.float32)
 
-            # Memory type 2 = Bk
-            elif self.memory_type == 2:
-                self.external_memory = np.zeros(
-                    self.memory_length, dtype=np.float32)
+                # Memory type 2 = Bk
+                elif self.memory_type == 2:
+                    self.external_memory = np.zeros(
+                        self.memory_length, dtype=np.float32)
 
-            # Memory type 3 = Ok
-            elif self.memory_type == 3:
-                self.external_memory = np.zeros(
-                    self.obs_number_of_dimension - self.obs_single_size,
-                    dtype=np.float32)
+                # Memory type 3 = Ok
+                elif self.memory_type == 3:
+                    self.external_memory = np.zeros(
+                        self.obs_number_of_dimension - self.obs_single_size,
+                        dtype=np.float32)
 
-            # Memory type 4 = OAk
-            elif self.memory_type == 4:
-                self.external_memory = np.zeros(
-                    self.obs_number_of_dimension -
-                    self.obs_single_size, dtype=np.float32)
+                # Memory type 4 = OAk
+                elif self.memory_type == 4:
+                    self.external_memory = np.zeros(
+                        self.obs_number_of_dimension -
+                        self.obs_single_size, dtype=np.float32)
 
         obs = self.env.reset(seed=seed)
         self.current_state = obs
@@ -508,15 +541,23 @@ class MinigridEnv(gym.Env):
 
     def get_ae_result(self, tensor_data):
         if self.ae_shared:
-            data = tensor_data.cpu().numpy()
-            comm_variable = self.ae_comm_list[self.env_id]
-            comm_variable[0].put(data)
-            (obs_, latent_) = comm_variable[1].get()
-            obs = torch.tensor(
-                obs_, dtype=torch.float32, requires_grad=False)
-            latent = torch.tensor(
-                latent_, dtype=torch.float32, requires_grad=False)
+            if self.ae_integer:
+                # TODO
+                pass
+            else:
+                data = tensor_data.cpu().numpy()
+                comm_variable = self.ae_comm_list[self.env_id]
+                comm_variable[0].put(data)
+                (obs_, latent_) = comm_variable[1].get()
+                obs = torch.tensor(
+                    obs_, dtype=torch.float32, requires_grad=False)
+                latent = torch.tensor(
+                    latent_, dtype=torch.float32, requires_grad=False)
         else:
             with torch.no_grad():
                 obs, latent = self.ae_model(tensor_data)
+                if self.ae_integer:
+                    # TODO
+                    pass
+
         return obs, latent

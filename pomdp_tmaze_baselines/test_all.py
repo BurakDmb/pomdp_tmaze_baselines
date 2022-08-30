@@ -26,6 +26,7 @@ class TestCode(unittest.TestCase):
         learning_setting['intrinsic_enabled'] = True
         learning_setting['intrinsic_beta'] = 0.1
         learning_setting['ae_enabled'] = True
+        learning_setting['ae_integer'] = False
         learning_setting['ae_shared'] = False
         learning_setting['ae_path'] = "models/ae.torch"
         learning_setting['ae_rcons_err_type'] = "MSE"
@@ -92,6 +93,7 @@ class TestCode(unittest.TestCase):
         learning_setting['intrinsic_enabled'] = True
         learning_setting['intrinsic_beta'] = 0.1
         learning_setting['ae_enabled'] = True
+        learning_setting['ae_integer'] = False
         learning_setting['ae_shared'] = False
         learning_setting['ae_path'] = "models/ae.torch"
         learning_setting['ae_rcons_err_type'] = "MSE"
@@ -322,6 +324,7 @@ class TestCode(unittest.TestCase):
         learning_setting['intrinsic_enabled'] = True
         learning_setting['intrinsic_beta'] = 0.1
         learning_setting['ae_enabled'] = True
+        learning_setting['ae_integer'] = False
         learning_setting['ae_shared'] = False
         learning_setting['ae_path'] = "models/ae.torch"
         learning_setting['ae_rcons_err_type'] = "MSE"
@@ -370,6 +373,7 @@ class TestCode(unittest.TestCase):
         learning_setting['intrinsic_enabled'] = False
         learning_setting['intrinsic_beta'] = 0.01
         learning_setting['ae_enabled'] = False
+        learning_setting['ae_integer'] = False
         learning_setting['ae_path'] = "models/ae.torch"
         learning_setting['ae_rcons_err_type'] = "MSE"
         learning_setting['eval_enabled'] = False
