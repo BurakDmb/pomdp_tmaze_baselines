@@ -17,6 +17,8 @@ latent_dims = 128
 in_channels = 3
 hidden_size = 128
 action_dim = 3
+min_ae_loss_value = 0.0
+max_ae_loss_value = 0.15
 # batch_size = 8192
 # epochs = 50
 # train_set_ratio = 0.8
@@ -273,6 +275,7 @@ class MinigridEnv(gym.Env):
 
         self.observation = self.observation_space.sample()
         self.observation_valid = False
+        self.last_recons_loss = 0
         self.step_count = 0
 
     # This function gets the current observation.
@@ -504,8 +507,15 @@ class MinigridEnv(gym.Env):
                     # a scaling operation could be useful to get more
                     # distinct and useful intrinsic rewards.
                     """
+                    # intrinsic_reward = ((np.mean(
+                    #     self.external_memory_recons_losses)) - 1)
+
+                    normalized_recons_loss = (
+                        self.external_memory_recons_losses -
+                        min_ae_loss_value) / (
+                        max_ae_loss_value - min_ae_loss_value)
                     intrinsic_reward = ((np.mean(
-                        self.external_memory_recons_losses)) - 1)
+                        normalized_recons_loss)) - 1)
 
                     # Higher loss leads to higher positive reward.
                     # Intrinsic motivation is multiplied with intrinsic beta
@@ -550,12 +560,18 @@ class MinigridEnv(gym.Env):
                     self.external_memory = np.zeros(
                         self.obs_number_of_dimension - self.obs_single_size,
                         dtype=np.int32)
+                    self.external_memory_recons_losses = np.zeros(
+                        self.memory_length,
+                        dtype=np.float32)
 
                 # Memory type 4 = OAk
                 elif self.memory_type == 4:
                     self.external_memory = np.zeros(
                         self.obs_number_of_dimension -
                         self.obs_single_size, dtype=np.int32)
+                    self.external_memory_recons_losses = np.zeros(
+                        self.memory_length,
+                        dtype=np.float32)
 
             else:
                 # Memory type 1 = Kk
@@ -603,7 +619,8 @@ class MinigridEnv(gym.Env):
                 obs_, dtype=torch.float32, requires_grad=False)
             latent = torch.tensor(
                 latent_, dtype=torch.float32, requires_grad=False)
-            latent = self.binarize_latent(latent)
+            if self.ae_integer:
+                latent = self.binarize_latent(latent)
         else:
             with torch.no_grad():
                 obs, latent = self.ae_model(tensor_data)

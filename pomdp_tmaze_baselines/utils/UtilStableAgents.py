@@ -13,7 +13,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.utils import compat_gym_seed
 from stable_baselines3.common.vec_env import (
     VecEnv, VecMonitor, is_vecenv_wrapped)
-import json
+import pickle
 
 
 def train_q_agent(learning_setting):
@@ -185,8 +185,8 @@ def train_dqn_agent(learning_setting):
     if learning_setting['save']:
         save_path = "saves/" + learning_setting['tb_log_name'] + "/"
         model.save(save_path + tb_log_name_)
-        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
-            params_file.write(json.dumps(learning_setting))
+        with open(save_path + tb_log_name_ + ".json", 'wb') as params_file:
+            pickle.dump(learning_setting, params_file)
 
     return model
 
@@ -289,8 +289,8 @@ def train_ppo_agent(learning_setting):
     if learning_setting['save']:
         save_path = "saves/" + learning_setting['tb_log_name'] + "/"
         model.save(save_path + tb_log_name_)
-        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
-            params_file.write(json.dumps(learning_setting))
+        with open(save_path + tb_log_name_ + ".json", 'wb') as params_file:
+            pickle.dump(learning_setting, params_file)
 
     return model
 
@@ -391,8 +391,8 @@ def train_a2c_agent(learning_setting):
     if learning_setting['save']:
         save_path = "saves/" + learning_setting['tb_log_name'] + "/"
         model.save(save_path + tb_log_name_)
-        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
-            params_file.write(json.dumps(learning_setting))
+        with open(save_path + tb_log_name_ + ".json", 'wb') as params_file:
+            pickle.dump(learning_setting, params_file)
 
     return model
 
@@ -503,8 +503,8 @@ def train_ppo_lstm_agent(learning_setting):
     if learning_setting['save']:
         save_path = "saves/" + learning_setting['tb_log_name'] + "/"
         model.save(save_path + tb_log_name_)
-        with open(save_path + tb_log_name_ + ".json", 'w') as params_file:
-            params_file.write(json.dumps(learning_setting))
+        with open(save_path + tb_log_name_ + ".json", 'wb') as params_file:
+            pickle.dump(learning_setting, params_file)
 
     return model
 
