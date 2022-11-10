@@ -21,6 +21,7 @@ class ConvBinaryAutoencoder(nn.Module):
         self.conv_hidden_size = kwargs.get('conv_hidden_size', 128)
         self.conv1_stride = kwargs.get('conv1_stride', 1)
         self.maxpool_stride = kwargs.get('maxpool_stride', 1)
+        self.verbose = kwargs.get('verbose', False)
 
         self.encoder = EncoderConv(
             input_dims, latent_dims, hidden_size, in_channels,
@@ -30,7 +31,8 @@ class ConvBinaryAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
-        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+        if self.verbose:
+            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
         # Creating a uniform random variable with U(-0.3, 0.3)
@@ -51,6 +53,7 @@ class ConvAutoencoder(nn.Module):
         self.conv_hidden_size = kwargs.get('conv_hidden_size', 128)
         self.conv1_stride = kwargs.get('conv1_stride', 1)
         self.maxpool_stride = kwargs.get('maxpool_stride', 1)
+        self.verbose = kwargs.get('verbose', False)
 
         self.encoder = EncoderConv(
             input_dims, latent_dims, hidden_size, in_channels,
@@ -60,7 +63,8 @@ class ConvAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
-        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+        if self.verbose:
+            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -80,6 +84,7 @@ class ConvVariationalAutoencoder(nn.Module):
         self.conv_hidden_size = kwargs.get('conv_hidden_size', 128)
         self.conv1_stride = kwargs.get('conv1_stride', 1)
         self.maxpool_stride = kwargs.get('maxpool_stride', 1)
+        self.verbose = kwargs.get('verbose', False)
 
         self.encoder = VariationalEncoderConv(
             input_dims, latent_dims, hidden_size, in_channels,
@@ -89,7 +94,8 @@ class ConvVariationalAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
-        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+        if self.verbose:
+            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -194,6 +200,7 @@ class Autoencoder(nn.Module):
         self.conv_hidden_size = kwargs.get('conv_hidden_size', 128)
         self.conv1_stride = kwargs.get('conv1_stride', 1)
         self.maxpool_stride = kwargs.get('maxpool_stride', 1)
+        self.verbose = kwargs.get('verbose', False)
 
         self.encoder = Encoder(
             input_dims, latent_dims, hidden_size, in_channels,
@@ -203,7 +210,8 @@ class Autoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
-        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+        if self.verbose:
+            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -266,6 +274,7 @@ class VariationalAutoencoder(nn.Module):
         self.conv_hidden_size = kwargs.get('conv_hidden_size', 128)
         self.conv1_stride = kwargs.get('conv1_stride', 1)
         self.maxpool_stride = kwargs.get('maxpool_stride', 1)
+        self.verbose = kwargs.get('verbose', False)
 
         self.encoder = VariationalEncoder(
             input_dims, latent_dims, hidden_size, in_channels,
@@ -275,7 +284,8 @@ class VariationalAutoencoder(nn.Module):
             input_dims, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
-        summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+        if self.verbose:
+            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
         # z = torch.empty((batch_size, latent_dims))
 
     def forward(self, x):
@@ -379,20 +389,20 @@ if __name__ == "__main__":
     ae1 = Autoencoder(
         input_dims=48, latent_dims=10,
         hidden_size=128, in_channels=3,
-        conv_hidden_size=128)
+        conv_hidden_size=128, verbose=True)
     ae2 = VariationalAutoencoder(
         input_dims=48, latent_dims=10,
         hidden_size=128, in_channels=3,
-        conv_hidden_size=128)
+        conv_hidden_size=128, verbose=True)
     ae3 = ConvAutoencoder(
         input_dims=48, latent_dims=10,
         hidden_size=128, in_channels=3,
-        conv_hidden_size=128)
+        conv_hidden_size=128, verbose=True)
     ae4 = ConvVariationalAutoencoder(
         input_dims=48, latent_dims=10,
         hidden_size=128, in_channels=3,
-        conv_hidden_size=128)
+        conv_hidden_size=128, verbose=True)
     ae5 = ConvBinaryAutoencoder(
         input_dims=48, latent_dims=10,
         hidden_size=128, in_channels=3,
-        conv_hidden_size=128)
+        conv_hidden_size=128, verbose=True)
