@@ -5,13 +5,16 @@ from torchsummary import summary
 
 
 # k: kernel_size, p: padding, s: stride, d: dilation.
-def conv_shape(x, k=1, p=0, s=1, d=1):
-    return int((x + 2*p - d*(k - 1) - 1)/s + 1)
+def conv_shape(h_in, w_in, k=1, p=0, s=1, d=1):
+    h_out = int((h_in + 2*p - d*(k - 1) - 1)/s + 1)
+    w_out = int((w_in + 2*p - d*(k - 1) - 1)/s + 1)
+    return h_out, w_out
 
 
 class ConvBinaryAutoencoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels, **kwargs):
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels, **kwargs):
         super(ConvBinaryAutoencoder, self).__init__()
 
         self.latent_dims = latent_dims
@@ -24,15 +27,15 @@ class ConvBinaryAutoencoder(nn.Module):
         self.verbose = kwargs.get('verbose', False)
 
         self.encoder = EncoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         self.decoder = DecoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         if self.verbose:
-            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+            summary(self.to("cuda"), (in_channels, input_dims_h, input_dims_w))
 
     def forward(self, x):
         # Creating a uniform random variable with U(-0.3, 0.3)
@@ -44,7 +47,8 @@ class ConvBinaryAutoencoder(nn.Module):
 
 class ConvAutoencoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels, **kwargs):
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels, **kwargs):
         super(ConvAutoencoder, self).__init__()
 
         self.kernel_size = kwargs.get('kernel_size', 7)
@@ -56,15 +60,15 @@ class ConvAutoencoder(nn.Module):
         self.verbose = kwargs.get('verbose', False)
 
         self.encoder = EncoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         self.decoder = DecoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         if self.verbose:
-            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+            summary(self.to("cuda"), (in_channels, input_dims_h, input_dims_w))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -74,7 +78,8 @@ class ConvAutoencoder(nn.Module):
 
 class ConvVariationalAutoencoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             **kwargs):
         super(ConvVariationalAutoencoder, self).__init__()
 
@@ -87,15 +92,15 @@ class ConvVariationalAutoencoder(nn.Module):
         self.verbose = kwargs.get('verbose', False)
 
         self.encoder = VariationalEncoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         self.decoder = DecoderConv(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         if self.verbose:
-            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+            summary(self.to("cuda"), (in_channels, input_dims_h, input_dims_w))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -106,22 +111,28 @@ class ConvVariationalAutoencoder(nn.Module):
 # Source: https://avandekleut.github.io/vae/
 class EncoderConv(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(EncoderConv, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
         # Conv hidden size is the conv channel hidden channel size.
         self.conv_hidden_size = conv_hidden_size
 
-        self.shape2d_1 = conv_shape(
-            self.input_dims, k=kernel_size,
-            p=padding, s=conv1_stride, d=dilation)
-        self.shape2d_2 = conv_shape(
-            self.shape2d_1, k=kernel_size,
+        self.shape2d_1_h_out, self.shape2d_1_w_out = conv_shape(
+            self.input_dims_h, self.input_dims_w,
+            k=kernel_size,
             p=padding, s=conv1_stride, d=dilation)
 
-        self.flatten_size = in_channels*self.shape2d_2*self.shape2d_2
+        self.shape2d_2_h_out, self.shape2d_2_w_out = conv_shape(
+            self.shape2d_1_h_out, self.shape2d_1_w_out,
+            k=kernel_size,
+            p=padding, s=conv1_stride, d=dilation)
+
+        self.flatten_size = (
+            in_channels*self.shape2d_2_h_out*self.shape2d_2_w_out)
 
         # encoder
         self.enc2d_1 = nn.Conv2d(
@@ -146,26 +157,30 @@ class EncoderConv(nn.Module):
 
 class DecoderConv(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(DecoderConv, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
         self.hidden_size = hidden_size
         self.in_channels = in_channels
 
         # Conv hidden size is the conv channel hidden channel size.
         self.conv_hidden_size = conv_hidden_size
 
-        #
-        self.shape2d_1 = conv_shape(
-            self.input_dims, k=kernel_size,
+        self.shape2d_1_h_out, self.shape2d_1_w_out = conv_shape(
+            self.input_dims_h, self.input_dims_w,
+            k=kernel_size,
             p=padding, s=conv1_stride, d=dilation)
-        self.shape2d_2 = conv_shape(
-            self.shape2d_1, k=kernel_size,
+        self.shape2d_2_h_out, self.shape2d_2_w_out = conv_shape(
+            self.shape2d_1_h_out, self.shape2d_1_w_out,
+            k=kernel_size,
             p=padding, s=conv1_stride, d=dilation)
 
-        self.flatten_size = in_channels*self.shape2d_2*self.shape2d_2
+        self.flatten_size = (
+            in_channels*self.shape2d_2_h_out*self.shape2d_2_w_out)
 
         # decode
         self.linear1 = nn.Linear(latent_dims, hidden_size)
@@ -182,7 +197,8 @@ class DecoderConv(nn.Module):
 
         z = F.relu(self.linear1(z))
         z = F.relu(self.linear2(z))
-        z = z.unflatten(1, (self.in_channels, self.shape2d_2, self.shape2d_2))
+        z = z.unflatten(1, (
+            self.in_channels, self.shape2d_2_h_out, self.shape2d_2_w_out))
         z = F.relu(self.dec2d_1(z))
         z = torch.sigmoid(self.dec2d_2(z))
         return z
@@ -190,7 +206,8 @@ class DecoderConv(nn.Module):
 
 class Autoencoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             **kwargs):
         super(Autoencoder, self).__init__()
 
@@ -203,15 +220,15 @@ class Autoencoder(nn.Module):
         self.verbose = kwargs.get('verbose', False)
 
         self.encoder = Encoder(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         self.decoder = Decoder(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         if self.verbose:
-            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+            summary(self.to("cuda"), (in_channels, input_dims_h, input_dims_w))
 
     def forward(self, x):
         z = self.encoder(x)
@@ -222,15 +239,17 @@ class Autoencoder(nn.Module):
 # Source: https://avandekleut.github.io/vae/
 class Encoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(Encoder, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
 
         # Linear Layers
         self.linear1 = nn.Linear(
-            input_dims*input_dims*in_channels, hidden_size)
+            input_dims_h*input_dims_w*in_channels, hidden_size)
         self.linear2 = nn.Linear(hidden_size, latent_dims)
 
     def forward(self, x_in):
@@ -242,29 +261,32 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(Decoder, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
         self.hidden_size = hidden_size
         self.in_channels = in_channels
 
         self.linear1 = nn.Linear(latent_dims, hidden_size)
         self.linear2 = nn.Linear(
-            hidden_size, in_channels*input_dims*input_dims)
+            hidden_size, in_channels*input_dims_h*input_dims_w)
 
     def forward(self, z_in):
         z = F.relu(self.linear1(z_in))
         z = torch.sigmoid(self.linear2(z))
         z = z.unflatten(
-            1, (self.in_channels, self.input_dims, self.input_dims))
+            1, (self.in_channels, self.input_dims_h, self.input_dims_w))
         return z
 
 
 class VariationalAutoencoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             **kwargs):
         super(VariationalAutoencoder, self).__init__()
 
@@ -277,15 +299,15 @@ class VariationalAutoencoder(nn.Module):
         self.verbose = kwargs.get('verbose', False)
 
         self.encoder = VariationalEncoder(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         self.decoder = Decoder(
-            input_dims, latent_dims, hidden_size, in_channels,
+            input_dims_h, input_dims_w, latent_dims, hidden_size, in_channels,
             self.kernel_size, self.padding, self.dilation,
             self.conv_hidden_size, self.conv1_stride, self.maxpool_stride)
         if self.verbose:
-            summary(self.to("cuda"), (in_channels, input_dims, input_dims))
+            summary(self.to("cuda"), (in_channels, input_dims_h, input_dims_w))
         # z = torch.empty((batch_size, latent_dims))
 
     def forward(self, x):
@@ -296,16 +318,18 @@ class VariationalAutoencoder(nn.Module):
 
 class VariationalEncoder(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(VariationalEncoder, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
         self.in_channels = in_channels
 
         # Linear Layers
         self.linear1 = nn.Linear(
-            input_dims*input_dims*in_channels, hidden_size)
+            input_dims_h*input_dims_w*in_channels, hidden_size)
         self.linear2_mean = nn.Linear(hidden_size, latent_dims)
         self.linear2_variance = nn.Linear(hidden_size, latent_dims)
 
@@ -323,30 +347,35 @@ class VariationalEncoder(nn.Module):
         x = mu + sigma*self.N.sample(mu.shape)
         self.kl = (sigma**2 + mu**2 - torch.log(sigma) - 1/2).sum() / (
                 self.in_channels *
-                self.input_dims *
-                self.input_dims *
+                self.input_dims_h *
+                self.input_dims_w *
                 x.shape[0])
         return x
 
 
 class VariationalEncoderConv(nn.Module):
     def __init__(
-            self, input_dims, latent_dims, hidden_size, in_channels,
+            self, input_dims_h, input_dims_w,
+            latent_dims, hidden_size, in_channels,
             kernel_size, padding, dilation,
             conv_hidden_size, conv1_stride, maxpool_stride):
         super(VariationalEncoderConv, self).__init__()
-        self.input_dims = input_dims
+        self.input_dims_h = input_dims_h
+        self.input_dims_w = input_dims_w
         self.in_channels = in_channels
         self.conv_hidden_size = conv_hidden_size
 
-        self.shape2d_1 = conv_shape(
-            self.input_dims, k=kernel_size,
+        self.shape2d_1_h_out, self.shape2d_1_w_out = conv_shape(
+            self.input_dims_h, self.input_dims_w,
+            k=kernel_size,
             p=padding, s=conv1_stride, d=dilation)
-        self.shape2d_2 = conv_shape(
-            self.shape2d_1, k=kernel_size,
+        self.shape2d_2_h_out, self.shape2d_2_w_out = conv_shape(
+            self.shape2d_1_h_out, self.shape2d_1_w_out,
+            k=kernel_size,
             p=padding, s=conv1_stride, d=dilation)
 
-        self.flatten_size = in_channels*self.shape2d_2*self.shape2d_2
+        self.flatten_size = (
+            in_channels*self.shape2d_2_h_out*self.shape2d_2_w_out)
 
         # encoder
         self.enc2d_1 = nn.Conv2d(
@@ -378,8 +407,8 @@ class VariationalEncoderConv(nn.Module):
 
         self.kl = (sigma**2 + mu**2 - torch.log(sigma) - 1/2).sum() / (
                 self.in_channels *
-                self.input_dims *
-                self.input_dims *
+                self.input_dims_h *
+                self.input_dims_w *
                 x.shape[0])
         return x
 
@@ -387,22 +416,53 @@ class VariationalEncoderConv(nn.Module):
 if __name__ == "__main__":
     # Print summaries of autoencoders
     ae1 = Autoencoder(
-        input_dims=48, latent_dims=10,
+        input_dims_h=48, input_dims_w=48,
+        latent_dims=10,
         hidden_size=128, in_channels=3,
         conv_hidden_size=128, verbose=True)
     ae2 = VariationalAutoencoder(
-        input_dims=48, latent_dims=10,
+        input_dims_h=48, input_dims_w=48,
+        latent_dims=10,
         hidden_size=128, in_channels=3,
         conv_hidden_size=128, verbose=True)
     ae3 = ConvAutoencoder(
-        input_dims=48, latent_dims=10,
+        input_dims_h=48, input_dims_w=48,
+        latent_dims=10,
         hidden_size=128, in_channels=3,
         conv_hidden_size=128, verbose=True)
     ae4 = ConvVariationalAutoencoder(
-        input_dims=48, latent_dims=10,
+        input_dims_h=48, input_dims_w=48,
+        latent_dims=10,
         hidden_size=128, in_channels=3,
         conv_hidden_size=128, verbose=True)
     ae5 = ConvBinaryAutoencoder(
-        input_dims=48, latent_dims=10,
+        input_dims_h=48, input_dims_w=48,
+        latent_dims=10,
+        hidden_size=128, in_channels=3,
+        conv_hidden_size=128, verbose=True)
+    # Asymmetric input dimensions:
+    ae1 = Autoencoder(
+        input_dims_h=48, input_dims_w=48*3,
+        latent_dims=10,
+        hidden_size=128, in_channels=3,
+        conv_hidden_size=128, verbose=True)
+    ae2 = VariationalAutoencoder(
+        input_dims_h=48, input_dims_w=48*3,
+        latent_dims=10,
+        hidden_size=128, in_channels=3,
+        conv_hidden_size=128, verbose=True)
+    ae3 = ConvAutoencoder(
+        input_dims_h=48, input_dims_w=48*3,
+        latent_dims=10,
+        hidden_size=128, in_channels=3,
+        conv_hidden_size=128, verbose=True)
+    ae4 = ConvVariationalAutoencoder(
+        input_dims_h=48, input_dims_w=48*3,
+        latent_dims=10,
+        hidden_size=128, in_channels=3,
+        conv_hidden_size=128, verbose=True)
+    ae5 = ConvBinaryAutoencoder(
+        input_dims_h=48, input_dims_w=48*3,
+        latent_dims=10,
         hidden_size=128, in_channels=3,
         conv_hidden_size=128, verbose=True)
