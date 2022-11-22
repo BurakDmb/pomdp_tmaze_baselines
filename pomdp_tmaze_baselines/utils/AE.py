@@ -194,6 +194,10 @@ class DecoderConv(nn.Module):
             padding=padding, stride=conv1_stride, dilation=dilation)
 
     def forward(self, z):
+        # Code for backward compatibility.
+        if not hasattr(self, 'shape2d_2_h_out'):
+            self.shape2d_2_h_out = self.shape2d_2
+            self.shape2d_2_w_out = self.shape2d_2
 
         z = F.relu(self.linear1(z))
         z = F.relu(self.linear2(z))
