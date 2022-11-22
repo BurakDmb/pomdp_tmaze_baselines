@@ -276,6 +276,10 @@ class Decoder(nn.Module):
             hidden_size, in_channels*input_dims_h*input_dims_w)
 
     def forward(self, z_in):
+        # Code for backward compatibility.
+        if not hasattr(self, 'input_dims_h'):
+            self.input_dims_h = self.input_dims
+            self.input_dims_w = self.input_dims
         z = F.relu(self.linear1(z_in))
         z = torch.sigmoid(self.linear2(z))
         z = z.unflatten(
@@ -339,6 +343,10 @@ class VariationalEncoder(nn.Module):
         self.kl = 0
 
     def forward(self, x):
+        # Code for backward compatibility.
+        if not hasattr(self, 'input_dims_h'):
+            self.input_dims_h = self.input_dims
+            self.input_dims_w = self.input_dims
         x = torch.flatten(x, start_dim=1)
         x = F.relu(self.linear1(x))
         mu = self.linear2_mean(x)
@@ -395,6 +403,10 @@ class VariationalEncoderConv(nn.Module):
         self.kl = 0
 
     def forward(self, x):
+        # Code for backward compatibility.
+        if not hasattr(self, 'input_dims_h'):
+            self.input_dims_h = self.input_dims
+            self.input_dims_w = self.input_dims
         x = F.relu(self.enc2d_1(x))
         x = F.relu(self.enc2d_2(x))
 
