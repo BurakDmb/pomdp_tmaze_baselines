@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torchsummary import summary
+from torchinfo import summary
 
 
 # k: kernel_size, p: padding, s: stride, d: dilation.
